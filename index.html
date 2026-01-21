@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Literacy Assessment | Twilio</title>
+    <!-- Twilio Sans Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header__content">
+                <div>
+                    <h1 class="header__title">AI Literacy Assessment</h1>
+                    <p class="header__subtitle">Benchmark your readiness to lead and support AI-enabled teams</p>
+                </div>
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Welcome Screen -->
+            <section id="welcome-screen" class="screen screen--active">
+                <div class="welcome">
+                    <h2 class="welcome__title">Ready to get started?</h2>
+                    <p class="welcome__description">
+                        This assessment evaluates your readiness to lead AI-enabled teams across four key areas: 
+                        Delegation, Communication, Discernment, and Keeping it Twilio.
+                    </p>
+                    
+                    <div class="welcome__maturity-model">
+                        <h3 class="welcome__section-title">What to expect</h3>
+                        <ul class="welcome__list">
+                            <li>Complete 4 sections with 3-4 questions each</li>
+                            <li>Select the answer that best describes your current approach</li>
+                            <li>Receive personalized recommendations based on your responses</li>
+                            <li>Takes approximately 10-15 minutes to complete</li>
+                        </ul>
+                    </div>
+                    
+                    <button id="start-btn" class="btn btn--primary">Start Assessment</button>
+                </div>
+            </section>
+
+            <!-- Questionnaire Screen -->
+            <section id="questionnaire-screen" class="screen">
+                <div class="questionnaire">
+                    <!-- Progress Indicator -->
+                    <div class="progress">
+                        <div class="progress__header">
+                            <p class="progress__section" id="section-title">Section 1: Delegation</p>
+                            <p class="progress__text">
+                                Question <span id="current-question">1</span> of <span id="section-total">4</span>
+                            </p>
+                        </div>
+                        <div class="progress__bar">
+                            <div id="progress-fill" class="progress__fill"></div>
+                        </div>
+                    </div>
+
+                    <!-- Question Container -->
+                    <div class="question-container">
+                        <div class="question">
+                            <h2 id="question-text" class="question__text"></h2>
+                            <p id="question-subcategory" class="question__category"></p>
+                        </div>
+
+                        <!-- Answer Options -->
+                        <div id="answer-options" class="answer-options"></div>
+                        
+                        <!-- Double-click Hint -->
+                        <div id="double-click-hint" class="double-click-hint">
+                            <span class="double-click-hint__icon">💡</span>
+                            <span class="double-click-hint__text">Double-click an answer to select and continue</span>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="navigation">
+                        <button id="prev-btn" class="btn btn--secondary" disabled>Previous</button>
+                        <button id="next-btn" class="btn btn--primary" disabled>Next</button>
+                        <button id="submit-btn" class="btn btn--primary" style="display: none;">Submit Assessment</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Screen -->
+            <section id="results-screen" class="screen">
+                <div class="results">
+                    <h2 class="results__title">Your Assessment Results</h2>
+                    
+                    <!-- Overall Score -->
+                    <div class="results__overall">
+                        <div class="score-card score-card--overall">
+                            <h3 class="score-card__label">Overall Readiness</h3>
+                            <div class="score-card__value" id="overall-score">0%</div>
+                        </div>
+                    </div>
+
+                    <!-- Combined Scores and Recommendations -->
+                    <div class="results__combined">
+                        <h3 class="results__section-title">Your results and next steps</h3>
+                        <div id="combined-results" class="combined-results"></div>
+                    </div>
+
+
+                    <!-- Actions -->
+                    <div class="results__actions">
+                        <button id="print-btn" class="btn btn--secondary">Print / Save as PDF</button>
+                        <button id="restart-btn" class="btn btn--primary">Start Over</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer__text">Twilio AI Leadership Assessment Tool</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
