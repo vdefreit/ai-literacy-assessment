@@ -22,7 +22,13 @@ const state = {
     questions: [],             // Array of question objects
     categories: [],            // Array of category objects
     currentSection: 0,         // Current section index (0-3)
-    sections: []               // Array of section objects with questions
+    sections: [],              // Array of section objects with questions
+    userContext: {             // User's role information for personalized recommendations
+        jobTitle: '',
+        team: '',
+        hasDirectReports: false,
+        canProcureTools: false
+    }
 };
 
 /**
@@ -53,14 +59,14 @@ const dummyQuestions = [
     // Section 1: Delegation to AI Systems
     {
         id: 'q1',
-        text: 'Understanding the problem: When working with AI tools and systems, I explain the relevant context of the task that enables AI to successfully assist or streamline the work.',
+        text: 'Understanding the problem: When working with AI tools and systems…',
         category: 'Delegation',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I provide generic prompts without context, often resulting in AI outputs that are too broad or irrelevant to my function\'s actual problems.'
+                description: 'I provide generic prompts without context, often resulting in AI outputs that are too broad or irrelevant to the problem I\'m solving.'
             },
             { 
                 value: 2, 
@@ -82,7 +88,7 @@ const dummyQuestions = [
     },
     {
         id: 'q2',
-        text: 'Understanding the goal: When working with AI, I can clearly define and articulate what success looks like so the system generates high-value outcomes.',
+        text: 'Understanding the goal: When working with AI tools and systems…',
         category: 'Delegation',
         type: 'maturity',
         options: [
@@ -111,43 +117,43 @@ const dummyQuestions = [
     },
     {
         id: 'q3',
-        text: 'Task decomposition: When working with AI, I can break complex plans into discrete parts to delegate specific elements to the most capable system or person.',
+        text: 'Task decomposition: When planning and sharing a plan with AI tools and systems…',
         category: 'Delegation',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I tend to feed AI entire projects as a single block, which often causes the system to miss the nuanced sub-tasks required for a finished solution.'
+                description: 'I feed AI entire projects as a single block; I rely on the AI to "figure out" the steps, which often results in superficial or missing sub-tasks.'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I can break a plan into high-level phases for the AI, ensuring that the work is divided according to standard operating procedures and known roles.'
+                description: 'I provide the AI with a pre-defined list of linear steps; I use the system to complete one phase at a time based on our standard team checklist.'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I isolate specific dependencies and sequence tasks for the AI logically, defining discrete workloads so the system has clear, focused objectives.'
+                description: 'I define the logical dependencies between tasks for the AI; I provide a structured sequence that ensures the AI understands how the output of one "unit of work" feeds into the next.'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I architect modular workflows where AI handles parallel, optimized units of work, allowing me to innovate on independent parts of the solution simultaneously.'
+                description: 'I architect multi-threaded workflows; I use AI to simultaneously solve different elements of a problem, then synthesize those parallel outputs into a single, innovative solution.'
             }
         ],
         weight: 1.0
     },
     {
         id: 'q4',
-        text: 'Platform Awareness: When working with AI, I can select the right tool or model based on its specific strengths to solve the problem at hand.',
+        text: 'Platform Awareness: When selecting which AI tool or service to use…',
         category: 'Delegation',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I am not yet familiar with the specific AI tools available; I use whichever tool is most convenient without knowing its technical limitations or approval status.'
+                description: 'I use whichever tool is most convenient without knowing its technical limitations or approval status.'
             },
             { 
                 value: 2, 
@@ -170,116 +176,116 @@ const dummyQuestions = [
     // Section 2: Communication & Clarity
     {
         id: 'q5',
-        text: 'Product Description: As a leader, I can describe the desired product or output in a way that minimizes or eliminates ambiguity.',
+        text: 'Output Description: When instructing AI tools and systems...',
         category: 'Communication',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I struggle to describe what a final product should look like, often providing vague or generic requests that lead to mismatched results.'
+                description: 'I struggle to describe what a final output should look like, often providing vague or generic requests that lead to mismatched results'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I can describe products using standard terminology, ensuring that the output meets basic departmental needs.'
+                description: 'I can describe outputs using company-provided prompt templates, plugging in my details to the prompt framework'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I can provide detailed specifications, including format, tone, and audience to ensure that the final output is fit-for-purpose and high quality.'
+                description: 'I use and modify structured prompts that I have created or that have been shared with my by peers and/or my organization'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I can articulate multi-dimensional requirements that go beyond the obvious, describing how an output/product should look, feel, function over time.'
+                description: 'I write my own prompts, specifying the target audience, tone, and constraints, enabling the AI to produce ready-to-use outputs that require minimal edits'
             }
         ],
         weight: 1.0
     },
     {
         id: 'q6',
-        text: 'Process Clarity: As a leader, I can clearly explain the how behind a task, so that it can be understood, replicated or automated.',
+        text: 'Process Clarity: When instructing AI tools and systems…',
         category: 'Communication',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I have difficulty explaining the how and usually just ask for the result and leave the process entirely up to others.'
+                description: 'I ask the AI for a "final result" without explaining the steps it should take, leaving the logic entirely up to the model\'s default settings.'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I can outline the standard steps for a known process, ensuring that team members follow standard operating procedures (SOPs) and stay within operational lanes.'
+                description: 'I provide the AI with a standard operating procedure to follow, ensuring it replicates our existing manual steps accurate'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I can explain the logic behind each step of a process, making it easy for others to replicate the workflow and troubleshoot bottlenecks independently.'
+                description: 'I can explain the logic behind each relevant step of a process, allowing the AI to troubleshoot its own bottlenecks and reason through complex tasks.'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I can design and communicate entirely new workflows from scratch, explaining how various stages of work interact and automate to increase speed.'
+                description: 'I deconstruct tasks to identify parallel processes and enable AI systems to work effectively by balancing detail with ambiguity, leveraging the natural strength of the selected model'
             }
         ],
         weight: 1.0
     },
     {
         id: 'q7',
-        text: 'Performance Expectations: As a leader, I can set clear, high-quality standards that define what great looks like.',
+        text: 'Performance Expectations: When setting expectations while working with AI tools...,',
         category: 'Communication',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I do not set performance standards, I typically realize that work is subpar once it is finished and delivered.'
+                description: 'I do not set performance standards, I typically realize that work is subpar once it is finished and delivered'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I set expectations on a binary pass/fail criteria or deadline, ensuring the bar for the function is met.'
+                description: 'I provide the AI with a basic checklist of constraints to follow, ensuring the output meets my expectations'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I provide clear benchmarks for \'good\' vs \'great\', using specific examples to illustrate the nuances of high performance.'
+                description: 'I give the AI specific examples of good vs great work, improving the model\'s ability to anticipate the quality of work that I\'m expecting'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I articulate aspirational standards that push the boundaries of current capabilities, defining success as \'exceptional quality\' vs \'meeting specs\'.'
+                description: 'I collaborate with AI to brainstorm and improve the overall quality of my work before implementing a pre-set plan without considering how this work might be better'
             }
         ],
         weight: 1.0
     },
     {
         id: 'q8',
-        text: 'Context Aggregation: As a leader, I can provide comprehensive context that enables others to make well-informed decisions.',
+        text: 'Context Aggregation: When providing context to AI models...',
         category: 'Communication',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I provide information as needed, assuming that others have the context they need without me explaining "the big picture".'
+                description: 'I don\'t often know what types of resources or items are safe, or relevant to share with the model'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I provide the necessary background information for a specific task, ensuring that my team has the basic facts required to stay compliant with the objective.'
+                description: 'I provide relevant context that keeps with my organization\'s AI acceptable use policy, helping the AI to produce satisfactory outputs'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I synthesize relevant data, history and external factors into cohesive briefs, ensuring that all participants understand the why behind the what.'
+                description: 'I think critically about what types of information are relevant, to avoid overloading the model\'s context window and improve output quality'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I can pull disparate threads of institutional and market knowledge together to provide a 360-view of a situation, enabling others to make autonomous, well-informed decisions.'
+                description: 'I leverage multi-modal capabilities, manage context window capacity and continuously share updated snippets of my work to the AI to build context over time'
             }
         ],
         weight: 1.0
@@ -287,87 +293,87 @@ const dummyQuestions = [
     // Section 3: Discernment
     {
         id: 'q9',
-        text: 'Domain/Craft Expertise: As a leader, I have a deep understanding of the best practices, standards and strategies of the domain and craft that my team works on.',
+        text: 'Domain/Craft Expertise: When evaluating AI-generated outputs…',
         category: 'Discernment',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'My strength as a leader relies mostly on my leadership experience, and I typically rely on experts within my team to help establish and articulate best practices.'
+                description: 'I rely on AI or my peers to judge quality, as I am still establishing the best practices and benchmarks on what \'good looks like\' for this specific craft.'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I have a solid grasp of the standard techniques, operating procedures and benchmarks required for my team to function effectively and safely.'
+                description: 'I check the results against our established team standards and internal benchmarks to ensure the output is safe and meets minimum functional needs.'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I stay current with evolving standards and strategies in my field, enabling me to provide informed guidance and identify when work areas meet professional quality standards.'
+                description: 'I apply my current understanding of industry standards to identify when the AI\'s guidance is accurate and where it fails to meet professional quality.'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I am an expert in my craft, capable of delivering and defining new standards and strategies that push the domain forward and create competitive advantage for the organisation.'
+                description: 'I leverage my expertise to push the AI beyond standard strategies, recognizing new ways to solve old problems through advanced technologies'
             }
         ],
         weight: 1.0
     },
     {
         id: 'q10',
-        text: 'Logic and Reasoning: As a leader, I can evaluate the \'thinking\' behind a plan or argument to ensure it is sound, and free of bias.',
+        text: 'Logic and Reasoning: When auditing the "thinking" behind an AI\'s plan...',
         category: 'Discernment',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I focus mostly on the final recommendation rather than how my team gets there, sometimes missing gaps in their underlying approach or reasoning.'
+                description: 'I focus almost entirely on the final recommendation, sometimes missing gaps in the model\'s underlying logic or reasoning'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I follow standard, logical frameworks to see if a plan makes sense and aligns to our basic operational processes and procedures.'
+                description: 'I follow a basic step-by-step review to see if the AI\'s plan makes sense and aligns with our core operational tasks and team requirements.'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I deconstruct a strategies to find logical gaps or hidden assumptions, ensuring that the path to a solution is robust and defensible.'
+                description: 'I use available information to understand the AI\'s strategy to find logical gaps or hidden assumptions, ensuring the path to the solution is robust and defensible.'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I regularly stress-test complex reasoning from multiple viewpoints, identifying potential biases or systemic flaws before they can impact the final outcome.'
+                description: 'I stress-test the AI\'s reasoning from multiple viewpoints, identifying potential biases or systemic flaws before they can impact the final outcome.'
             }
         ],
         weight: 1.0
     },
     {
         id: 'q11',
-        text: 'Coaching for Improvement: As a leader, I can distinguish between \'average\' work and \'best-in-class\' with a critical eye and provide specific, actionable feedback on how to bridge the gap.',
+        text: 'Coaching for Improvement: When providing feedback to refine AI outputs...',
         category: 'Discernment',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I rely mostly on my gut for whether or not something is meeting expectations and delivering on what was promised. Feedback focuses on what is wrong with the current state.'
+                description: 'I rely on a gut feeling for whether the AI met expectations, providing feedback that focuses on what is wrong rather than how to fix it.'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I identify when the deliverable meets minimum required standards and can point out errors that prevent it from being acceptable.'
+                description: 'I identify when the AI output meets the minimum required standards and point out specific errors that prevent the deliverable from being acceptable.'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I clearly define the difference between \'pass\' and \'high-quality\' output, providing specific guidance on how to refine the logic or output of the final deliverable.'
+                description: 'I clearly define the difference between pass and high-quality outputs, giving the AI specific guidance on how to refine its logic or tone.'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I envision how \'good\' work can be transformed into \'industry-leading\' work, and provide high-level, strategic feedback that pushes the team to innovate beyond the original brief.'
+                description: 'I envision how good AI work can be transformed into industry-leading results, providing strategic feedback that pushes the model to innovate beyond the brief.'
             }
         ],
         weight: 1.0
@@ -375,77 +381,77 @@ const dummyQuestions = [
     // Section 4: Keeping it Twilio
     {
         id: 'q12',
-        text: 'Data Stewardship: As a leader, I am vigilant about the data my team shares with AI systems and ensure we protect proprietary and sensitive information.',
+        text: 'Data Stewardship: When managing data privacy and security with AI...',
         category: 'Keeping It Twilio',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I am unfamiliar with my company\'s AI usage policies.'
+                description: 'I am completely unfamiliar with my company\'s AI usage policies'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I follow established corporate data policies and ensure that my team only uses approved platforms and tools for departmental work.'
+                description: 'I follow established corporate data policies and ensure that my team only uses approved platforms for departmental work.'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'My function has established a clear \'human-in-the-loop\' approach to how we leverage AI, ensuring that a person is always accountable for the final verification.'
+                description: 'I establish a clear human-in-the-loop approach, ensuring that a person is always accountable for the final verification of any AI-processed data.'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I model accountability, creating a culture where AI is seen as an extension of the team\'s capabilities, and errors are used as transparent learning opportunities to refine our systems.'
+                description: 'I model radical accountability, creating a culture where AI is seen as an extension of the team\'s capabilities and errors are used as transparent learning opportunities.'
             }
         ],
         weight: 1.0
     },
     {
         id: 'q13',
-        text: 'Bias & Fairness Awareness: As a leader, I am conscious of the potential for AI to reinforce biases and actively work to ensure fair and equitable outcomes.',
+        text: 'Bias & Fairness Awareness: When identifying and mitigating AI-generated bias…',
         category: 'Keeping It Twilio',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I am unaware of how AI training affects its ability to introduce or reinforce bias.'
+                description: 'I am unaware of how AI training affects a model\'s ability to reinforce bias and do not check outputs for skewed perspectives.'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I am knowledgeable about our company\'s diversity and inclusion guidelines and leverage that knowledge to review AI work to ensure that there are no issues.'
+                description: 'I use my knowledge of Twilio\'s diversity guidelines to review AI work and ensure the results do not violate basic fairness standards.'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I actively look for \'blind-spots\' in AI prompt and outputs and encourage my team to challenge AI-generated logic that appears skewed or one-sided.'
+                description: 'I actively look for blind-spots in AI prompts and outputs, encouraging my team to challenge AI logic that appears one-sided.'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I strategically use AI to uncover bias, including my own and leverage the technology to ensure that our strategies meet the company\'s D&I expectations. My prompts are specific and intentional to mitigate these risks.'
+                description: 'I work collaboratively with AI to uncover hidden biases and craft intentional prompts that ensure our strategies meet or exceed organizational expectations.'
             }
         ],
         weight: 1.0
     },
     {
         id: 'q14',
-        text: 'AI Literacy: As a leader, I understand the relevant technical details of how AI systems are created and operate.',
+        text: 'AI Literacy: As it relates to how AI works…',
         category: 'Keeping It Twilio',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'AI systems operate like a \'black-box\' and I do not understand the underlying technology, making it difficult for me to understand or anticipate why the system might not deliver the result I\'m expecting.'
+                description: 'It\'s a black-box and I do not understand the underlying technology, making it difficult for me to understand or anticipate why the system might not deliver the result I\'m expecting'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I have a basic understanding of what AI systems can do, based on training that has been provided to me, or information I have found independently.'
+                description: 'I have a basic understanding of what AI systems can do, based on training that has been provided to me, or information I have found independently'
             },
             { 
                 value: 3, 
@@ -456,35 +462,6 @@ const dummyQuestions = [
                 value: 4, 
                 label: 'Creative',
                 description: 'I have a deep grasp of model architecture and limitations, enabling me to architect complex, compliant workflows that push the boundaries of what individuals are doing with AI inside of my organization.'
-            }
-        ],
-        weight: 1.0
-    },
-    {
-        id: 'q15',
-        text: 'Twilio Magic: As a leader, I ensure that AI use aligns with Twilio\'s values, culture, and the principles that make us unique.',
-        category: 'Keeping It Twilio',
-        type: 'maturity',
-        options: [
-            { 
-                value: 1, 
-                label: 'Not Started',
-                description: 'I am not yet familiar with how Twilio\'s values and culture should influence AI use in my function.'
-            },
-            { 
-                value: 2, 
-                label: 'Compliant',
-                description: 'I ensure AI use follows Twilio\'s established policies and guidelines, maintaining alignment with our core values and brand standards.'
-            },
-            { 
-                value: 3, 
-                label: 'Competent',
-                description: 'I actively integrate Twilio\'s values into AI workflows, ensuring that our AI-assisted work reflects our culture and maintains the trust of our customers and stakeholders.'
-            },
-            { 
-                value: 4, 
-                label: 'Creative',
-                description: 'I leverage AI to amplify Twilio\'s unique strengths and values, creating innovative solutions that embody our culture and set new standards for responsible AI use in our industry.'
             }
         ],
         weight: 1.0
@@ -519,14 +496,93 @@ function init() {
     
     // Set up event listeners
     document.getElementById('start-btn').addEventListener('click', startAssessment);
+    document.getElementById('simulate-btn').addEventListener('click', startSimulation);
+    document.getElementById('skip-simulation-btn').addEventListener('click', skipSimulation);
     document.getElementById('next-btn').addEventListener('click', nextQuestion);
     document.getElementById('prev-btn').addEventListener('click', prevQuestion);
     document.getElementById('submit-btn').addEventListener('click', submitAssessment);
     document.getElementById('restart-btn').addEventListener('click', restartAssessment);
     document.getElementById('print-btn').addEventListener('click', printReport);
     
+    // Form validation for simulate button
+    const jobTitleInput = document.getElementById('job-title');
+    const teamSelect = document.getElementById('team');
+    const simulateBtn = document.getElementById('simulate-btn');
+    
+    function validateSimulateButton() {
+        const jobTitle = jobTitleInput.value.trim();
+        const team = teamSelect.value;
+        const isValid = jobTitle && team;
+        
+        simulateBtn.disabled = !isValid;
+        
+        if (isValid) {
+            simulateBtn.removeAttribute('data-tooltip');
+        } else {
+            simulateBtn.setAttribute('data-tooltip', 'Complete the information above');
+        }
+    }
+    
+    jobTitleInput.addEventListener('input', validateSimulateButton);
+    teamSelect.addEventListener('change', validateSimulateButton);
+    
     // Dark mode toggle
     initThemeToggle();
+    
+    // Load saved progress
+    loadProgress();
+}
+
+/**
+ * Save Progress to localStorage
+ */
+function saveProgress() {
+    const progressData = {
+        currentQuestionIndex: state.currentQuestionIndex,
+        currentSection: state.currentSection,
+        answers: state.answers,
+        timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('assessmentProgress', JSON.stringify(progressData));
+}
+
+/**
+ * Load Progress from localStorage
+ */
+function loadProgress() {
+    const savedData = localStorage.getItem('assessmentProgress');
+    if (savedData) {
+        try {
+            const progressData = JSON.parse(savedData);
+            state.currentQuestionIndex = progressData.currentQuestionIndex || 0;
+            state.currentSection = progressData.currentSection || 0;
+            state.answers = progressData.answers || {};
+            
+            // Check if there's progress to restore
+            if (Object.keys(state.answers).length > 0) {
+                const resumePrompt = confirm('You have saved progress. Would you like to continue where you left off?\n\nClick OK to continue or Cancel to start fresh.');
+                if (resumePrompt) {
+                    showScreen('questionnaire-screen');
+                    renderQuestion();
+                } else {
+                    clearProgress();
+                }
+            }
+        } catch (e) {
+            console.error('Error loading progress:', e);
+            clearProgress();
+        }
+    }
+}
+
+/**
+ * Clear Progress from localStorage
+ */
+function clearProgress() {
+    localStorage.removeItem('assessmentProgress');
+    state.currentQuestionIndex = 0;
+    state.currentSection = 0;
+    state.answers = {};
 }
 
 /**
@@ -558,9 +614,35 @@ function updateThemeIcon(theme) {
 
 /**
  * Start Assessment
- * Transitions from welcome screen to questionnaire
+ * Validates user context and transitions from welcome screen to questionnaire
  */
 function startAssessment() {
+    // Get and validate user context
+    const jobTitle = document.getElementById('job-title').value.trim();
+    const team = document.getElementById('team').value;
+    const hasDirectReports = document.getElementById('has-direct-reports').checked;
+    const canProcureTools = document.getElementById('can-procure-tools').checked;
+    
+    if (!jobTitle) {
+        alert('Please enter your job title to continue.');
+        document.getElementById('job-title').focus();
+        return;
+    }
+    
+    if (!team) {
+        alert('Please select your team/department to continue.');
+        document.getElementById('team').focus();
+        return;
+    }
+    
+    // Store user context
+    state.userContext = {
+        jobTitle: jobTitle,
+        team: team,
+        hasDirectReports: hasDirectReports,
+        canProcureTools: canProcureTools
+    };
+    
     showScreen('questionnaire-screen');
     renderQuestion();
 }
@@ -585,30 +667,45 @@ function renderQuestion() {
         mainQuestion = question.text.substring(colonIndex + 1).trim();
     }
     
-    // Set question text and subcategory
+    // Set question text and subcategory with ARIA labels
     questionTextEl.textContent = mainQuestion;
+    questionTextEl.setAttribute('role', 'heading');
+    questionTextEl.setAttribute('aria-level', '2');
+    
     questionSubcategoryEl.textContent = subcategory;
+    if (subcategory) {
+        questionSubcategoryEl.setAttribute('aria-label', `Category: ${subcategory}`);
+    }
     
     // Clear previous options
     answerOptionsEl.innerHTML = '';
+    answerOptionsEl.setAttribute('role', 'group');
+    answerOptionsEl.setAttribute('aria-label', 'Answer options');
     
     // Randomize answer options order
     const shuffledOptions = [...question.options].sort(() => Math.random() - 0.5);
     
     // Render answer options with maturity level descriptions
-    shuffledOptions.forEach(option => {
+    shuffledOptions.forEach((option, index) => {
         const optionEl = document.createElement('button');
         optionEl.className = 'answer-option';
         optionEl.type = 'button';
         optionEl.dataset.value = option.value;
         
+        // Add ARIA attributes for screen readers
+        optionEl.setAttribute('aria-label', `Option ${option.value}: ${option.label}`);
+        optionEl.setAttribute('aria-describedby', `option-desc-${question.id}-${index}`);
+        
         // Check if this option is already selected
         if (state.answers[question.id] === option.value) {
             optionEl.classList.add('answer-option--selected');
+            optionEl.setAttribute('aria-pressed', 'true');
+        } else {
+            optionEl.setAttribute('aria-pressed', 'false');
         }
         
         optionEl.innerHTML = `
-            <div class="answer-option__description">${option.description}</div>
+            <div class="answer-option__description" id="option-desc-${question.id}-${index}">${option.description}</div>
         `;
         
         // Single click - select answer
@@ -635,6 +732,29 @@ function renderQuestion() {
             }, 200);
         });
         
+        // Keyboard support - Enter key to select and advance
+        optionEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                selectAnswer(question.id, option.value);
+                
+                // Add visual feedback
+                optionEl.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    optionEl.style.transform = '';
+                }, 150);
+                
+                // Small delay to show selection, then advance
+                setTimeout(() => {
+                    if (state.currentQuestionIndex < state.questions.length - 1) {
+                        nextQuestion();
+                    } else {
+                        submitAssessment();
+                    }
+                }, 200);
+            }
+        });
+        
         answerOptionsEl.appendChild(optionEl);
     });
     
@@ -655,33 +775,34 @@ function renderQuestion() {
 function selectAnswer(questionId, value) {
     state.answers[questionId] = value;
     
-    // Update UI to show selected answer
+    // Update UI to show selected answer and ARIA states
     const options = document.querySelectorAll('.answer-option');
     options.forEach(option => {
         option.classList.remove('answer-option--selected');
         const optionValue = parseInt(option.dataset.value);
         if (optionValue === value) {
             option.classList.add('answer-option--selected');
+            option.setAttribute('aria-pressed', 'true');
+        } else {
+            option.setAttribute('aria-pressed', 'false');
         }
     });
     
-    // Hide hint after selection
-    updateDoubleClickHint();
+    // Save progress to localStorage
+    saveProgress();
     
     updateNavigation();
 }
 
 /**
  * Update Double-click Hint Visibility
- * Shows hint on first 3 questions if no answer selected
+ * Shows hint on first 3 questions
  */
 function updateDoubleClickHint() {
     const hintEl = document.getElementById('double-click-hint');
-    const currentQuestion = state.questions[state.currentQuestionIndex];
-    const hasAnswer = state.answers[currentQuestion.id] !== undefined;
     
-    // Show hint on first 3 questions if no answer selected yet
-    if (hasAnswer || state.currentQuestionIndex >= 3) {
+    // Show hint only on first 3 questions (index 0, 1, 2)
+    if (state.currentQuestionIndex >= 3) {
         hintEl.classList.add('double-click-hint--hidden');
     } else {
         hintEl.classList.remove('double-click-hint--hidden');
@@ -727,8 +848,20 @@ function updateProgress() {
     const questionIndexInSection = sectionQuestions.findIndex(q => q.id === state.questions[state.currentQuestionIndex].id);
     
     // Calculate progress within current section
-    const progress = ((questionIndexInSection + 1) / sectionQuestions.length) * 100;
-    document.getElementById('progress-fill').style.width = `${progress}%`;
+    // Progress fills up as you answer questions, not just view them
+    const currentQuestion = state.questions[state.currentQuestionIndex];
+    const hasAnswer = state.answers[currentQuestion.id] !== undefined;
+    const completedQuestions = questionIndexInSection + (hasAnswer ? 1 : 0);
+    const progress = (completedQuestions / sectionQuestions.length) * 100;
+    
+    const progressFillEl = document.getElementById('progress-fill');
+    progressFillEl.style.width = `${progress}%`;
+    
+    // Update ARIA progressbar value
+    const progressBarEl = document.querySelector('.progress__bar');
+    if (progressBarEl) {
+        progressBarEl.setAttribute('aria-valuenow', Math.round(progress));
+    }
     
     // Update section title and question counter
     document.getElementById('section-title').textContent = `Section ${state.currentSection + 1}: ${currentSection.name}`;
@@ -744,16 +877,32 @@ function updateProgress() {
 function nextQuestion() {
     if (state.currentQuestionIndex < state.questions.length - 1) {
         const currentQuestion = state.questions[state.currentQuestionIndex];
-        const nextQuestion = state.questions[state.currentQuestionIndex + 1];
+        const nextQuestionData = state.questions[state.currentQuestionIndex + 1];
         
-        // Check if we're moving to a new section
-        if (currentQuestion.category !== nextQuestion.category) {
-            state.currentSection++;
-            // Show section transition (optional: could add animation here)
+        // Add transition class
+        const container = document.querySelector('.question-container');
+        if (container) {
+            container.classList.add('transitioning-out');
+            
+            setTimeout(() => {
+                // Check if we're moving to a new section
+                if (currentQuestion.category !== nextQuestionData.category) {
+                    state.currentSection++;
+                }
+                
+                state.currentQuestionIndex++;
+                renderQuestion();
+                
+                // Remove out class and add in class
+                container.classList.remove('transitioning-out');
+                container.classList.add('transitioning-in');
+                
+                // Clean up animation class after animation completes
+                setTimeout(() => {
+                    container.classList.remove('transitioning-in');
+                }, 300);
+            }, 300);
         }
-        
-        state.currentQuestionIndex++;
-        renderQuestion();
     }
 }
 
@@ -765,15 +914,32 @@ function nextQuestion() {
 function prevQuestion() {
     if (state.currentQuestionIndex > 0) {
         const currentQuestion = state.questions[state.currentQuestionIndex];
-        const prevQuestion = state.questions[state.currentQuestionIndex - 1];
+        const prevQuestionData = state.questions[state.currentQuestionIndex - 1];
         
-        // Check if we're moving to a previous section
-        if (currentQuestion.category !== prevQuestion.category) {
-            state.currentSection--;
+        // Add transition class
+        const container = document.querySelector('.question-container');
+        if (container) {
+            container.classList.add('transitioning-out');
+            
+            setTimeout(() => {
+                // Check if we're moving to a previous section
+                if (currentQuestion.category !== prevQuestionData.category) {
+                    state.currentSection--;
+                }
+                
+                state.currentQuestionIndex--;
+                renderQuestion();
+                
+                // Remove out class and add in class
+                container.classList.remove('transitioning-out');
+                container.classList.add('transitioning-in');
+                
+                // Clean up animation class after animation completes
+                setTimeout(() => {
+                    container.classList.remove('transitioning-in');
+                }, 300);
+            }, 300);
         }
-        
-        state.currentQuestionIndex--;
-        renderQuestion();
     }
 }
 
@@ -966,42 +1132,477 @@ function generateRecommendations(scores) {
 }
 
 /**
- * Submit Assessment
- * Calculates scores and displays results
+ * Convert Markdown to HTML
+ * Handles basic markdown formatting for recommendations
  */
-function submitAssessment() {
+function markdownToHtml(text) {
+    let html = text;
+    
+    // Convert headers (### -> h3, ## -> h2, # -> h1)
+    html = html.replace(/^###\s+(.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^##\s+(.+)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^#\s+(.+)$/gm, '<h1>$1</h1>');
+    
+    // Convert **bold** to <strong>
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    
+    // Convert bullet lists (- item or * item)
+    html = html.replace(/^[\-\*]\s+(.+)$/gm, '<li>$1</li>');
+    
+    // Wrap consecutive <li> items in <ul>
+    html = html.replace(/(<li>.*<\/li>\n?)+/gs, '<ul>$&</ul>');
+    
+    // Convert line breaks to paragraphs
+    html = html.split('\n\n').map(para => {
+        if (para.trim() && !para.includes('<ul>') && !para.includes('<li>') && !para.includes('<h')) {
+            return `<p>${para.trim()}</p>`;
+        }
+        return para;
+    }).join('\n');
+    
+    // Clean up any remaining single line breaks
+    html = html.replace(/\n/g, '<br>');
+    
+    return html;
+}
+
+/**
+ * Generate Single AI Recommendation
+ * Generates one recommendation for a specific category
+ */
+async function generateSingleRecommendation(category, scores) {
+    const { jobTitle, team, hasDirectReports, canProcureTools } = state.userContext;
+    
+    let prompt = `Generate ONE detailed recommendation for a ${jobTitle} at Twilio in ${team}.\n\n`;
+    prompt += `**Role Context:**\n`;
+    prompt += `- Has Direct Reports: ${hasDirectReports ? 'Yes' : 'No'}\n`;
+    prompt += `- Can Procure New Tools: ${canProcureTools ? 'Yes' : 'No'}\n\n`;
+    prompt += `**Category to focus on: ${category}**\n\n`;
+    prompt += `**Their Score:**\n`;
+    const score = scores.categories[category];
+    const maturity = scores.categoryMaturities[category];
+    prompt += `- ${category}: ${maturity} (${score.toFixed(2)}/4.00)\n\n`;
+    prompt += `Provide a comprehensive, detailed recommendation following the structure in your system prompt. Focus ONLY on this one category. Use markdown formatting.`;
+    
+    try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${CONFIG.OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: CONFIG.OPENAI_MODEL,
+                messages: [
+                    {
+                        role: 'system',
+                        content: `You are an experienced AI literacy coach at Twilio helping employees leverage AI tools effectively.
+
+TWILIO AI TOOLS CONTEXT:
+- Primary tool: Google Gemini webapp (multi-modal capabilities, web search, deep research mode)
+- Employees can build and share Gems (custom AI assistants) with their teams
+- OpenAI API is available for developers (not the webapp)
+- Switchboard is Twilio's resource hub where employees can learn about available tools in the AI Hub
+- If the employee CANNOT procure tools, direct them to Switchboard to discover available tools rather than suggesting specific new tools
+- If the employee CAN procure tools, suggest specific tools and platforms to evaluate
+
+RECOMMENDATION STRUCTURE:
+Provide a DETAILED, COMPREHENSIVE recommendation with:
+1. **Overview** (3-4 sentences): High-level summary of the key opportunity for their role and current maturity level
+2. **Three Specific Use Cases** (detailed, with context):
+   - **Use Case 1 (Quick Win)**: Something they can try TODAY. Include: scenario, step-by-step approach, expected outcome, time saved. (4-5 sentences)
+   - **Use Case 2 (Build On It)**: More advanced application. Include: when to try this, how it differs, what skills it develops. (4-5 sentences)
+   - **Use Case 3 (Stretch Goal)**: Challenging capability for next month. Include: prerequisites, potential impact, what makes it advanced. (4-5 sentences)
+3. **Gemini Tips**: 2-3 specific Gemini features to leverage (multi-modal, web search, deep research with warnings, Gems)
+4. **Starter Prompt**: Complete, copy-paste ready prompt with [placeholders] they fill in
+
+FORMATTING:
+- Use markdown: **bold** for emphasis, - for bullet lists
+- Break content into clear sections with blank lines
+- Each use case as a bullet with sub-bullets for details
+- Make starter prompt clearly marked
+- 400-600 words total`
+                    },
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ],
+                max_tokens: 1500,
+                temperature: 0.7
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`OpenAI API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        const recommendationText = data.choices[0].message.content;
+        
+        return {
+            category: category,
+            maturity: maturity,
+            text: recommendationText
+        };
+    } catch (error) {
+        console.error(`Error generating recommendation for ${category}:`, error);
+        // Return static fallback
+        const staticRecs = generateRecommendations(scores);
+        return staticRecs.find(r => r.category === category);
+    }
+}
+
+/**
+ * Generate AI-Powered Recommendations Sequentially
+ * Generates recommendations one at a time with callback for progressive rendering
+ */
+async function generateAIRecommendations(scores, onRecommendationReady) {
+    // Check if AI is enabled
+    if (!CONFIG.USE_AI_RECOMMENDATIONS || CONFIG.OPENAI_API_KEY === 'YOUR_OPENAI_API_KEY_HERE') {
+        console.log('AI recommendations disabled or API key not configured. Using static recommendations.');
+        return generateRecommendations(scores);
+    }
+    
+    const categories = ['Delegation', 'Communication', 'Discernment', 'Keeping It Twilio'];
+    const recommendations = [];
+    
+    for (const category of categories) {
+        console.log(`Generating recommendation for ${category}...`);
+        const recommendation = await generateSingleRecommendation(category, scores);
+        recommendations.push(recommendation);
+        
+        // Call the callback immediately with this recommendation
+        if (onRecommendationReady) {
+            onRecommendationReady(recommendation, scores);
+        }
+    }
+    
+    return recommendations;
+}
+
+/**
+ * OLD: Generate AI-Powered Recommendations (batch version - kept as fallback)
+ * Uses serverless function (or OpenAI directly) to create personalized recommendations
+ * @param {Object} scores - Calculated scores object
+ * @returns {Promise<Array>} Array of recommendation objects
+ */
+async function generateAIRecommendationsBatch_UNUSED(scores) {
+    // Check if AI is enabled
+    if (!CONFIG.USE_AI_RECOMMENDATIONS) {
+        console.log('AI recommendations disabled. Using static recommendations.');
+        return generateRecommendations(scores);
+    }
+    
+    try {
+        // Try serverless function first (more secure)
+        let response;
+        let aiResponse;
+        
+        try {
+            response = await fetch('/.netlify/functions/generate-recommendations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    scores: scores,
+                    userContext: state.userContext
+                })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                aiResponse = data.recommendations;
+                console.log('Using secure serverless function');
+            } else {
+                throw new Error('Serverless function not available');
+            }
+        } catch (serverlessError) {
+            // Fall back to direct API call if serverless function doesn't exist
+            console.log('Serverless function not available, using direct API call');
+            
+            if (CONFIG.OPENAI_API_KEY === 'YOUR_OPENAI_API_KEY_HERE') {
+                console.log('API key not configured. Using static recommendations.');
+                return generateRecommendations(scores);
+            }
+            
+            const prompt = buildRecommendationPrompt(scores);
+            
+            response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${CONFIG.OPENAI_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: CONFIG.OPENAI_MODEL,
+                    messages: [
+                        {
+                            role: 'system',
+                            content: `You are an experienced AI literacy coach at Twilio helping employees leverage AI tools effectively.
+
+TWILIO AI TOOLS CONTEXT:
+- Primary tool: Google Gemini webapp (multi-modal capabilities, web search, deep research mode)
+- Employees can build and share Gems (custom AI assistants) with their teams
+- OpenAI API is available for developers (not the webapp)
+- Switchboard is Twilio's resource hub where employees can learn about available tools in the AI Hub
+- If the employee CANNOT procure tools, direct them to Switchboard to discover available tools rather than suggesting specific new tools
+- If the employee CAN procure tools, suggest specific tools and platforms to evaluate
+
+RECOMMENDATION STRUCTURE:
+For each section, provide a DETAILED, COMPREHENSIVE recommendation with:
+1. **Overview** (3-4 sentences): High-level summary of the key opportunity for their role and current maturity level
+2. **Three Specific Use Cases** (detailed, with context):
+   - **Use Case 1 (Quick Win)**: Something they can try TODAY based on their current level. Include: the scenario, step-by-step approach, expected outcome, time saved. (4-5 sentences)
+   - **Use Case 2 (Build On It)**: A more advanced application building on Use Case 1. Include: when to try this, how it differs, what skills it develops. (4-5 sentences)
+   - **Use Case 3 (Stretch Goal)**: A challenging capability to work toward over the next month. Include: prerequisites, potential impact, what makes it advanced. (4-5 sentences)
+3. **Gemini Tips**: 2-3 specific Gemini features to leverage (multi-modal uploads, web search, deep research with hallucination warnings, Gems)
+4. **Starter Prompt**: A complete, copy-paste ready prompt they can use in Gemini right now, with [placeholders] they fill in
+
+FORMATTING REQUIREMENTS:
+- Use markdown formatting: **bold** for emphasis, bullet lists for clarity
+- Break content into clear sections with line breaks
+- Each use case should be a separate bullet point with sub-bullets for details
+- Make the starter prompt stand out in a clear block
+- Be conversational but professional
+- Total length: 400-600 words per recommendation
+
+KEY GUIDELINES:
+- Be EXTREMELY SPECIFIC to their job title, team, and whether they manage people
+- Reference real workflows for their team (e.g., Engineering: code reviews, PRs; Sales: email sequences, call prep; Customer Success: ticket analysis, response templates)
+- Include measurable outcomes (time saved, quality improvements, error reduction)
+- Use natural language - don't refer to assessment categories by name when introducing recommendations
+- When mentioning deep research, note the higher risk of hallucinations and need for verification`
+                        },
+                        {
+                            role: 'user',
+                            content: prompt
+                        }
+                    ],
+                    max_tokens: CONFIG.OPENAI_MAX_TOKENS,
+                    temperature: CONFIG.OPENAI_TEMPERATURE
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`OpenAI API error: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            aiResponse = data.choices[0].message.content;
+        }
+        
+        // Parse the AI response into recommendation objects
+        return parseAIRecommendations(aiResponse, scores);
+        
+    } catch (error) {
+        console.error('Error generating AI recommendations:', error);
+        
+        if (CONFIG.FALLBACK_ON_ERROR) {
+            console.log('Falling back to static recommendations');
+            return generateRecommendations(scores);
+        }
+        
+        throw error;
+    }
+}
+
+/**
+ * Build Recommendation Prompt
+ * Creates a detailed prompt for the AI based on user context and scores
+ */
+function buildRecommendationPrompt(scores) {
+    const { jobTitle, team, hasDirectReports, canProcureTools } = state.userContext;
+    
+    let prompt = `I need personalized AI literacy recommendations for a Twilio employee.\n\n`;
+    prompt += `**Role Context:**\n`;
+    prompt += `- Job Title: ${jobTitle}\n`;
+    prompt += `- Team/Department: ${team}\n`;
+    prompt += `- Has Direct Reports: ${hasDirectReports ? 'Yes' : 'No'}\n`;
+    prompt += `- Can Procure New Tools: ${canProcureTools ? 'Yes' : 'No'}\n\n`;
+    
+    prompt += `**Assessment Results:**\n`;
+    prompt += `- Overall Maturity: ${scores.overallMaturity} (${scores.overall.toFixed(2)}/4.00)\n\n`;
+    
+    state.categories.forEach(category => {
+        const score = scores.categories[category.name];
+        const maturity = scores.categoryMaturities[category.name];
+        prompt += `- ${category.name}: ${maturity} (${score.toFixed(2)}/4.00)\n`;
+    });
+    
+    prompt += `\n**Instructions:**\n`;
+    prompt += `Generate 4 highly personalized recommendations (one per category: Delegation, Communication, Discernment, and Keeping It Twilio).\n\n`;
+    prompt += `For the ${jobTitle} role in ${team}, think about:\n`;
+    prompt += `- What specific tasks do they do daily? What tools do they use?\n`;
+    prompt += `- What are their biggest time sinks or repetitive tasks?\n`;
+    prompt += `- What kind of outputs do they create (code, emails, reports, designs)?\n`;
+    prompt += `- Who do they collaborate with and how?\n`;
+    if (hasDirectReports) {
+        prompt += `- As a manager with direct reports, consider delegation, team enablement, and coaching opportunities\n`;
+    }
+    if (canProcureTools) {
+        prompt += `- As someone who can procure tools, suggest specific AI tools or platforms they should evaluate for their team\n`;
+    }
+    prompt += `\n`;
+    prompt += `For each recommendation:\n`;
+    prompt += `1. Start with a specific use case or workflow for their role\n`;
+    prompt += `2. Suggest concrete AI prompts or approaches they can try THIS WEEK\n`;
+    prompt += `3. Include what success looks like (e.g., "saves 2 hours/week", "improves response quality")\n`;
+    prompt += `4. Make it 3-4 sentences with actionable steps\n`;
+    prompt += `5. Reference tools, processes, or scenarios specific to ${team}\n\n`;
+    
+    prompt += `Format your response as:\n`;
+    prompt += `DELEGATION: [your recommendation]\n`;
+    prompt += `COMMUNICATION: [your recommendation]\n`;
+    prompt += `DISCERNMENT: [your recommendation]\n`;
+    prompt += `KEEPING IT TWILIO: [your recommendation]`;
+    
+    return prompt;
+}
+
+/**
+ * Parse AI Recommendations
+ * Converts AI response text into structured recommendation objects
+ */
+function parseAIRecommendations(aiResponse, scores) {
+    console.log('AI Response:', aiResponse); // Debug log
+    const recommendations = [];
+    const categories = ['Delegation', 'Communication', 'Discernment', 'Keeping It Twilio'];
+    
+    categories.forEach(category => {
+        // Try multiple regex patterns to be more flexible
+        const patterns = [
+            new RegExp(`${category.toUpperCase()}:(.+?)(?=\\n(?:DELEGATION|COMMUNICATION|DISCERNMENT|KEEPING IT TWILIO):|$)`, 'si'),
+            new RegExp(`##?\\s*${category}[:\\s](.+?)(?=\\n##?\\s*(?:Delegation|Communication|Discernment|Keeping It Twilio)|$)`, 'si'),
+            new RegExp(`\\*\\*${category}\\*\\*:?(.+?)(?=\\n\\*\\*(?:Delegation|Communication|Discernment|Keeping It Twilio)|$)`, 'si')
+        ];
+        
+        let match = null;
+        for (const pattern of patterns) {
+            match = aiResponse.match(pattern);
+            if (match && match[1]) break;
+        }
+        
+        if (match && match[1]) {
+            recommendations.push({
+                category: category,
+                maturity: scores.categoryMaturities[category],
+                text: match[1].trim()
+            });
+        } else {
+            console.warn(`Failed to parse recommendation for ${category}`);
+            // Fallback to static if parsing fails
+            const staticRecs = generateRecommendations(scores);
+            const staticRec = staticRecs.find(r => r.category === category);
+            if (staticRec) {
+                recommendations.push(staticRec);
+            }
+        }
+    });
+    
+    return recommendations;
+}
+
+
+/**
+ * Submit Assessment
+ * Calculates scores and displays results with AI-powered recommendations
+ */
+async function submitAssessment() {
     const scores = calculateScores();
-    const recommendations = generateRecommendations(scores);
     
-    // Render results
-    renderResults(scores, recommendations);
-    
-    // Show results screen
+    // Show results screen immediately with loading state
     showScreen('results-screen');
+    renderResults(scores, []); // Empty array indicates all recommendations are loading
+    
+    try {
+        // Generate AI recommendations sequentially
+        console.log('Generating AI recommendations sequentially...');
+        await generateAIRecommendations(scores, (recommendation, scores) => {
+            // This callback is called immediately when each recommendation is ready
+            console.log(`Recommendation ready for ${recommendation.category}`);
+            updateSingleRecommendation(recommendation, scores);
+        });
+        console.log('All recommendations generated');
+    } catch (error) {
+        console.error('Failed to generate recommendations:', error);
+        // Fallback to static recommendations
+        const staticRecommendations = generateRecommendations(scores);
+        console.log('Using static recommendations:', staticRecommendations);
+        renderResults(scores, staticRecommendations);
+    }
+    
+    // Clear progress after completion
+    clearProgress();
+}
+
+/**
+ * Update Single Recommendation
+ * Updates a single category's recommendation when it's ready
+ */
+function updateSingleRecommendation(recommendation, scores) {
+    const category = state.categories.find(c => c.name === recommendation.category);
+    if (!category) return;
+    
+    const avgScore = scores.categories[category.name] || 0;
+    const maturity = scores.categoryMaturities[category.name] || 'Not Started';
+    const level = maturityLevels.find(l => l.label === maturity);
+    const levelColor = level ? level.color : 'var(--color-neutral-600)';
+    
+    // Find the existing combined result element for this category
+    const combinedResultsEl = document.getElementById('combined-results');
+    const allResults = Array.from(combinedResultsEl.querySelectorAll('.combined-result'));
+    const categoryIndex = state.categories.findIndex(c => c.name === category.name);
+    const resultEl = allResults[categoryIndex];
+    
+    if (resultEl) {
+        // Find the recommendation div and update it with the new content
+        const recommendationDiv = resultEl.querySelector('.combined-result__recommendation');
+        if (recommendationDiv) {
+            // Convert markdown to HTML
+            const htmlContent = markdownToHtml(recommendation.text);
+            recommendationDiv.innerHTML = `<div class="recommendation-content">${htmlContent}</div>`;
+        }
+    }
 }
 
 /**
  * Render Results
  * Displays overall score with combined category scores and recommendations
  * @param {Object} scores - Calculated scores
- * @param {Array} recommendations - Generated recommendations
+ * @param {Array|null} recommendations - Generated recommendations or null for loading state
  */
 function renderResults(scores, recommendations) {
-    // Overall score
+    // Overall score with animation
     const overallScoreEl = document.getElementById('overall-score');
-    overallScoreEl.textContent = scores.overallMaturity;
-    overallScoreEl.style.fontSize = '2rem';
+    const overallScoreBar = document.getElementById('overall-score-bar');
+    const overallMaturity = document.getElementById('overall-maturity');
+    const scoreCelebration = document.getElementById('score-celebration');
     
-    // Add overall score description
-    const overallScoreContainer = overallScoreEl.parentElement;
-    const existingDesc = overallScoreContainer.querySelector('.score-card__description');
-    if (existingDesc) {
-        existingDesc.remove();
-    }
-    const descEl = document.createElement('div');
-    descEl.className = 'score-card__description';
-    descEl.textContent = `Average maturity level: ${scores.overall.toFixed(2)}`;
-    overallScoreContainer.appendChild(descEl);
+    // Calculate percentage (out of 4)
+    const percentage = Math.round((scores.overall / 4) * 100);
+    
+    // Animate score counting up
+    setTimeout(() => {
+        animateValue(overallScoreEl, 0, percentage, 1500);
+        overallMaturity.textContent = scores.overallMaturity;
+        
+        // Animate progress bar
+        setTimeout(() => {
+            overallScoreBar.style.width = percentage + '%';
+        }, 300);
+        
+        // Trigger celebration effect for good scores
+        if (percentage >= 60) {
+            setTimeout(() => {
+                scoreCelebration.classList.add('active');
+                setTimeout(() => {
+                    scoreCelebration.classList.remove('active');
+                }, 3000);
+            }, 1000);
+        }
+    }, 300);
     
     // Combined results (category score + recommendation together)
     const combinedResultsEl = document.getElementById('combined-results');
@@ -1013,8 +1614,9 @@ function renderResults(scores, recommendations) {
         const level = maturityLevels.find(l => l.label === maturity);
         const levelColor = level ? level.color : 'var(--color-neutral-600)';
         
-        // Find the recommendation for this category
-        const rec = recommendations.find(r => r.category === category.name);
+        // Find the recommendation for this category (empty array = show loading for all)
+        const rec = recommendations && recommendations.length > 0 ? recommendations.find(r => r.category === category.name) : null;
+        const isLoading = recommendations && recommendations.length === 0;
         
         const combinedEl = document.createElement('div');
         combinedEl.className = 'combined-result';
@@ -1030,7 +1632,13 @@ function renderResults(scores, recommendations) {
                 <div class="combined-result__fill" style="width: ${(avgScore / 4) * 100}%; background-color: ${levelColor}"></div>
             </div>
             <div class="combined-result__recommendation">
-                <p>${rec ? rec.text : ''}</p>
+                ${isLoading || !rec ?
+                    `<div class="loading-recommendation">
+                        <div class="loading-spinner"></div>
+                        <p>Generating personalized recommendations...</p>
+                    </div>` :
+                    `<div class="recommendation-content">${markdownToHtml(rec.text)}</div>`
+                }
             </div>
         `;
         combinedResultsEl.appendChild(combinedEl);
@@ -1057,6 +1665,7 @@ function restartAssessment() {
     state.currentQuestionIndex = 0;
     state.currentSection = 0;
     state.answers = {};
+    clearProgress();
     showScreen('welcome-screen');
 }
 
@@ -1066,6 +1675,181 @@ function restartAssessment() {
  */
 function printReport() {
     window.print();
+}
+
+/**
+ * Simulation Mode
+ * Auto-runs through the assessment by starting questions then auto-clicking answers
+ */
+let simulationActive = false;
+let simulationSkipped = false;
+
+async function startSimulation() {
+    if (simulationActive) return;
+    
+    simulationActive = true;
+    simulationSkipped = false;
+    
+    // Capture form values that are already filled in
+    const jobTitle = document.getElementById('job-title').value.trim();
+    const team = document.getElementById('team').value;
+    const hasDirectReports = document.getElementById('has-direct-reports').checked;
+    const canProcureTools = document.getElementById('can-procure-tools').checked;
+    
+    // Store in state
+    state.userContext = {
+        jobTitle,
+        team,
+        hasDirectReports,
+        canProcureTools
+    };
+    
+    // Start the assessment (transition to questions screen)
+    showScreen('questionnaire-screen');
+    state.currentQuestionIndex = 0;
+    state.currentSection = 0;
+    state.answers = {};
+    renderQuestion();
+    
+    // Show skip button
+    const skipBtn = document.getElementById('skip-simulation-btn');
+    skipBtn.style.display = 'inline-flex';
+    
+    // Wait for screen transition (5x faster: 500 -> 100)
+    await sleep(100);
+    
+    // Now simulate clicking through all questions
+    for (let i = 0; i < state.questions.length; i++) {
+        if (simulationSkipped) {
+            // If skipped, instantly fill remaining answers
+            await completeSimulationInstantly();
+            break;
+        }
+        
+        await sleep(80); // 5x faster: 400 -> 80
+        
+        const currentQuestion = state.questions[state.currentQuestionIndex];
+        const answerOptions = document.querySelectorAll('.answer-option');
+        
+        if (answerOptions.length > 0) {
+            // Pick a random answer
+            const randomIndex = Math.floor(Math.random() * answerOptions.length);
+            const selectedOption = answerOptions[randomIndex];
+            const answerValue = parseInt(selectedOption.dataset.value);
+            
+            // Select the answer
+            selectAnswer(currentQuestion.id, answerValue);
+            
+            // Check if this was the last question
+            const isLastQuestion = state.currentQuestionIndex === state.questions.length - 1;
+            
+            if (isLastQuestion) {
+                // Last question - hide skip button and submit
+                await sleep(200); // Give UI time to update
+                skipBtn.style.display = 'none';
+                simulationActive = false;
+                
+                // Calculate scores and show results
+                const scores = calculateScores();
+                showScreen('results-screen');
+                renderResults(scores, []); // Empty array indicates all recommendations are loading
+                
+                // Generate AI recommendations in background
+                try {
+                    await generateAIRecommendations(scores, (recommendation, scores) => {
+                        updateSingleRecommendation(recommendation, scores);
+                    });
+                } catch (error) {
+                    console.error('Failed to generate recommendations:', error);
+                    const staticRecommendations = generateRecommendations(scores);
+                    renderResults(scores, staticRecommendations);
+                }
+                
+                clearProgress();
+                return; // Exit immediately
+            } else {
+                // Move to next question
+                await sleep(80);
+                nextQuestion();
+                await sleep(120); // 5x faster: 600 -> 120
+            }
+        }
+    }
+    
+    simulationActive = false;
+    skipBtn.style.display = 'none';
+}
+
+async function completeSimulationInstantly() {
+    // Fill all remaining questions with random answers instantly
+    while (state.currentQuestionIndex < state.questions.length) {
+        const currentQuestion = state.questions[state.currentQuestionIndex];
+        const randomValue = Math.floor(Math.random() * 4) + 1; // Random value 1-4
+        
+        // Record the answer
+        state.answers[currentQuestion.id] = randomValue;
+        
+        if (state.currentQuestionIndex < state.questions.length - 1) {
+            state.currentQuestionIndex++;
+        } else {
+            break;
+        }
+    }
+    
+    // Hide skip button
+    document.getElementById('skip-simulation-btn').style.display = 'none';
+    simulationActive = false;
+    
+    // Calculate scores and show results
+    const scores = calculateScores();
+    showScreen('results-screen');
+    renderResults(scores, []); // Empty array indicates all recommendations are loading
+    
+    // Generate AI recommendations in background
+    try {
+        await generateAIRecommendations(scores, (recommendation, scores) => {
+            updateSingleRecommendation(recommendation, scores);
+        });
+    } catch (error) {
+        console.error('Failed to generate recommendations:', error);
+        const staticRecommendations = generateRecommendations(scores);
+        renderResults(scores, staticRecommendations);
+    }
+    
+    clearProgress();
+}
+
+function skipSimulation() {
+    simulationSkipped = true;
+}
+
+/**
+ * Animate Value Counter
+ * Smoothly animates a number from start to end
+ */
+function animateValue(element, start, end, duration) {
+    const startTime = performance.now();
+    
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function for smooth animation
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+        const current = Math.round(start + (end - start) * easeOutQuart);
+        
+        element.textContent = current + '%';
+        
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+    
+    requestAnimationFrame(update);
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // Initialize when DOM is ready

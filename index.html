@@ -3,50 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Evaluate your AI literacy across delegation, communication, discernment, and Twilio values. Get personalized recommendations to improve your AI leadership skills.">
+    <meta name="author" content="Twilio">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="AI Literacy Assessment | Twilio">
+    <meta property="og:description" content="Benchmark your readiness to lead and support AI-enabled teams with our interactive assessment tool.">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="AI Literacy Assessment | Twilio">
+    <meta property="twitter:description" content="Benchmark your readiness to lead and support AI-enabled teams with our interactive assessment tool.">
+    
     <title>AI Literacy Assessment | Twilio</title>
     <!-- Twilio Sans Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header__content">
-                <div>
-                    <h1 class="header__title">AI Literacy Assessment</h1>
-                    <p class="header__subtitle">Benchmark your readiness to lead and support AI-enabled teams</p>
-                </div>
-                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">🌙</button>
-            </div>
-        </div>
-    </header>
-
     <!-- Main Content -->
     <main class="main">
         <div class="container">
             <!-- Welcome Screen -->
             <section id="welcome-screen" class="screen screen--active">
                 <div class="welcome">
+                    <div class="welcome__header">
+                        <h1 class="welcome__main-title">AI Readiness Assessment</h1>
+                        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+                    </div>
                     <h2 class="welcome__title">Ready to get started?</h2>
                     <p class="welcome__description">
                         This assessment evaluates your readiness to lead AI-enabled teams across four key areas: 
                         Delegation, Communication, Discernment, and Keeping it Twilio.
                     </p>
                     
-                    <div class="welcome__maturity-model">
-                        <h3 class="welcome__section-title">What to expect</h3>
-                        <ul class="welcome__list">
-                            <li>Complete 4 sections with 3-4 questions each</li>
-                            <li>Select the answer that best describes your current approach</li>
-                            <li>Receive personalized recommendations based on your responses</li>
-                            <li>Takes approximately 10-15 minutes to complete</li>
-                        </ul>
+                    <div class="welcome__content">
+                        <!-- User Context Form -->
+                        <div class="welcome__form">
+                            <h3 class="welcome__section-title">Tell us about yourself</h3>
+                            <p class="welcome__section-description">
+                                This helps us provide AI-powered personalized recommendations and use-cases tailored to your role.
+                            </p>
+                            
+                            <div class="form-group">
+                                <label for="team" class="form-label">Team / Department</label>
+                                <select id="team" class="form-select" required>
+                                    <option value="">Select your team...</option>
+                                    <option value="Engineering">Engineering</option>
+                                    <option value="Product">Product</option>
+                                    <option value="Sales">Sales</option>
+                                    <option value="Customer Success">Customer Success</option>
+                                    <option value="Support">Support</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="Operations">Operations</option>
+                                    <option value="Finance">Finance</option>
+                                    <option value="HR / People">HR / People</option>
+                                    <option value="Legal">Legal</option>
+                                    <option value="Executive">Executive</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="job-title" class="form-label">Job Title</label>
+                                <input 
+                                    type="text" 
+                                    id="job-title" 
+                                    class="form-input" 
+                                    placeholder="e.g., Engineering Manager, Sales Director"
+                                    required
+                                />
+                            </div>
+                            
+                            <div class="form-group form-group--checkboxes">
+                                <label class="form-checkbox">
+                                    <input 
+                                        type="checkbox" 
+                                        id="has-direct-reports" 
+                                        class="form-checkbox__input"
+                                    />
+                                    <span class="form-checkbox__label">Has direct reports</span>
+                                </label>
+                                
+                                <label class="form-checkbox">
+                                    <input 
+                                        type="checkbox" 
+                                        id="can-procure-tools" 
+                                        class="form-checkbox__input"
+                                    />
+                                    <span class="form-checkbox__label">Can procure new tools for Twilio</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- What to Expect -->
+                        <div class="welcome__expectations">
+                            <h3 class="welcome__section-title">What to expect</h3>
+                            <ul class="welcome__list">
+                                <li>Complete 4 sections with 3-4 questions each</li>
+                                <li>Select the answer that best describes your current approach</li>
+                                <li>Receive AI-powered personalized recommendations based on your responses</li>
+                                <li>Takes approximately 10-15 minutes to complete</li>
+                            </ul>
+                            <p class="welcome__note">
+                                💾 Your progress is automatically saved in this browser. You can leave and come back later, but your progress won't carry over to other devices or browsers.
+                            </p>
+                        </div>
                     </div>
                     
-                    <button id="start-btn" class="btn btn--primary">Start Assessment</button>
+                    <div class="welcome__actions">
+                        <button id="start-btn" class="btn btn--primary">Start Assessment</button>
+                        <button id="simulate-btn" class="btn btn--secondary" disabled data-tooltip="Complete the information above">Simulate Assessment</button>
+                    </div>
                 </div>
             </section>
 
@@ -56,38 +128,39 @@
                     <!-- Progress Indicator -->
                     <div class="progress">
                         <div class="progress__header">
-                            <p class="progress__section" id="section-title">Section 1: Delegation</p>
-                            <p class="progress__text">
+                            <p class="progress__section" id="section-title" aria-live="polite">Section 1: Delegation</p>
+                            <p class="progress__text" aria-live="polite" aria-atomic="true">
                                 Question <span id="current-question">1</span> of <span id="section-total">4</span>
                             </p>
                         </div>
-                        <div class="progress__bar">
+                        <div class="progress__bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Assessment progress">
                             <div id="progress-fill" class="progress__fill"></div>
                         </div>
                     </div>
-
+                    
                     <!-- Question Container -->
                     <div class="question-container">
                         <div class="question">
-                            <h2 id="question-text" class="question__text"></h2>
                             <p id="question-subcategory" class="question__category"></p>
+                            <h2 id="question-text" class="question__text"></h2>
+                        </div>
+
+                        <!-- Double-click Hint -->
+                        <div id="double-click-hint" class="double-click-hint">
+                            <span class="double-click-hint__icon">💡</span>
+                            <span class="double-click-hint__text">Press Enter or double-click an answer to select and continue</span>
                         </div>
 
                         <!-- Answer Options -->
                         <div id="answer-options" class="answer-options"></div>
-                        
-                        <!-- Double-click Hint -->
-                        <div id="double-click-hint" class="double-click-hint">
-                            <span class="double-click-hint__icon">💡</span>
-                            <span class="double-click-hint__text">Double-click an answer to select and continue</span>
-                        </div>
                     </div>
 
                     <!-- Navigation Buttons -->
                     <div class="navigation">
-                        <button id="prev-btn" class="btn btn--secondary" disabled>Previous</button>
-                        <button id="next-btn" class="btn btn--primary" disabled>Next</button>
-                        <button id="submit-btn" class="btn btn--primary" style="display: none;">Submit Assessment</button>
+                        <button id="prev-btn" class="btn btn--secondary" disabled aria-label="Go to previous question">Previous</button>
+                        <button id="skip-simulation-btn" class="btn btn--secondary" style="display: none;" aria-label="Skip simulation and go to results">Skip to Results</button>
+                        <button id="next-btn" class="btn btn--primary" disabled aria-label="Go to next question">Next</button>
+                        <button id="submit-btn" class="btn btn--primary" style="display: none;" aria-label="Submit assessment and view results">Submit Assessment</button>
                     </div>
                 </div>
             </section>
@@ -97,37 +170,42 @@
                 <div class="results">
                     <h2 class="results__title">Your Assessment Results</h2>
                     
-                    <!-- Overall Score -->
+                    <!-- Overall Score with Animation -->
                     <div class="results__overall">
-                        <div class="score-card score-card--overall">
-                            <h3 class="score-card__label">Overall Readiness</h3>
-                            <div class="score-card__value" id="overall-score">0%</div>
+                        <div class="score-card score-card--overall score-card--animated">
+                            <div class="score-celebration" id="score-celebration"></div>
+                            <h3 class="score-card__label">Overall AI Readiness</h3>
+                            <div class="score-card__value" id="overall-score" role="status" aria-live="polite">0%</div>
+                            <div class="score-card__bar">
+                                <div class="score-card__bar-fill" id="overall-score-bar"></div>
+                            </div>
+                            <p class="score-card__maturity" id="overall-maturity"></p>
                         </div>
                     </div>
 
                     <!-- Combined Scores and Recommendations -->
                     <div class="results__combined">
                         <h3 class="results__section-title">Your results and next steps</h3>
-                        <div id="combined-results" class="combined-results"></div>
+                        <div id="combined-results" class="combined-results" role="region" aria-label="Assessment results and recommendations"></div>
                     </div>
 
 
                     <!-- Actions -->
                     <div class="results__actions">
-                        <button id="print-btn" class="btn btn--secondary">Print / Save as PDF</button>
-                        <button id="restart-btn" class="btn btn--primary">Start Over</button>
+                        <button id="print-btn" class="btn btn--secondary" aria-label="Print or save results as PDF">Print / Save as PDF</button>
+                        <button id="restart-btn" class="btn btn--primary" aria-label="Restart assessment from beginning">Start Over</button>
                     </div>
                 </div>
             </section>
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p class="footer__text">Twilio AI Leadership Assessment Tool</p>
-        </div>
-    </footer>
+    <!-- Animated Cursor for Simulation Mode -->
+    <div id="sim-cursor" class="sim-cursor" style="display: none;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+        </svg>
+    </div>
 
     <script src="app.js"></script>
 </body>

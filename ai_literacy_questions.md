@@ -1,26 +1,6 @@
 Diagnostic Tool
 AI Literacy 
 
-About the tool 
-This assessment is designed to help you benchmark your readiness to lead and support AI-enabled teams by evaluating the foundational human skills necessary to lead in an AI-enabled world. Rather than focus on technical knowledge of AI systems, this tool investigates your ability to delegate, communicate intent, discern quality, and to generally keep it Twilio. 
-
-By mapping your current capabilities against a four-stage maturity model, you will identify actionable gaps and move towards a state where AI is a central part of how you build and support your function. 
-
-Understanding the levels
-The tool scores your responses across a linear scale of progression
-
-Level 
-Definition
-🔴 Not Started
-You’re still in the onboarding phase, or focused on surface-level symptoms; you rely on clear signals and those around you to define problems and goals 
-🟡 Compliant
-You understand standard operating challenges and KPIs; you can use approved AI tools safely without putting Twilio at risk 
-🟢Competent 
-You are AI literate and can perform root-cause analysis when dissatisfied by AI outputs; you use AI systems at a basic level to accomplish goals and manage your function’s needs
-🟢 Creative
-You synthesize complex data and context to uncover non-obvious problems and solutions; you use AI to innovate and create things previously unattainable or possible 
-
-
 Instruction
 Complete the statements below to the best of your abilities: 
 

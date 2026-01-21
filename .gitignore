@@ -1,0 +1,18 @@
+# API keys and sensitive configuration
+config.js
+.env
+.env.local
+
+# Dependencies
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.vscode/
+.idea/
+
+# Logs
+*.log
