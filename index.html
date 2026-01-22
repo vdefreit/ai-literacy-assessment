@@ -22,7 +22,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <script src="config.js"></script>
+    <script>
+        // Define default CONFIG in case config.js doesn't load (e.g., on deployment)
+        window.CONFIG = window.CONFIG || {
+            OPENAI_API_KEY: 'YOUR_OPENAI_API_KEY_HERE',
+            OPENAI_MODEL: 'gpt-4o',
+            OPENAI_MAX_TOKENS: 1500,
+            OPENAI_TEMPERATURE: 0.7,
+            USE_AI_RECOMMENDATIONS: false,
+            FALLBACK_ON_ERROR: true
+        };
+    </script>
+    <script src="config.js" onerror="console.log('config.js not found, using defaults')"></script>
 </head>
 <body>
     <!-- Main Content -->
