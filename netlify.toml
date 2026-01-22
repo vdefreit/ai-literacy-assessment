@@ -1,7 +1,0 @@
-# Netlify configuration for serverless functions
-[build]
-  functions = "netlify/functions"
-  publish = "."
-
-# Environment variables (set these in Netlify dashboard)
-# OPENAI_API_KEY = your-key-here
