@@ -1171,6 +1171,13 @@ function markdownToHtml(text) {
  * Generates one recommendation for a specific category
  */
 async function generateSingleRecommendation(category, scores) {
+    // Check if CONFIG exists first
+    if (typeof CONFIG === 'undefined' || !CONFIG.USE_AI_RECOMMENDATIONS || CONFIG.OPENAI_API_KEY === 'YOUR_OPENAI_API_KEY_HERE') {
+        console.log(`CONFIG not available or AI disabled, using static recommendation for ${category}`);
+        const staticRecs = generateRecommendations(scores);
+        return staticRecs.find(r => r.category === category);
+    }
+    
     const { jobTitle, team, hasDirectReports, canProcureTools } = state.userContext;
     
     let prompt = `Generate ONE detailed recommendation for a ${jobTitle} at Twilio in ${team}.\n\n`;
@@ -1258,8 +1265,8 @@ FORMATTING:
  * Generates recommendations one at a time with callback for progressive rendering
  */
 async function generateAIRecommendations(scores, onRecommendationReady) {
-    // Check if AI is enabled
-    if (!CONFIG.USE_AI_RECOMMENDATIONS || CONFIG.OPENAI_API_KEY === 'YOUR_OPENAI_API_KEY_HERE') {
+    // Check if CONFIG exists and AI is enabled
+    if (typeof CONFIG === 'undefined' || !CONFIG.USE_AI_RECOMMENDATIONS || CONFIG.OPENAI_API_KEY === 'YOUR_OPENAI_API_KEY_HERE') {
         console.log('AI recommendations disabled or API key not configured. Using static recommendations.');
         return generateRecommendations(scores);
     }
@@ -1289,7 +1296,7 @@ async function generateAIRecommendations(scores, onRecommendationReady) {
  */
 async function generateAIRecommendationsBatch_UNUSED(scores) {
     // Check if AI is enabled
-    if (!CONFIG.USE_AI_RECOMMENDATIONS) {
+    if (typeof CONFIG === 'undefined' || !CONFIG.USE_AI_RECOMMENDATIONS) {
         console.log('AI recommendations disabled. Using static recommendations.');
         return generateRecommendations(scores);
     }
@@ -1322,7 +1329,7 @@ async function generateAIRecommendationsBatch_UNUSED(scores) {
             // Fall back to direct API call if serverless function doesn't exist
             console.log('Serverless function not available, using direct API call');
             
-            if (CONFIG.OPENAI_API_KEY === 'YOUR_OPENAI_API_KEY_HERE') {
+            if (typeof CONFIG === 'undefined' || CONFIG.OPENAI_API_KEY === 'YOUR_OPENAI_API_KEY_HERE') {
                 console.log('API key not configured. Using static recommendations.');
                 return generateRecommendations(scores);
             }
@@ -1399,12 +1406,14 @@ KEY GUIDELINES:
     } catch (error) {
         console.error('Error generating AI recommendations:', error);
         
-        if (CONFIG.FALLBACK_ON_ERROR) {
+        if (typeof CONFIG !== 'undefined' && CONFIG.FALLBACK_ON_ERROR) {
             console.log('Falling back to static recommendations');
             return generateRecommendations(scores);
         }
         
-        throw error;
+        // Always fallback if CONFIG doesn't exist
+        console.log('CONFIG not found, using static recommendations');
+        return generateRecommendations(scores);
     }
 }
 
