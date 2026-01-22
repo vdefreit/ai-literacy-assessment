@@ -128,7 +128,6 @@
                     
                     <div class="welcome__actions">
                         <button id="start-btn" class="btn btn--primary">Start Assessment</button>
-                        <button id="simulate-btn" class="btn btn--secondary" disabled data-tooltip="Complete the information above">Simulate Assessment</button>
                     </div>
                 </div>
             </section>
@@ -169,7 +168,6 @@
                     <!-- Navigation Buttons -->
                     <div class="navigation">
                         <button id="prev-btn" class="btn btn--secondary" disabled aria-label="Go to previous question">Previous</button>
-                        <button id="skip-simulation-btn" class="btn btn--secondary" style="display: none;" aria-label="Skip simulation and go to results">Skip to Results</button>
                         <button id="next-btn" class="btn btn--primary" disabled aria-label="Go to next question">Next</button>
                         <button id="submit-btn" class="btn btn--primary" style="display: none;" aria-label="Submit assessment and view results">Submit Assessment</button>
                     </div>
@@ -210,13 +208,6 @@
             </section>
         </div>
     </main>
-
-    <!-- Animated Cursor for Simulation Mode -->
-    <div id="sim-cursor" class="sim-cursor" style="display: none;">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
-        </svg>
-    </div>
 
     <script src="app.js"></script>
 </body>

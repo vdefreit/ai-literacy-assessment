@@ -855,12 +855,12 @@ body {
 }
 
 .score-card__value {
-    font-size: 4rem;
+    font-size: 3rem;
     font-weight: 700;
     color: var(--accent-primary);
     margin-bottom: var(--space-5);
-    letter-spacing: -0.03em;
-    line-height: 1;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
     animation: countUp 1.5s ease-out forwards;
     position: relative;
     z-index: 2;
@@ -1012,11 +1012,17 @@ body {
 
 .combined-result__bar {
     width: 100%;
+    margin-bottom: var(--space-8);
+    position: relative;
+}
+
+.combined-result__bar-track {
+    width: 100%;
     height: 12px;
     background-color: var(--bg-tertiary);
     border-radius: var(--radius-md);
     overflow: hidden;
-    margin-bottom: var(--space-5);
+    margin-bottom: var(--space-3);
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -1027,37 +1033,63 @@ body {
     border-radius: var(--radius-sm);
 }
 
+.combined-result__markers {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin-top: var(--space-2);
+}
+
+.combined-result__markers .marker {
+    position: absolute;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.combined-result__markers .marker:first-child {
+    transform: translateX(0);
+}
+
+.combined-result__markers .marker:last-child {
+    transform: translateX(-100%);
+}
+
 .combined-result__recommendation {
-    padding-top: var(--space-8);
+    padding-top: var(--space-5);
+}
+
+.generate-rec-btn {
+    margin-bottom: var(--space-4);
 }
 
 /* Modern Apple-like Recommendation Styling */
 .recommendation-content {
     color: var(--text-primary);
     font-size: 1rem;
-    line-height: 1.8;
-}
-
-/* Main heading - large, prominent */
-.recommendation-content > p:first-child {
-    font-size: 1.75rem;
-    font-weight: 700;
-    line-height: 1.3;
-    margin: 0 0 var(--space-8) 0;
-    letter-spacing: -0.02em;
-    color: var(--text-primary);
+    line-height: 1.6;
 }
 
 /* Section headings - clean and spaced */
 .recommendation-content h1,
-.recommendation-content h2,
+.recommendation-content h2 {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-top: var(--space-8);
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--border-color);
+    line-height: 1.3;
+}
+
+/* H3 for Use Cases - no border, more compact */
 .recommendation-content h3 {
     color: var(--text-primary);
     font-weight: 600;
-    margin-top: var(--space-10);
-    margin-bottom: var(--space-4);
-    padding-bottom: var(--space-3);
-    border-bottom: 1px solid var(--border-color);
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-3);
     line-height: 1.3;
 }
 
@@ -1070,19 +1102,19 @@ body {
 }
 
 .recommendation-content h3 {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
 }
 
-/* First section heading - less margin */
-.recommendation-content h1:first-of-type,
-.recommendation-content h2:first-of-type,
-.recommendation-content h3:first-of-type {
+/* First section heading - no top margin */
+.recommendation-content h1:first-child,
+.recommendation-content h2:first-child,
+.recommendation-content h3:first-child {
     margin-top: 0;
 }
 
-/* Body paragraphs - generous spacing */
+/* Body paragraphs - tighter spacing */
 .recommendation-content p {
-    margin: var(--space-5) 0;
+    margin: var(--space-4) 0;
     color: var(--text-primary);
     opacity: 0.9;
 }
@@ -1097,20 +1129,25 @@ body {
     font-weight: 600;
 }
 
-/* Bullet lists - clean and spaced */
+/* Bullet lists - clean and compact */
 .recommendation-content ul {
-    margin: var(--space-6) 0;
+    margin: var(--space-4) 0;
     padding: 0;
     list-style: none;
 }
 
 .recommendation-content li {
-    margin-bottom: var(--space-5);
+    margin-bottom: var(--space-3);
     padding-left: var(--space-8);
     position: relative;
     color: var(--text-primary);
-    line-height: 1.7;
+    line-height: 1.6;
     opacity: 0.95;
+}
+
+/* Last list item - no bottom margin */
+.recommendation-content li:last-child {
+    margin-bottom: 0;
 }
 
 /* Custom bullet points */
@@ -1118,7 +1155,7 @@ body {
     content: '';
     position: absolute;
     left: var(--space-4);
-    top: 0.65em;
+    top: 0.6em;
     width: 6px;
     height: 6px;
     background-color: var(--accent-primary);
@@ -1127,7 +1164,7 @@ body {
 
 /* Nested content in bullets */
 .recommendation-content li p {
-    margin: var(--space-2) 0;
+    margin: 0;
     display: inline;
 }
 
@@ -1142,29 +1179,10 @@ body {
     font-size: 0.9375rem;
     line-height: 1.6;
     display: block;
-    margin: var(--space-6) 0;
+    margin: var(--space-5) 0;
     overflow-x: auto;
-}
-
-/* Section dividers - subtle visual breaks */
-.recommendation-content > *:not(:last-child) {
-    margin-bottom: var(--space-4);
-}
-
-/* Simulation Mode Cursor */
-.sim-cursor {
-    position: fixed;
-    pointer-events: none;
-    z-index: 10000;
-    color: var(--accent-primary);
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-                top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.sim-cursor--clicking {
-    transform: scale(0.8);
-    transition: transform 0.1s ease;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 .results__actions {

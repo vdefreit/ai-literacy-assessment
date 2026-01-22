@@ -496,35 +496,11 @@ function init() {
     
     // Set up event listeners
     document.getElementById('start-btn').addEventListener('click', startAssessment);
-    document.getElementById('simulate-btn').addEventListener('click', startSimulation);
-    document.getElementById('skip-simulation-btn').addEventListener('click', skipSimulation);
     document.getElementById('next-btn').addEventListener('click', nextQuestion);
     document.getElementById('prev-btn').addEventListener('click', prevQuestion);
     document.getElementById('submit-btn').addEventListener('click', submitAssessment);
     document.getElementById('restart-btn').addEventListener('click', restartAssessment);
     document.getElementById('print-btn').addEventListener('click', printReport);
-    
-    // Form validation for simulate button
-    const jobTitleInput = document.getElementById('job-title');
-    const teamSelect = document.getElementById('team');
-    const simulateBtn = document.getElementById('simulate-btn');
-    
-    function validateSimulateButton() {
-        const jobTitle = jobTitleInput.value.trim();
-        const team = teamSelect.value;
-        const isValid = jobTitle && team;
-        
-        simulateBtn.disabled = !isValid;
-        
-        if (isValid) {
-            simulateBtn.removeAttribute('data-tooltip');
-        } else {
-            simulateBtn.setAttribute('data-tooltip', 'Complete the information above');
-        }
-    }
-    
-    jobTitleInput.addEventListener('input', validateSimulateButton);
-    teamSelect.addEventListener('change', validateSimulateButton);
     
     // Dark mode toggle
     initThemeToggle();
@@ -1138,6 +1114,9 @@ function generateRecommendations(scores) {
 function markdownToHtml(text) {
     let html = text;
     
+    // Convert code blocks first (```language\ncode\n``` or ```\ncode\n```)
+    html = html.replace(/```(?:\w+)?\n([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+    
     // Convert headers (### -> h3, ## -> h2, # -> h1)
     html = html.replace(/^###\s+(.+)$/gm, '<h3>$1</h3>');
     html = html.replace(/^##\s+(.+)$/gm, '<h2>$1</h2>');
@@ -1146,22 +1125,64 @@ function markdownToHtml(text) {
     // Convert **bold** to <strong>
     html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     
-    // Convert bullet lists (- item or * item)
-    html = html.replace(/^[\-\*]\s+(.+)$/gm, '<li>$1</li>');
+    // Process bullet lists - handle main bullets and sub-items
+    // First, identify list blocks (consecutive lines starting with -)
+    const lines = html.split('\n');
+    let inList = false;
+    let processedLines = [];
     
-    // Wrap consecutive <li> items in <ul>
-    html = html.replace(/(<li>.*<\/li>\n?)+/gs, '<ul>$&</ul>');
-    
-    // Convert line breaks to paragraphs
-    html = html.split('\n\n').map(para => {
-        if (para.trim() && !para.includes('<ul>') && !para.includes('<li>') && !para.includes('<h')) {
-            return `<p>${para.trim()}</p>`;
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const trimmed = line.trim();
+        
+        // Check if this is a bullet item
+        if (trimmed.match(/^[\-\*]\s+/)) {
+            if (!inList) {
+                processedLines.push('<ul>');
+                inList = true;
+            }
+            // Remove the bullet marker and wrap in <li>
+            const content = trimmed.replace(/^[\-\*]\s+/, '');
+            processedLines.push(`<li>${content}</li>`);
+        } else if (inList && trimmed === '') {
+            // Empty line ends the list
+            processedLines.push('</ul>');
+            inList = false;
+            processedLines.push(line);
+        } else {
+            if (inList && trimmed !== '') {
+                // Non-bullet line inside list context - close the list
+                processedLines.push('</ul>');
+                inList = false;
+            }
+            processedLines.push(line);
         }
-        return para;
-    }).join('\n');
+    }
     
-    // Clean up any remaining single line breaks
-    html = html.replace(/\n/g, '<br>');
+    // Close list if still open
+    if (inList) {
+        processedLines.push('</ul>');
+    }
+    
+    html = processedLines.join('\n');
+    
+    // Convert paragraph blocks (text separated by blank lines)
+    html = html.split('\n\n').map(block => {
+        const trimmed = block.trim();
+        if (trimmed && !trimmed.includes('<ul>') && !trimmed.includes('<li>') && 
+            !trimmed.includes('<h') && !trimmed.includes('<pre>') && 
+            !trimmed.startsWith('<')) {
+            return `<p>${trimmed}</p>`;
+        }
+        return block;
+    }).join('\n\n');
+    
+    // Clean up extra newlines but preserve structure
+    html = html.replace(/\n{3,}/g, '\n\n');
+    html = html.replace(/\n/g, ' ');
+    html = html.replace(/<\/li>\s+<li>/g, '</li><li>');
+    html = html.replace(/<\/ul>\s+<ul>/g, '</ul><ul>');
+    html = html.replace(/<\/(h[123]|p|ul|pre)>\s+<(h[123]|p|ul|pre)/g, '</$1><$2');
     
     return html;
 }
@@ -1205,30 +1226,61 @@ async function generateSingleRecommendation(category, scores) {
                         role: 'system',
                         content: `You are an experienced AI literacy coach at Twilio helping employees leverage AI tools effectively.
 
-TWILIO AI TOOLS CONTEXT:
+TWILIO CONTEXT:
 - Primary tool: Google Gemini webapp (multi-modal capabilities, web search, deep research mode)
 - Employees can build and share Gems (custom AI assistants) with their teams
 - OpenAI API is available for developers (not the webapp)
 - Switchboard is Twilio's resource hub where employees can learn about available tools in the AI Hub
 - If the employee CANNOT procure tools, direct them to Switchboard to discover available tools rather than suggesting specific new tools
-- If the employee CAN procure tools, suggest specific tools and platforms to evaluate
+- If the employee CAN procure tools, suggest specific tools and platforms to evaluate based on 2025 data. 
+- If
+
+FEEDBACK GUIDANCE:
+- Prioritize responsible AI use, data privacy, and bias/ethical considerations in all recommendations
+- When referring to Delegation, Communication, Discernment only refer to the user's ability to do those things with AI tools and LLMs, not to members of their team
+- When giving feedback to Leaders/Managers, emphasize strategies that focus on Twilio's leadership expectations: Build Trust, Grow Together, Solve Impactful Problems, Lead Change, Think Long Term 
+- When referecing Twilio's Leadership Expectations to Leaders, specifically call it "Twilio's Leadership Expectations"
+- For Individual Contributors, focus on personal productivity, skill development, and quality assurance
+- Always align recommendations with Twilio's Magic Values
+- Don't ever recommend specific AI tools/platforms outside of Gemini webapp 
 
 RECOMMENDATION STRUCTURE:
-Provide a DETAILED, COMPREHENSIVE recommendation with:
-1. **Overview** (3-4 sentences): High-level summary of the key opportunity for their role and current maturity level
-2. **Three Specific Use Cases** (detailed, with context):
-   - **Use Case 1 (Quick Win)**: Something they can try TODAY. Include: scenario, step-by-step approach, expected outcome, time saved. (4-5 sentences)
-   - **Use Case 2 (Build On It)**: More advanced application. Include: when to try this, how it differs, what skills it develops. (4-5 sentences)
-   - **Use Case 3 (Stretch Goal)**: Challenging capability for next month. Include: prerequisites, potential impact, what makes it advanced. (4-5 sentences)
-3. **Gemini Tips**: 2-3 specific Gemini features to leverage (multi-modal, web search, deep research with warnings, Gems)
-4. **Starter Prompt**: Complete, copy-paste ready prompt with [placeholders] they fill in
+1. **Overview** (2-3 sentences): High-level summary of the key opportunity for their role and current maturity level
 
-FORMATTING:
-- Use markdown: **bold** for emphasis, - for bullet lists
-- Break content into clear sections with blank lines
-- Each use case as a bullet with sub-bullets for details
-- Make starter prompt clearly marked
-- 400-600 words total`
+2. **Three Specific Use Cases**:
+   ### Use Case 1 (Quick Win): [Title]
+   - **Scenario:** [1-2 sentences describing the situation]
+   - **Step-by-Step Approach:** [2-3 sentences with specific actions]
+   - **Expected Outcome:** [1-2 sentences on results]
+   - **Time Saved:** [Specific time estimate]
+   - **Starter Prompt:** (in code block)
+     [Copy-paste ready prompt for Use Case 1 with [placeholders]]
+   
+   ### Use Case 2 (Build On It): [Title]
+   - **When to Try This:** [1 sentence on timing]
+   - **How It Differs:** [2-3 sentences on the advancement]
+   - **Skills It Develops:** [1-2 sentences on learning outcomes]
+   - **Starter Prompt:** (in code block)
+     [Copy-paste ready prompt for Use Case 2 with [placeholders]]
+   
+   ### Use Case 3 (Stretch Goal): [Title]
+   - **Prerequisites:** [1-2 sentences on what's needed first]
+   - **Potential Impact:** [2-3 sentences on transformative value]
+   - **What Makes It Advanced:** [1-2 sentences on complexity]
+   - **Starter Prompt:** (in code block)
+     [Copy-paste ready prompt for Use Case 3 with [placeholders]]
+
+3. **Gemini Tips**:
+   - [2-3 specific Gemini features as bullets]
+
+FORMATTING RULES:
+- Use ### for each Use Case title (creates H3 headings)
+- Use **bold** for sub-item labels (Scenario, Expected Outcome, Starter Prompt, etc.)
+- Use - for bullet lists under each heading
+- Add blank lines between Use Cases
+- Wrap each Starter Prompt text in triple backticks to create a code block
+- Each starter prompt should be specifically tailored to its use case
+- Total: 500-700 words`
                     },
                     {
                         role: 'user',
@@ -1401,26 +1453,9 @@ function parseAIRecommendations(aiResponse, scores) {
 async function submitAssessment() {
     const scores = calculateScores();
     
-    // Show results screen immediately with loading state
+    // Show results screen with buttons to generate recommendations on demand
     showScreen('results-screen');
-    renderResults(scores, []); // Empty array indicates all recommendations are loading
-    
-    try {
-        // Generate AI recommendations sequentially
-        console.log('Generating AI recommendations sequentially...');
-        await generateAIRecommendations(scores, (recommendation, scores) => {
-            // This callback is called immediately when each recommendation is ready
-            console.log(`Recommendation ready for ${recommendation.category}`);
-            updateSingleRecommendation(recommendation, scores);
-        });
-        console.log('All recommendations generated');
-    } catch (error) {
-        console.error('Failed to generate recommendations:', error);
-        // Fallback to static recommendations
-        const staticRecommendations = generateRecommendations(scores);
-        console.log('Using static recommendations:', staticRecommendations);
-        renderResults(scores, staticRecommendations);
-    }
+    renderResults(scores, null); // null = show buttons, not loading
     
     // Clear progress after completion
     clearProgress();
@@ -1463,27 +1498,32 @@ function updateSingleRecommendation(recommendation, scores) {
  * @param {Array|null} recommendations - Generated recommendations or null for loading state
  */
 function renderResults(scores, recommendations) {
-    // Overall score with animation
+    // Overall score - show maturity level instead of percentage
     const overallScoreEl = document.getElementById('overall-score');
     const overallScoreBar = document.getElementById('overall-score-bar');
     const overallMaturity = document.getElementById('overall-maturity');
     const scoreCelebration = document.getElementById('score-celebration');
     
-    // Calculate percentage (out of 4)
+    // Get maturity level and color
+    const maturityLevel = scores.overallMaturity;
+    const level = maturityLevels.find(l => l.label === maturityLevel);
+    const levelColor = level ? level.color : 'var(--accent-primary)';
     const percentage = Math.round((scores.overall / 4) * 100);
     
-    // Animate score counting up
+    // Display maturity level (not percentage)
     setTimeout(() => {
-        animateValue(overallScoreEl, 0, percentage, 1500);
-        overallMaturity.textContent = scores.overallMaturity;
+        overallScoreEl.textContent = maturityLevel;
+        overallScoreEl.style.color = levelColor;
+        overallMaturity.textContent = `Score: ${scores.overall.toFixed(2)}/4.00`;
         
         // Animate progress bar
         setTimeout(() => {
             overallScoreBar.style.width = percentage + '%';
+            overallScoreBar.style.backgroundColor = levelColor;
         }, 300);
         
-        // Trigger celebration effect for good scores
-        if (percentage >= 60) {
+        // Trigger celebration effect for high maturity
+        if (maturityLevel === 'Creative' || maturityLevel === 'Competent') {
             setTimeout(() => {
                 scoreCelebration.classList.add('active');
                 setTimeout(() => {
@@ -1502,10 +1542,7 @@ function renderResults(scores, recommendations) {
         const maturity = scores.categoryMaturities[category.name] || 'Not Started';
         const level = maturityLevels.find(l => l.label === maturity);
         const levelColor = level ? level.color : 'var(--color-neutral-600)';
-        
-        // Find the recommendation for this category (empty array = show loading for all)
-        const rec = recommendations && recommendations.length > 0 ? recommendations.find(r => r.category === category.name) : null;
-        const isLoading = recommendations && recommendations.length === 0;
+        const percentage = (avgScore / 4) * 100;
         
         const combinedEl = document.createElement('div');
         combinedEl.className = 'combined-result';
@@ -1518,19 +1555,50 @@ function renderResults(scores, recommendations) {
                 <span class="combined-result__value">${avgScore.toFixed(2)}</span>
             </div>
             <div class="combined-result__bar">
-                <div class="combined-result__fill" style="width: ${(avgScore / 4) * 100}%; background-color: ${levelColor}"></div>
+                <div class="combined-result__bar-track">
+                    <div class="combined-result__fill" style="width: ${percentage}%; background-color: ${levelColor}"></div>
+                </div>
+                <div class="combined-result__markers">
+                    <span class="marker" style="left: 0%">Not Started</span>
+                    <span class="marker" style="left: 33.33%">Compliant</span>
+                    <span class="marker" style="left: 66.66%">Competent</span>
+                    <span class="marker" style="left: 100%">Creative</span>
+                </div>
             </div>
-            <div class="combined-result__recommendation">
-                ${isLoading || !rec ?
-                    `<div class="loading-recommendation">
-                        <div class="loading-spinner"></div>
-                        <p>Generating personalized recommendations...</p>
-                    </div>` :
-                    `<div class="recommendation-content">${markdownToHtml(rec.text)}</div>`
-                }
+            <div class="combined-result__recommendation" id="rec-${category.name}">
+                <button class="btn btn--secondary generate-rec-btn" data-category="${category.name}">
+                    Generate AI Recommendations
+                </button>
             </div>
         `;
         combinedResultsEl.appendChild(combinedEl);
+    });
+    
+    // Add event listeners for generate buttons
+    document.querySelectorAll('.generate-rec-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const category = this.dataset.category;
+            const recContainer = document.getElementById(`rec-${category}`);
+            
+            // Show loading state
+            recContainer.innerHTML = `
+                <div class="loading-recommendation">
+                    <div class="loading-spinner"></div>
+                    <p>Generating personalized recommendations for ${category}...</p>
+                </div>
+            `;
+            
+            // Generate recommendation
+            try {
+                const recommendation = await generateSingleRecommendation(category, scores);
+                recContainer.innerHTML = `<div class="recommendation-content">${markdownToHtml(recommendation.text)}</div>`;
+            } catch (error) {
+                console.error(`Error generating recommendation for ${category}:`, error);
+                const staticRecs = generateRecommendations(scores);
+                const staticRec = staticRecs.find(r => r.category === category);
+                recContainer.innerHTML = `<div class="recommendation-content">${markdownToHtml(staticRec.text)}</div>`;
+            }
+        });
     });
 }
 
@@ -1564,152 +1632,6 @@ function restartAssessment() {
  */
 function printReport() {
     window.print();
-}
-
-/**
- * Simulation Mode
- * Auto-runs through the assessment by starting questions then auto-clicking answers
- */
-let simulationActive = false;
-let simulationSkipped = false;
-
-async function startSimulation() {
-    if (simulationActive) return;
-    
-    simulationActive = true;
-    simulationSkipped = false;
-    
-    // Capture form values that are already filled in
-    const jobTitle = document.getElementById('job-title').value.trim();
-    const team = document.getElementById('team').value;
-    const hasDirectReports = document.getElementById('has-direct-reports').checked;
-    const canProcureTools = document.getElementById('can-procure-tools').checked;
-    
-    // Store in state
-    state.userContext = {
-        jobTitle,
-        team,
-        hasDirectReports,
-        canProcureTools
-    };
-    
-    // Start the assessment (transition to questions screen)
-    showScreen('questionnaire-screen');
-    state.currentQuestionIndex = 0;
-    state.currentSection = 0;
-    state.answers = {};
-    renderQuestion();
-    
-    // Show skip button
-    const skipBtn = document.getElementById('skip-simulation-btn');
-    skipBtn.style.display = 'inline-flex';
-    
-    // Wait for screen transition (5x faster: 500 -> 100)
-    await sleep(100);
-    
-    // Now simulate clicking through all questions
-    for (let i = 0; i < state.questions.length; i++) {
-        if (simulationSkipped) {
-            // If skipped, instantly fill remaining answers
-            await completeSimulationInstantly();
-            break;
-        }
-        
-        await sleep(80); // 5x faster: 400 -> 80
-        
-        const currentQuestion = state.questions[state.currentQuestionIndex];
-        const answerOptions = document.querySelectorAll('.answer-option');
-        
-        if (answerOptions.length > 0) {
-            // Pick a random answer
-            const randomIndex = Math.floor(Math.random() * answerOptions.length);
-            const selectedOption = answerOptions[randomIndex];
-            const answerValue = parseInt(selectedOption.dataset.value);
-            
-            // Select the answer
-            selectAnswer(currentQuestion.id, answerValue);
-            
-            // Check if this was the last question
-            const isLastQuestion = state.currentQuestionIndex === state.questions.length - 1;
-            
-            if (isLastQuestion) {
-                // Last question - hide skip button and submit
-                await sleep(200); // Give UI time to update
-                skipBtn.style.display = 'none';
-                simulationActive = false;
-                
-                // Calculate scores and show results
-                const scores = calculateScores();
-                showScreen('results-screen');
-                renderResults(scores, []); // Empty array indicates all recommendations are loading
-                
-                // Generate AI recommendations in background
-                try {
-                    await generateAIRecommendations(scores, (recommendation, scores) => {
-                        updateSingleRecommendation(recommendation, scores);
-                    });
-                } catch (error) {
-                    console.error('Failed to generate recommendations:', error);
-                    const staticRecommendations = generateRecommendations(scores);
-                    renderResults(scores, staticRecommendations);
-                }
-                
-                clearProgress();
-                return; // Exit immediately
-            } else {
-                // Move to next question
-                await sleep(80);
-                nextQuestion();
-                await sleep(120); // 5x faster: 600 -> 120
-            }
-        }
-    }
-    
-    simulationActive = false;
-    skipBtn.style.display = 'none';
-}
-
-async function completeSimulationInstantly() {
-    // Fill all remaining questions with random answers instantly
-    while (state.currentQuestionIndex < state.questions.length) {
-        const currentQuestion = state.questions[state.currentQuestionIndex];
-        const randomValue = Math.floor(Math.random() * 4) + 1; // Random value 1-4
-        
-        // Record the answer
-        state.answers[currentQuestion.id] = randomValue;
-        
-        if (state.currentQuestionIndex < state.questions.length - 1) {
-            state.currentQuestionIndex++;
-        } else {
-            break;
-        }
-    }
-    
-    // Hide skip button
-    document.getElementById('skip-simulation-btn').style.display = 'none';
-    simulationActive = false;
-    
-    // Calculate scores and show results
-    const scores = calculateScores();
-    showScreen('results-screen');
-    renderResults(scores, []); // Empty array indicates all recommendations are loading
-    
-    // Generate AI recommendations in background
-    try {
-        await generateAIRecommendations(scores, (recommendation, scores) => {
-            updateSingleRecommendation(recommendation, scores);
-        });
-    } catch (error) {
-        console.error('Failed to generate recommendations:', error);
-        const staticRecommendations = generateRecommendations(scores);
-        renderResults(scores, staticRecommendations);
-    }
-    
-    clearProgress();
-}
-
-function skipSimulation() {
-    simulationSkipped = true;
 }
 
 /**
