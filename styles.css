@@ -215,7 +215,6 @@ body {
     padding: var(--space-8);
     background-color: var(--bg-secondary);
     border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color);
 }
 
 .welcome__section-title {
