@@ -76,6 +76,8 @@
 
 html {
     scroll-behavior: smooth;
+    height: 100vh;
+    overflow: hidden;
 }
 
 body {
@@ -87,6 +89,10 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition: background-color var(--transition-base), color var(--transition-base);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Container */
@@ -94,6 +100,9 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 var(--space-6);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Theme Toggle */
@@ -121,18 +130,25 @@ body {
 
 /* Main Content */
 .main {
-    min-height: calc(100vh - 100px);
-    padding: var(--space-10) 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: var(--space-6) 0;
 }
 
 /* Screen Management */
 .screen {
     display: none;
     animation: fadeIn 0.3s ease;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .screen--active {
-    display: block;
+    display: flex;
+    flex-direction: column;
 }
 
 @keyframes fadeIn {
@@ -151,10 +167,14 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     background-color: var(--bg-primary);
-    padding: var(--space-12);
+    padding: var(--space-8);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border-color);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
 }
 
 .welcome__header {
@@ -574,12 +594,16 @@ body {
 /* Questionnaire */
 .questionnaire {
     background-color: var(--bg-primary);
-    padding: var(--space-10);
+    padding: var(--space-8);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border-color);
     max-width: 1000px;
     margin: 0 auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
 }
 
 .question-container {
@@ -757,12 +781,16 @@ body {
 /* Results Screen */
 .results {
     background-color: var(--bg-primary);
-    padding: var(--space-12);
+    padding: var(--space-8);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border-color);
     max-width: 1000px;
     margin: 0 auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
 }
 
 .results__title {
