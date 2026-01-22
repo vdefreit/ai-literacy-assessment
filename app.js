@@ -1268,7 +1268,16 @@ async function generateAIRecommendations(scores, onRecommendationReady) {
     // Check if CONFIG exists and AI is enabled
     if (typeof CONFIG === 'undefined' || !CONFIG.USE_AI_RECOMMENDATIONS || CONFIG.OPENAI_API_KEY === 'YOUR_OPENAI_API_KEY_HERE') {
         console.log('AI recommendations disabled or API key not configured. Using static recommendations.');
-        return generateRecommendations(scores);
+        const staticRecs = generateRecommendations(scores);
+        
+        // Call the callback for each static recommendation to update UI
+        if (onRecommendationReady) {
+            staticRecs.forEach(rec => {
+                onRecommendationReady(rec, scores);
+            });
+        }
+        
+        return staticRecs;
     }
     
     const categories = ['Delegation', 'Communication', 'Discernment', 'Keeping It Twilio'];
