@@ -1520,7 +1520,8 @@ function buildRecommendationPrompt(scores) {
     prompt += `- Who do they collaborate with and how?\n`;
     
     // Determine procurement ability from job level (M and E levels typically can procure)
-    const canProcure = jobLevel.startsWith('M') || jobLevel.startsWith('E');\n    if (canProcure) {
+    const canProcure = jobLevel.startsWith('M') || jobLevel.startsWith('E');
+    if (canProcure) {
         prompt += `- Based on their ${jobLevel} level, they likely have procurement authority - suggest specific AI tools or platforms they should evaluate for their team\n`;
     } else {
         prompt += `- Direct them to Switchboard (Twilio's AI Hub) to discover available internal tools rather than suggesting new tool procurement\n`;
