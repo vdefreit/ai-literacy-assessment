@@ -36,7 +36,7 @@ const state = {
  */
 const maturityLevels = [
     { value: 1, label: 'Not Started', color: '#d61f1f' },   // Red - Twilio Paste error color
-    { value: 2, label: 'Compliant', color: '#f7a600' },     // Orange - Twilio Paste warning color
+    { value: 2, label: 'Compliant', color: '#d97706' },     // Darker Orange - Better contrast for accessibility
     { value: 3, label: 'Competent', color: '#14b053' },     // Green - Twilio Paste success color
     { value: 4, label: 'Creative', color: '#0263e0' }       // Blue - Twilio Paste primary color
 ];
