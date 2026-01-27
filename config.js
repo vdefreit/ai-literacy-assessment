@@ -13,6 +13,10 @@ const CONFIG = {
     // Windmill authentication token (webhook-specific)
     WINDMILL_TOKEN: 'W4kC7pmiaClU37jMcMPeyZyJHv2Wlxtq',
     
+    // Response logging endpoint (for analytics)
+    // TODO: Replace with actual Windmill logging endpoint once created
+    LOGGING_ENDPOINT: 'https://twilio.windmill.dev/api/w/td/jobs/run_wait_result/p/u/VinceDeFreitas/log_assessment_response',
+    
     // OpenAI settings (passed to Windmill backend)
     OPENAI_MODEL: 'gpt-4o', // or 'gpt-4-turbo' for faster responses
     OPENAI_MAX_TOKENS: 1500,
@@ -20,6 +24,7 @@ const CONFIG = {
     
     // Feature flags
     USE_AI_RECOMMENDATIONS: true, // Set to false to use static recommendations
+    ENABLE_RESPONSE_LOGGING: true, // Set to false to disable anonymous response logging
     
     // Fallback behavior
     FALLBACK_ON_ERROR: true // Use static recommendations if AI fails

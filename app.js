@@ -1669,11 +1669,89 @@ function parseAIRecommendations(aiResponse, scores) {
 
 
 /**
+ * Log Assessment Response Anonymously
+ * Sends anonymous response data to backend for analytics
+ * This is completely invisible to the end user
+ */
+async function logAssessmentResponse(scores) {
+    // Check if logging is enabled and endpoint is configured
+    if (!CONFIG.ENABLE_RESPONSE_LOGGING || !CONFIG.LOGGING_ENDPOINT) {
+        console.log('Response logging disabled or endpoint not configured');
+        return;
+    }
+    
+    try {
+        // Prepare anonymous response data
+        const responseData = {
+            timestamp: new Date().toISOString(),
+            
+            // User demographics (no personally identifiable information)
+            team: state.userContext.team,
+            jobTitle: state.userContext.jobTitle,
+            jobLevel: state.userContext.jobLevel,
+            
+            // Assessment scores
+            overallScore: scores.overall,
+            overallMaturity: scores.overallMaturity,
+            hasNotStarted: scores.hasNotStarted || false,
+            
+            // Category scores
+            categoryScores: {},
+            categoryMaturities: {},
+            
+            // Individual question responses (anonymized)
+            responses: {}
+        };
+        
+        // Add category scores
+        state.categories.forEach(category => {
+            responseData.categoryScores[category.name] = scores.categories[category.name];
+            responseData.categoryMaturities[category.name] = scores.categoryMaturities[category.name];
+        });
+        
+        // Add individual responses mapped to question IDs (no personal data)
+        Object.keys(state.answers).forEach(questionId => {
+            const question = state.questions.find(q => q.id === questionId);
+            if (question) {
+                responseData.responses[questionId] = {
+                    category: question.category,
+                    value: state.answers[questionId],
+                    maturity: getMaturityLevel(state.answers[questionId])
+                };
+            }
+        });
+        
+        // Send to Windmill logging endpoint (fire and forget - don't block UI)
+        fetch(CONFIG.LOGGING_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${CONFIG.WINDMILL_TOKEN}`
+            },
+            body: JSON.stringify(responseData)
+        }).catch(error => {
+            // Silent fail - don't disrupt user experience
+            console.log('Failed to log response (non-blocking):', error);
+        });
+        
+        console.log('Assessment response logged successfully (anonymous)');
+    } catch (error) {
+        // Silent fail - logging should never disrupt the user experience
+        console.log('Error preparing response log:', error);
+    }
+}
+
+/**
  * Submit Assessment
  * Calculates scores and displays results with AI-powered recommendations
  */
 async function submitAssessment() {
     const scores = calculateScores();
+    
+    // Log assessment response anonymously (non-blocking, completely invisible to user)
+    logAssessmentResponse(scores).catch(err => {
+        console.log('Logging failed silently:', err);
+    });
     
     // Show results screen with buttons to generate recommendations on demand
     showScreen('results-screen');
