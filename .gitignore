@@ -1,5 +1,5 @@
 # API keys and sensitive configuration
-config.js
+# config.js - Now safe to commit (uses Windmill backend, no direct API keys)
 .env
 .env.local
 
