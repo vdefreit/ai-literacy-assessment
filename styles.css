@@ -1,23 +1,23 @@
-/* Twilio Paste Design System with Dark Mode Support */
-/* Reference: https://paste.twilio.design/foundations/colors */
+/* Twilio Brand Design System with Dark Mode Support */
+/* Reference: Twilio Brand Guidelines - Primary Palette */
 :root {
-    /* Light Mode Colors - Twilio Paste Design Tokens */
+    /* Light Mode Colors - Twilio Brand (Default) */
     --bg-primary: #ffffff;
-    --bg-secondary: #f4f5f6;
-    --bg-tertiary: #e1e3ea;
-    --text-primary: #121c2d;
-    --text-secondary: #606b85;
-    --text-tertiary: #6b7280;
-    --border-color: #d8dce6;
-    --border-hover: #cacdd8;
+    --bg-secondary: #f9fafb;
+    --bg-tertiary: #f3f4f6;
+    --text-primary: #000D25;
+    --text-secondary: #4b5563;
+    --text-tertiary: #9ca3af;
+    --border-color: #e5e7eb;
+    --border-hover: #d1d5db;
     
-    /* Accent Colors - Twilio Paste Primary Blue */
-    --accent-primary: #0263e0;
-    --accent-primary-hover: #0d4fc1;
-    --accent-primary-light: #e1effe;
+    /* Accent Colors - Twilio Red Primary */
+    --accent-primary: #EF223A;
+    --accent-primary-hover: #d11e33;
+    --accent-primary-light: #fee2e6;
     --accent-success: #14b053;
     --accent-warning: #f7a600;
-    --accent-error: #d61f1f;
+    --accent-error: #dc2626;
     
     /* Warning Colors for Disclaimer */
     --color-warning: #f7a600;
@@ -81,17 +81,17 @@
     --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark Mode - Twilio Paste Dark Theme */
+/* Dark Mode - Twilio Ink Navy (blue-900) */
 [data-theme="dark"] {
-    --bg-primary: #121c2d;
-    --bg-secondary: #1f2e4d;
-    --bg-tertiary: #2c3e5f;
-    --text-primary: #f4f5f6;
-    --text-secondary: #c4c9d4;
-    --text-tertiary: #8891aa;
-    --border-color: #2c3e5f;
-    --border-hover: #3d5278;
-    --accent-primary-light: #1a3a6b;
+    --bg-primary: #000D25;
+    --bg-secondary: #0a1a35;
+    --bg-tertiary: #1a2845;
+    --text-primary: #ffffff;
+    --text-secondary: #d1d5db;
+    --text-tertiary: #9ca3af;
+    --border-color: #1a2845;
+    --border-hover: #2a3855;
+    --accent-primary-light: #3d1520;
     
     /* Warning Colors for Dark Mode */
     --color-warning-light: #3d2e1a;
@@ -115,7 +115,7 @@ body {
     font-size: 1rem;
     line-height: 1.6;
     color: var(--text-primary);
-    background-color: #0d1829;
+    background-color: var(--bg-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition: background-color var(--transition-base), color var(--transition-base);
@@ -143,12 +143,26 @@ body {
     justify-content: center;
     width: 40px;
     height: 40px;
+    z-index: 100;
 }
 
 .theme-toggle:hover {
     background-color: var(--bg-tertiary);
     border-color: var(--border-hover);
     color: var(--text-primary);
+}
+
+.theme-toggle--absolute {
+    position: absolute;
+    top: var(--space-6);
+    right: var(--space-6);
+}
+
+@media (max-width: 768px) {
+    .theme-toggle--absolute {
+        top: var(--space-4);
+        right: var(--space-4);
+    }
 }
 
 /* Main Content */
@@ -546,11 +560,11 @@ body {
 
 /* Dark mode button improvements for better contrast */
 [data-theme="dark"] .btn--primary {
-    background-color: #2563eb;
+    background-color: var(--accent-primary);
 }
 
 [data-theme="dark"] .btn--primary:hover:not(:disabled) {
-    background-color: #1d4ed8;
+    background-color: var(--accent-primary-hover);
 }
 
 [data-theme="dark"] .btn--secondary {
@@ -627,6 +641,7 @@ body {
 
 /* Questionnaire */
 .questionnaire {
+    position: relative;
     background-color: var(--bg-primary);
     padding: var(--space-10);
     border-radius: var(--radius-xl);
@@ -809,6 +824,7 @@ body {
 
 /* Results Screen */
 .results {
+    position: relative;
     background-color: var(--bg-primary);
     padding: var(--space-12);
     border-radius: var(--radius-xl);

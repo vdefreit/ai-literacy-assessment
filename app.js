@@ -597,28 +597,35 @@ function clearProgress() {
 /**
  * Theme Toggle - Dark/Light Mode
  * Persists user preference in localStorage
+ * Handles multiple theme toggle buttons across different screens
  */
 function initThemeToggle() {
-    const themeToggle = document.getElementById('theme-toggle');
+    const themeToggles = document.querySelectorAll('[id^="theme-toggle"]');
     const currentTheme = localStorage.getItem('theme') || 'light';
     
     // Set initial theme
     document.documentElement.setAttribute('data-theme', currentTheme);
     updateThemeIcon(currentTheme);
     
-    themeToggle.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        updateThemeIcon(newTheme);
+    // Add click handler to all theme toggle buttons
+    themeToggles.forEach(toggle => {
+        toggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
     });
 }
 
 function updateThemeIcon(theme) {
-    const themeToggle = document.getElementById('theme-toggle');
-    themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+    const themeToggles = document.querySelectorAll('[id^="theme-toggle"]');
+    const icon = theme === 'dark' ? '☀️' : '🌙';
+    themeToggles.forEach(toggle => {
+        toggle.textContent = icon;
+    });
 }
 
 /**
