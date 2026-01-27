@@ -534,6 +534,24 @@ body {
 .btn--secondary:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    position: relative;
+}
+
+.btn--secondary:disabled:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--text-primary);
+    color: var(--bg-primary);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    white-space: nowrap;
+    margin-bottom: var(--space-2);
+    z-index: 1000;
+    box-shadow: var(--shadow-lg);
 }
 
 /* Progress Indicator */

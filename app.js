@@ -1801,6 +1801,24 @@ function renderResults(scores, recommendations) {
             recContainer.innerHTML = `<div class="recommendation-content">${markdownToHtml(staticRec.text)}</div>`;
             tabPanel.dataset.generated = 'true';
         }
+        
+        // Check if all recommendations are generated
+        checkAllRecommendationsGenerated();
+    }
+    
+    // Check if all recommendations have been generated
+    function checkAllRecommendationsGenerated() {
+        const allPanels = document.querySelectorAll('.tab-panel');
+        const allGenerated = Array.from(allPanels).every(panel => panel.dataset.generated === 'true');
+        
+        const printBtn = document.getElementById('print-btn');
+        if (allGenerated) {
+            printBtn.disabled = false;
+            printBtn.title = 'Print or save your results as PDF';
+        } else {
+            printBtn.disabled = true;
+            printBtn.title = 'Generate all recommendations to enable PDF export';
+        }
     }
     
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -1825,6 +1843,20 @@ function renderResults(scores, recommendations) {
     const firstCategory = state.categories[0].name;
     const firstPanel = document.querySelector(`.tab-panel[data-category="${firstCategory}"]`);
     generateRecommendationForTab(firstCategory, firstPanel);
+    
+    // Next button to navigate between tabs
+    document.getElementById('next-tab-btn').addEventListener('click', function() {
+        const currentActiveBtn = document.querySelector('.tab-btn.active');
+        const allBtns = Array.from(document.querySelectorAll('.tab-btn'));
+        const currentIndex = allBtns.indexOf(currentActiveBtn);
+        const nextIndex = (currentIndex + 1) % allBtns.length;
+        
+        // Click the next tab button
+        allBtns[nextIndex].click();
+        
+        // Scroll to top of results
+        document.querySelector('.tabs-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
 }
 
 /**
