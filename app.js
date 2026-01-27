@@ -1894,6 +1894,10 @@ function renderResults(scores, recommendations) {
             const activePanel = document.querySelector(`.tab-panel[data-category="${category}"]`);
             activePanel.classList.add('active');
             
+            // Scroll to top of results screen to show feedback and recommendations
+            // Works on both mobile and desktop
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
             // Auto-generate recommendation for this tab if not already generated
             await generateRecommendationForTab(category, activePanel);
         });
