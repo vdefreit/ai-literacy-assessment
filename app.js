@@ -26,6 +26,7 @@ const state = {
     userContext: {             // User's role information for personalized recommendations
         jobTitle: '',
         team: '',
+        jobLevel: '',
         hasDirectReports: false,
         canProcureTools: false
     }
@@ -41,6 +42,40 @@ const maturityLevels = [
     { value: 3, label: 'Competent', color: '#14b053' },     // Green - Twilio Paste success color
     { value: 4, label: 'Creative', color: '#0263e0' }       // Blue - Twilio Paste primary color
 ];
+
+/**
+ * Job Level Expectations
+ * Maps job levels to their key expectations for contextual AI recommendations
+ */
+const jobLevelExpectations = {
+    'S1': 'Learns job skills, follows instructions closely, works on simple tasks',
+    'S2': 'Uses learned job skills, begins learning complex skills, works on routine tasks',
+    'S3': 'Works independently with competence, handles moderately difficult tasks requiring judgment',
+    'S4': 'Skilled specialist who works independently and assists others, good judgment and innovation',
+    'S5': 'Highly skilled specialist who improves processes, advises others, works on interdisciplinary projects',
+    'P1': 'Learning basic job skills as part of a team, completing discrete tasks',
+    'P2': 'Has basic knowledge and growing skills, addresses moderately challenging but routine problems',
+    'P3': 'Has solid, fully developed skills, uses evaluation and analysis to solve problems and improve processes',
+    'P4': 'Advanced skill proficiency with deep subject matter expertise, solves complex problems, often mentors others',
+    'P5': 'Recognized expert with deep specialization, solves unique or ambiguous challenges, acts as internal consultant',
+    'P6': 'Visionary technical leader whose expertise drives significant advancements, influences programs and organizational direction',
+    'P7': 'Applies deep technical expertise in current and emerging technologies, oversees engineering research and advanced projects',
+    'M2': 'Leads with clear objectives, solves routine problems, supervises skilled individual contributors or teams',
+    'M3': 'Makes decisions about resources and goals, solves wide range of problems, manages multiple teams',
+    'M4': 'Sets goals for larger areas, handles difficult and ambiguous problems, oversees multiple disciplines or departments',
+    'M5': 'Collaborates with senior leaders to define strategy, navigates undefined problems, influences long-term results',
+    'M6': 'Creates vision and strategy affecting significant portion of company, influences board-level decisions',
+    'E7': 'Expert in business area and industry, leads complex cross-functional efforts, translates strategy into 2-5 year plans',
+    'E8': 'Demonstrates expert knowledge, influences industry trends, drives innovation, leads area/sub-function or business line'
+};
+
+/**
+ * Get Job Level Description
+ * Returns a brief description of expectations for a given job level
+ */
+function getJobLevelDescription(jobLevel) {
+    return jobLevelExpectations[jobLevel] || 'Role expectations vary';
+}
 
 /**
  * Questions Data - From AI Literacy Questionnaire PDF
@@ -596,6 +631,7 @@ function startAssessment() {
     // Get and validate user context
     const jobTitle = document.getElementById('job-title').value.trim();
     const team = document.getElementById('team').value;
+    const jobLevel = document.getElementById('job-level').value;
     const hasDirectReports = document.getElementById('has-direct-reports').checked;
     const canProcureTools = document.getElementById('can-procure-tools').checked;
     
@@ -611,10 +647,17 @@ function startAssessment() {
         return;
     }
     
+    if (!jobLevel) {
+        alert('Please select your job level to continue.');
+        document.getElementById('job-level').focus();
+        return;
+    }
+    
     // Store user context
     state.userContext = {
         jobTitle: jobTitle,
         team: team,
+        jobLevel: jobLevel,
         hasDirectReports: hasDirectReports,
         canProcureTools: canProcureTools
     };
@@ -1201,10 +1244,11 @@ async function generateSingleRecommendation(category, scores) {
         return staticRecs.find(r => r.category === category);
     }
     
-    const { jobTitle, team, hasDirectReports, canProcureTools } = state.userContext;
+    const { jobTitle, team, jobLevel, hasDirectReports, canProcureTools } = state.userContext;
     
-    let prompt = `Generate ONE detailed recommendation for a ${jobTitle} at Twilio in ${team}.\n\n`;
+    let prompt = `Generate ONE detailed recommendation for a ${jobTitle} (${jobLevel}) at Twilio in ${team}.\n\n`;
     prompt += `**Role Context:**\n`;
+    prompt += `- Job Level: ${jobLevel} (${getJobLevelDescription(jobLevel)})\n`;
     prompt += `- Has Direct Reports: ${hasDirectReports ? 'Yes' : 'No'}\n`;
     prompt += `- Can Procure New Tools: ${canProcureTools ? 'Yes' : 'No'}\n\n`;
     prompt += `**Category to focus on: ${category}**\n\n`;
@@ -1387,11 +1431,12 @@ async function generateAIRecommendations(scores, onRecommendationReady) {
  * Creates a detailed prompt for the AI based on user context and scores
  */
 function buildRecommendationPrompt(scores) {
-    const { jobTitle, team, hasDirectReports, canProcureTools } = state.userContext;
+    const { jobTitle, team, jobLevel, hasDirectReports, canProcureTools } = state.userContext;
     
     let prompt = `I need personalized AI literacy recommendations for a Twilio employee.\n\n`;
     prompt += `**Role Context:**\n`;
     prompt += `- Job Title: ${jobTitle}\n`;
+    prompt += `- Job Level: ${jobLevel} (${getJobLevelDescription(jobLevel)})\n`;
     prompt += `- Team/Department: ${team}\n`;
     prompt += `- Has Direct Reports: ${hasDirectReports ? 'Yes' : 'No'}\n`;
     prompt += `- Can Procure New Tools: ${canProcureTools ? 'Yes' : 'No'}\n\n`;
