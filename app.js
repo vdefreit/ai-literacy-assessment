@@ -1285,7 +1285,7 @@ TWILIO CONTEXT - Available AI Tools:
 - ZoomAI: Meeting assistant integrated into Zoom. Captures meeting summaries, action items, and key highlights. Only mention when relevant to meetings/collaboration
 - LoomAI: Video message assistant. Auto-generates titles, chapters, summaries, and tasks from Loom videos. Only mention when relevant to async video communication
 - OpenAI API: Available for developers (not the webapp) to build custom solutions
-- Switchboard: Twilio's resource hub where employees can learn about available tools in the AI Hub
+- Switchboard: Twilio's internal intranet - THE go-to resource for AI policies, privacy guidelines, approved tools, and best practices
 
 CRITICAL - Accuracy Requirements:
 - ONLY recommend features that actually exist in these tools - do NOT invent capabilities
@@ -1293,6 +1293,13 @@ CRITICAL - Accuracy Requirements:
 - Only mention ZoomAI/LoomAI when authentically relevant to the user's role (e.g., lots of meetings, video creation)
 - If the employee CANNOT procure tools, direct them to Switchboard rather than suggesting new tools
 - If the employee CAN procure tools, suggest evaluation criteria but avoid recommending specific external platforms
+
+SWITCHBOARD REFERENCES:
+- When discussing AI usage policies → "Check Switchboard for Twilio's AI usage guidelines"
+- When discussing data privacy/security → "Visit Switchboard for data privacy and security policies"
+- When discussing approved tools → "Explore Switchboard's AI Hub to discover approved tools"
+- When discussing best practices → "Find best practices and templates on Switchboard"
+- ALWAYS mention Switchboard when users need official policies, guidelines, or approved resources
 
 TWILIO MAGIC VALUES - Integrate these into recommendations when relevant:
 
@@ -1736,11 +1743,12 @@ function renderResults(scores, recommendations) {
         const tabPanel = document.createElement('div');
         tabPanel.className = `tab-panel ${isActive ? 'active' : ''}`;
         tabPanel.dataset.category = category.name;
+        tabPanel.dataset.generated = 'false';
         tabPanel.innerHTML = `
             <div class="tab-panel__recommendation" id="rec-${category.name}">
-                <button class="btn btn--secondary generate-rec-btn" data-category="${category.name}">
-                    Generate AI Recommendations
-                </button>
+                <div class="recommendation-placeholder">
+                    <p>Loading recommendations...</p>
+                </div>
             </div>
         `;
         tabsContent.appendChild(tabPanel);
@@ -1750,9 +1758,39 @@ function renderResults(scores, recommendations) {
     tabsContainer.appendChild(tabsContent);
     combinedResultsEl.appendChild(tabsContainer);
     
-    // Add tab switching functionality
+    // Add tab switching functionality with auto-generation
+    async function generateRecommendationForTab(category, tabPanel) {
+        // Check if already generated
+        if (tabPanel.dataset.generated === 'true') {
+            return;
+        }
+        
+        const recContainer = document.getElementById(`rec-${category}`);
+        
+        // Show loading state
+        recContainer.innerHTML = `
+            <div class="loading-recommendation">
+                <div class="loading-spinner"></div>
+                <p>Generating personalized recommendations for ${category}...</p>
+            </div>
+        `;
+        
+        // Generate recommendation
+        try {
+            const recommendation = await generateSingleRecommendation(category, scores);
+            recContainer.innerHTML = `<div class="recommendation-content">${markdownToHtml(recommendation.text)}</div>`;
+            tabPanel.dataset.generated = 'true';
+        } catch (error) {
+            console.error(`Error generating recommendation for ${category}:`, error);
+            const staticRecs = generateRecommendations(scores);
+            const staticRec = staticRecs.find(r => r.category === category);
+            recContainer.innerHTML = `<div class="recommendation-content">${markdownToHtml(staticRec.text)}</div>`;
+            tabPanel.dataset.generated = 'true';
+        }
+    }
+    
     document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', async function() {
             const category = this.dataset.category;
             
             // Update active tab button
@@ -1761,36 +1799,18 @@ function renderResults(scores, recommendations) {
             
             // Update active tab panel
             document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-            document.querySelector(`.tab-panel[data-category="${category}"]`).classList.add('active');
+            const activePanel = document.querySelector(`.tab-panel[data-category="${category}"]`);
+            activePanel.classList.add('active');
+            
+            // Auto-generate recommendation for this tab if not already generated
+            await generateRecommendationForTab(category, activePanel);
         });
     });
     
-    // Add event listeners for generate buttons
-    document.querySelectorAll('.generate-rec-btn').forEach(btn => {
-        btn.addEventListener('click', async function() {
-            const category = this.dataset.category;
-            const recContainer = document.getElementById(`rec-${category}`);
-            
-            // Show loading state
-            recContainer.innerHTML = `
-                <div class="loading-recommendation">
-                    <div class="loading-spinner"></div>
-                    <p>Generating personalized recommendations for ${category}...</p>
-                </div>
-            `;
-            
-            // Generate recommendation
-            try {
-                const recommendation = await generateSingleRecommendation(category, scores);
-                recContainer.innerHTML = `<div class="recommendation-content">${markdownToHtml(recommendation.text)}</div>`;
-            } catch (error) {
-                console.error(`Error generating recommendation for ${category}:`, error);
-                const staticRecs = generateRecommendations(scores);
-                const staticRec = staticRecs.find(r => r.category === category);
-                recContainer.innerHTML = `<div class="recommendation-content">${markdownToHtml(staticRec.text)}</div>`;
-            }
-        });
-    });
+    // Auto-generate the first tab's recommendation on page load
+    const firstCategory = state.categories[0].name;
+    const firstPanel = document.querySelector(`.tab-panel[data-category="${firstCategory}"]`);
+    generateRecommendationForTab(firstCategory, firstPanel);
 }
 
 /**
