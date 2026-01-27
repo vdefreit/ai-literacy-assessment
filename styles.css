@@ -1130,11 +1130,11 @@ body {
 }
 
 .tab-panel {
-    display: none;
+    display: none !important;
 }
 
 .tab-panel.active {
-    display: block;
+    display: block !important;
     animation: fadeIn 0.3s ease-in-out;
 }
 
