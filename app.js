@@ -677,6 +677,11 @@ function renderQuestion() {
     const questionSubcategoryEl = document.getElementById('question-subcategory');
     const answerOptionsEl = document.getElementById('answer-options');
     
+    // Clear any active focus state from previous question
+    if (document.activeElement && document.activeElement.classList.contains('answer-option')) {
+        document.activeElement.blur();
+    }
+    
     // Extract subcategory from question text (text before the colon)
     const colonIndex = question.text.indexOf(':');
     let mainQuestion = question.text;
@@ -911,6 +916,11 @@ function updateProgress() {
  */
 function nextQuestion() {
     if (state.currentQuestionIndex < state.questions.length - 1) {
+        // Clear focus from any active element (prevents mobile tap highlight persistence)
+        if (document.activeElement) {
+            document.activeElement.blur();
+        }
+        
         const currentQuestion = state.questions[state.currentQuestionIndex];
         const nextQuestionData = state.questions[state.currentQuestionIndex + 1];
         
