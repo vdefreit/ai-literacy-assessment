@@ -1599,40 +1599,16 @@ function renderResults(scores, recommendations) {
         const combinedEl = document.createElement('div');
         combinedEl.className = 'combined-result';
         combinedEl.innerHTML = `
-            <div class="combined-result__header combined-result__header--collapsible" data-category="${category.name}">
+            <div class="combined-result__header">
                 <h4 class="combined-result__title">${displayName}</h4>
-                <svg class="combined-result__chevron" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
             </div>
-            <div class="combined-result__content" id="content-${category.name}" style="display: none;">
-                <div class="combined-result__recommendation" id="rec-${category.name}">
-                    <button class="btn btn--secondary generate-rec-btn" data-category="${category.name}">
-                        Generate AI Recommendations
-                    </button>
-                </div>
+            <div class="combined-result__recommendation" id="rec-${category.name}">
+                <button class="btn btn--secondary generate-rec-btn" data-category="${category.name}">
+                    Generate AI Recommendations
+                </button>
             </div>
         `;
         combinedResultsEl.appendChild(combinedEl);
-    });
-    
-    // Add click listeners for collapsible headers
-    document.querySelectorAll('.combined-result__header--collapsible').forEach(header => {
-        header.addEventListener('click', function() {
-            const category = this.dataset.category;
-            const content = document.getElementById(`content-${category}`);
-            const chevron = this.querySelector('.combined-result__chevron');
-            
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-                chevron.style.transform = 'rotate(180deg)';
-                this.classList.add('active');
-            } else {
-                content.style.display = 'none';
-                chevron.style.transform = 'rotate(0deg)';
-                this.classList.remove('active');
-            }
-        });
     });
     
     // Add event listeners for generate buttons
