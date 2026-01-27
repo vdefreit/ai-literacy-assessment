@@ -14,7 +14,8 @@ from google.oauth2 import service_account
 
 # YOUR SPREADSHEET ID - Update this!
 SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID_HERE'  # From Step 1.3 of setup guide
-SHEET_NAME = 'Sheet1'
+SUMMARY_SHEET = 'Summary'
+RESPONSES_SHEET = 'Responses'
 
 def main(
     timestamp: str,
@@ -47,8 +48,8 @@ def main(
         # Build the Sheets API service
         service = build('sheets', 'v4', credentials=credentials)
         
-        # Prepare the row data
-        row_data = [
+        # 1. Write summary data to Summary sheet
+        summary_row = [
             timestamp,
             team,
             jobTitle,
@@ -66,22 +67,46 @@ def main(
             categoryMaturities.get('Keeping It Twilio', '')
         ]
         
-        # Append to the sheet
-        range_name = f'{SHEET_NAME}!A:O'
-        body = {'values': [row_data]}
-        
-        result = service.spreadsheets().values().append(
+        summary_result = service.spreadsheets().values().append(
             spreadsheetId=SPREADSHEET_ID,
-            range=range_name,
+            range=f'{SUMMARY_SHEET}!A:O',
             valueInputOption='USER_ENTERED',
             insertDataOption='INSERT_ROWS',
-            body=body
+            body={'values': [summary_row]}
         ).execute()
+        
+        # 2. Write individual responses to Responses sheet (one row per question)
+        response_rows = []
+        for question_id, response_data in responses.items():
+            response_row = [
+                timestamp,
+                team,
+                jobTitle,
+                jobLevel,
+                question_id,
+                response_data.get('category', ''),
+                response_data.get('value', 0),
+                response_data.get('maturity', '')
+            ]
+            response_rows.append(response_row)
+        
+        # Batch append all response rows
+        if response_rows:
+            responses_result = service.spreadsheets().values().append(
+                spreadsheetId=SPREADSHEET_ID,
+                range=f'{RESPONSES_SHEET}!A:H',
+                valueInputOption='USER_ENTERED',
+                insertDataOption='INSERT_ROWS',
+                body={'values': response_rows}
+            ).execute()
+        
+        result = summary_result  # For logging purposes
         
         print(f"✅ Successfully logged to Google Sheets")
         print(f"   Team: {team} | Job: {jobTitle} | Level: {jobLevel}")
         print(f"   Overall: {overallMaturity} ({overallScore:.2f})")
-        print(f"   Updated range: {result.get('updates', {}).get('updatedRange', '')}")
+        print(f"   Summary sheet: {result.get('updates', {}).get('updatedRange', '')}")
+        print(f"   Individual responses: {len(response_rows)} questions logged")
         
         return {
             'success': True,

@@ -10,13 +10,27 @@ This guide shows you how to use your personal Google account to collect assessme
 2. Click **Blank** to create a new spreadsheet
 3. Name it: **"AI Assessment Data - Twilio"**
 
-### 1.2 Add Column Headers
+### 1.2 Create Two Sheet Tabs
 
-In row 1, paste these headers (tab-separated):
+**Sheet 1 - Rename to "Summary":**
+- Click on "Sheet1" tab at bottom
+- Rename to **"Summary"**
+- In row 1, paste these headers (tab-separated):
 
 ```
 Timestamp	Team	Job Title	Job Level	Overall Score	Overall Maturity	Has Not Started	Delegation Score	Communication Score	Discernment Score	Keeping It Twilio Score	Delegation Maturity	Communication Maturity	Discernment Maturity	Keeping It Twilio Maturity
 ```
+
+**Sheet 2 - Create "Responses" tab:**
+- Click **+** at bottom to add a new sheet
+- Name it **"Responses"**
+- In row 1, paste these headers (tab-separated):
+
+```
+Timestamp	Team	Job Title	Job Level	Question ID	Category	Value	Maturity
+```
+
+This second sheet will have one row per question answered, making it perfect for analyzing response patterns!
 
 ### 1.3 Get Your Spreadsheet ID
 
@@ -171,23 +185,14 @@ Create a Google Sites page or internal wiki with the sheet embedded (read-only).
 
 ## Analytics & Reports
 
-### Built-in Google Sheets Features
+### Summary Sheet - Overall Analytics
 
 **Pivot Tables:**
 1. **Data** → **Pivot table**
 2. Rows: Team
 3. Values: Overall Score (average)
 
-**Charts:**
-1. Select columns E-F (Overall Score, Overall Maturity)
-2. **Insert** → **Chart**
-3. Choose bar or pie chart
-
-**Filtering:**
-1. Click column header
-2. Filter icon → Select teams/levels
-
-### Query Formulas
+**Query Formulas:**
 
 **Count by Team:**
 ```
@@ -199,10 +204,45 @@ Create a Google Sites page or internal wiki with the sheet embedded (read-only).
 =QUERY(A2:O, "SELECT D, AVG(E) WHERE D <> '' GROUP BY D LABEL AVG(E) 'Avg Score'")
 ```
 
-**Maturity Distribution:**
+### Responses Sheet - Question-Level Analytics
+
+This is where the magic happens! You can analyze individual question responses.
+
+**Pivot Table: Response Distribution by Question**
+1. Go to **Responses** sheet
+2. **Data** → **Pivot table**
+3. Setup:
+   - **Rows**: Question ID
+   - **Columns**: Value (1, 2, 3, 4)
+   - **Values**: COUNTA of Value
+   - **Filters**: Team, Job Level
+
+This shows how many people selected each option for each question!
+
+**Pivot Table: Response Patterns by Team**
+1. **Rows**: Team, Question ID
+2. **Columns**: Maturity
+3. **Values**: Count
+
+**Query: Most Common Response per Question**
 ```
-=QUERY(A2:O, "SELECT F, COUNT(F) WHERE F <> '' GROUP BY F LABEL COUNT(F) 'Count'")
+=QUERY(Responses!A2:H, "SELECT E, G, COUNT(G) WHERE E <> '' GROUP BY E, G ORDER BY E, COUNT(G) DESC")
 ```
+
+**Query: Questions Where Most People Answer "Not Started"**
+```
+=QUERY(Responses!A2:H, "SELECT E, COUNT(E) WHERE G = 1 GROUP BY E ORDER BY COUNT(E) DESC LABEL COUNT(E) 'Not Started Count'")
+```
+
+**Query: Engineering Team Response Distribution for Question 1**
+```
+=QUERY(Responses!A2:H, "SELECT G, COUNT(G) WHERE B = 'Engineering' AND E = 'q1' GROUP BY G LABEL G 'Response Value', COUNT(G) 'Count'")
+```
+
+**Chart: Response Distribution Across All Questions**
+1. Create pivot table with Question ID (rows) and Value (columns)
+2. Insert → Chart → Stacked bar chart
+3. Shows visual distribution of responses
 
 ---
 
