@@ -1000,12 +1000,22 @@ function calculateScores() {
     // Calculate overall score (average of all category averages)
     const overallAverage = Object.values(categoryAverages).reduce((a, b) => a + b, 0) / Object.keys(categoryAverages).length;
     
+    // Check if any category has "Not Started" (score < 1.5)
+    const hasNotStarted = Object.values(categoryAverages).some(avg => avg < 1.5);
+    
     // Determine maturity level for overall score
-    const overallMaturity = getMaturityLevel(overallAverage);
+    // CRITICAL: If any category is "Not Started", cap overall at "Not Started"
+    let overallMaturity;
+    if (hasNotStarted) {
+        overallMaturity = 'Not Started';
+    } else {
+        overallMaturity = getMaturityLevel(overallAverage);
+    }
     
     return {
         overall: overallAverage,
         overallMaturity: overallMaturity,
+        hasNotStarted: hasNotStarted,
         categories: categoryAverages,
         categoryMaturities: Object.fromEntries(
             Object.entries(categoryAverages).map(([cat, avg]) => [cat, getMaturityLevel(avg)])
@@ -1250,6 +1260,24 @@ async function generateSingleRecommendation(category, scores) {
     let prompt = `Generate ONE detailed recommendation for a ${jobTitle} (${jobLevel}) at Twilio in ${team}.\n\n`;
     prompt += `**Role Context:**\n`;
     prompt += `- Job Level: ${jobLevel} (${getJobLevelDescription(jobLevel)})\n\n`;
+    
+    // Add special context if any category is Not Started
+    if (scores.hasNotStarted) {
+        const notStartedCategories = Object.entries(scores.categoryMaturities)
+            .filter(([cat, maturity]) => maturity === 'Not Started')
+            .map(([cat]) => cat);
+        
+        prompt += `**IMPORTANT CONTEXT:**\n`;
+        prompt += `This user has "Not Started" in ${notStartedCategories.length > 1 ? 'multiple categories' : 'at least one category'} (${notStartedCategories.join(', ')}), which means their overall score is capped at "Not Started" regardless of their other scores. `;
+        prompt += `This is because all four dimensions are essential - excelling in some areas doesn't compensate for not having started in others.\n\n`;
+        prompt += `**YOUR TONE:**\n`;
+        prompt += `- Be encouraging and constructive, not alarming or judgmental\n`;
+        prompt += `- Frame this as a learning opportunity and a clear starting point\n`;
+        prompt += `- Acknowledge that everyone starts somewhere, and "Not Started" simply means there's room to grow\n`;
+        prompt += `- Briefly mention that getting started in ALL dimensions is important for AI readiness\n`;
+        prompt += `- Focus on actionable first steps rather than dwelling on the gap\n\n`;
+    }
+    
     prompt += `**Category to focus on: ${category}**\n\n`;
     prompt += `**Their Overall Score:**\n`;
     const score = scores.categories[category];
