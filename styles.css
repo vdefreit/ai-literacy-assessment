@@ -376,7 +376,7 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     background-color: rgba(2, 99, 224, 0.05);
     border-radius: var(--radius-md);
     border: 1px solid rgba(2, 99, 224, 0.2);
@@ -1181,7 +1181,7 @@ body {
 }
 
 .tab-panel__recommendation {
-    min-height: 150px;
+    min-height: 60px;
 }
 
 .combined-result {

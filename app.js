@@ -1369,6 +1369,16 @@ FEEDBACK GUIDANCE:
 - Connect AI literacy skills to relevant Twilio Magic Values principles (e.g., effective prompting = "Write it Down", experimentation = "Learn Cheap Lessons", AI transparency = "No Shenanigans")
 - Stay LASER FOCUSED on the specific dimension being assessed - don't drift into other topics
 
+AVAILABLE AI TOOLS FOR TIPS SECTION:
+- Gemini: Available to all - multimodal input, Gems, conversation history
+- NotebookLM: Available to all - document analysis, source grounding, study guides
+- ZoomAI: Available to all - meeting summaries, action items, highlights
+- LoomAI: Available to all - video titles, chapters, summaries from Loom videos
+- FigmaAI: Available to Design team - AI features in Figma
+- LinkedInAI: Available to People/Talent team - LinkedIn Recruiter AI features
+- LucidAI: Available to relevant teams - Lucidchart/Lucidspark AI features
+- ZoomInfoAI: Available to Sales team - ZoomInfo Copilot features
+
 RECOMMENDATION STRUCTURE:
 ### What to Focus On
 2-3 concise paragraphs covering:
@@ -1382,17 +1392,21 @@ RECOMMENDATION STRUCTURE:
 - Simple practices to build into their workflow
 - Low-effort, high-impact improvements
 
-### Gemini Tips
-- 2-3 specific Gemini features that support their development
-- How to use Gemini more effectively for their needs
+### Tips for Using AI Tools
+- Select 2-4 tools from the available list that are MOST RELEVANT to their role and the dimension
+- Prioritize Gemini and NotebookLM (available to all) as primary recommendations
+- Only include role-specific tools (FigmaAI, LinkedInAI, LucidAI, ZoomInfoAI) if they match the user's team
+- Only include ZoomAI/LoomAI if relevant to their work (meetings, video communication)
+- For each tool, provide specific, real features that exist today - no invented capabilities
+- Show HOW to use these features for the specific dimension being assessed
 
 FORMATTING RULES:
-- Use ### for section titles (What to Focus On, Quick Wins, Gemini Tips)
+- Use ### for section titles (What to Focus On, Quick Wins, Tips for Using AI Tools)
 - Use **bold** for key concepts within paragraphs
 - Use - for bullet lists
 - Keep it conversational and encouraging
 - Stay tightly focused on the ONE dimension being assessed
-- Total: 300-400 words`;
+- Total: 350-450 words`;
     
     try {
         // Call Windmill backend instead of OpenAI directly
