@@ -26,9 +26,7 @@ const state = {
     userContext: {             // User's role information for personalized recommendations
         jobTitle: '',
         team: '',
-        jobLevel: '',
-        hasDirectReports: false,
-        canProcureTools: false
+        jobLevel: ''
     }
 };
 
@@ -632,8 +630,6 @@ function startAssessment() {
     const jobTitle = document.getElementById('job-title').value.trim();
     const team = document.getElementById('team').value;
     const jobLevel = document.getElementById('job-level').value;
-    const hasDirectReports = document.getElementById('has-direct-reports').checked;
-    const canProcureTools = document.getElementById('can-procure-tools').checked;
     
     if (!jobTitle) {
         alert('Please enter your job title to continue.');
@@ -657,9 +653,7 @@ function startAssessment() {
     state.userContext = {
         jobTitle: jobTitle,
         team: team,
-        jobLevel: jobLevel,
-        hasDirectReports: hasDirectReports,
-        canProcureTools: canProcureTools
+        jobLevel: jobLevel
     };
     
     showScreen('questionnaire-screen');
@@ -1244,13 +1238,11 @@ async function generateSingleRecommendation(category, scores) {
         return staticRecs.find(r => r.category === category);
     }
     
-    const { jobTitle, team, jobLevel, hasDirectReports, canProcureTools } = state.userContext;
+    const { jobTitle, team, jobLevel } = state.userContext;
     
     let prompt = `Generate ONE detailed recommendation for a ${jobTitle} (${jobLevel}) at Twilio in ${team}.\n\n`;
     prompt += `**Role Context:**\n`;
-    prompt += `- Job Level: ${jobLevel} (${getJobLevelDescription(jobLevel)})\n`;
-    prompt += `- Has Direct Reports: ${hasDirectReports ? 'Yes' : 'No'}\n`;
-    prompt += `- Can Procure New Tools: ${canProcureTools ? 'Yes' : 'No'}\n\n`;
+    prompt += `- Job Level: ${jobLevel} (${getJobLevelDescription(jobLevel)})\n\n`;
     prompt += `**Category to focus on: ${category}**\n\n`;
     prompt += `**Their Overall Score:**\n`;
     const score = scores.categories[category];
@@ -1258,7 +1250,7 @@ async function generateSingleRecommendation(category, scores) {
     prompt += `- ${category}: ${maturity} (${score.toFixed(2)}/4.00)\n\n`;
     
     // Add specific question responses for this category
-    prompt += `**Specific Responses in ${category}:**\n`;
+    prompt += `**THEIR ACTUAL RESPONSES in ${category} - USE THESE TO GROUND YOUR FEEDBACK:**\n`;
     const categoryQuestions = state.questions.filter(q => q.category === category);
     categoryQuestions.forEach(question => {
         const answer = state.answers[question.id];
@@ -1269,13 +1261,19 @@ async function generateSingleRecommendation(category, scores) {
                 const colonIndex = question.text.indexOf(':');
                 const subcategory = colonIndex !== -1 ? question.text.substring(0, colonIndex).trim() : question.text;
                 
-                prompt += `- ${subcategory}: ${selectedOption.label} - "${selectedOption.description}"\n`;
+                prompt += `\n**${subcategory}:**\n`;
+                prompt += `Selected: ${selectedOption.label} (${answer}/4)\n`;
+                prompt += `Their behavior: "${selectedOption.description}"\n`;
             }
         }
     });
     
-    prompt += `\n**Instructions:**\n`;
-    prompt += `Based on their SPECIFIC responses above, provide personalized advice that addresses the areas where they scored lower or where their descriptions indicate gaps. Reference their actual behavior patterns from their selected responses. Make it feel personal and actionable.\n\n`;
+    prompt += `\n\n**CRITICAL INSTRUCTIONS:**\n`;
+    prompt += `1. DIRECTLY REFERENCE their actual selected behaviors above - don't be generic\n`;
+    prompt += `2. If they scored 1-2 on something, call out THAT SPECIFIC behavior they described and how to improve it\n`;
+    prompt += `3. If they scored 3-4 on something, acknowledge THAT SPECIFIC strength they demonstrated\n`;
+    prompt += `4. Make it feel like you read their actual responses, not a template\n`;
+    prompt += `5. Be specific about which behaviors to START, STOP, or CONTINUE based on what they selected\n\n`;
     prompt += `Use markdown formatting with the structure from your system prompt.`;
     
     // System message for the AI coach
@@ -1496,15 +1494,13 @@ async function generateAIRecommendations(scores, onRecommendationReady) {
  * Creates a detailed prompt for the AI based on user context and scores
  */
 function buildRecommendationPrompt(scores) {
-    const { jobTitle, team, jobLevel, hasDirectReports, canProcureTools } = state.userContext;
+    const { jobTitle, team, jobLevel } = state.userContext;
     
     let prompt = `I need personalized AI literacy recommendations for a Twilio employee.\n\n`;
     prompt += `**Role Context:**\n`;
     prompt += `- Job Title: ${jobTitle}\n`;
     prompt += `- Job Level: ${jobLevel} (${getJobLevelDescription(jobLevel)})\n`;
-    prompt += `- Team/Department: ${team}\n`;
-    prompt += `- Has Direct Reports: ${hasDirectReports ? 'Yes' : 'No'}\n`;
-    prompt += `- Can Procure New Tools: ${canProcureTools ? 'Yes' : 'No'}\n\n`;
+    prompt += `- Team/Department: ${team}\n\n`;
     
     prompt += `**Assessment Results:**\n`;
     prompt += `- Overall Maturity: ${scores.overallMaturity} (${scores.overall.toFixed(2)}/4.00)\n\n`;
@@ -1522,11 +1518,12 @@ function buildRecommendationPrompt(scores) {
     prompt += `- What are their biggest time sinks or repetitive tasks?\n`;
     prompt += `- What kind of outputs do they create (code, emails, reports, designs)?\n`;
     prompt += `- Who do they collaborate with and how?\n`;
-    if (hasDirectReports) {
-        prompt += `- As a manager with direct reports, consider delegation, team enablement, and coaching opportunities\n`;
-    }
-    if (canProcureTools) {
-        prompt += `- As someone who can procure tools, suggest specific AI tools or platforms they should evaluate for their team\n`;
+    
+    // Determine procurement ability from job level (M and E levels typically can procure)
+    const canProcure = jobLevel.startsWith('M') || jobLevel.startsWith('E');\n    if (canProcure) {
+        prompt += `- Based on their ${jobLevel} level, they likely have procurement authority - suggest specific AI tools or platforms they should evaluate for their team\n`;
+    } else {
+        prompt += `- Direct them to Switchboard (Twilio's AI Hub) to discover available internal tools rather than suggesting new tool procurement\n`;
     }
     prompt += `\n`;
     prompt += `For each recommendation:\n`;
