@@ -1589,26 +1589,64 @@ function renderResults(scores, recommendations) {
         categoryBreakdownEl.appendChild(breakdownItem);
     });
     
-    // Combined results (category score + recommendation together)
+    // Tabbed interface for recommendations
     const combinedResultsEl = document.getElementById('combined-results');
     combinedResultsEl.innerHTML = '';
     
-    state.categories.forEach(category => {
+    // Create tabs container
+    const tabsContainer = document.createElement('div');
+    tabsContainer.className = 'tabs-container';
+    
+    // Create tabs header
+    const tabsHeader = document.createElement('div');
+    tabsHeader.className = 'tabs-header';
+    
+    // Create tabs content
+    const tabsContent = document.createElement('div');
+    tabsContent.className = 'tabs-content';
+    
+    state.categories.forEach((category, index) => {
         const displayName = displayNames[category.name] || category.name;
+        const isActive = index === 0;
         
-        const combinedEl = document.createElement('div');
-        combinedEl.className = 'combined-result';
-        combinedEl.innerHTML = `
-            <div class="combined-result__header">
-                <h4 class="combined-result__title">${displayName}</h4>
-            </div>
-            <div class="combined-result__recommendation" id="rec-${category.name}">
+        // Create tab button
+        const tabBtn = document.createElement('button');
+        tabBtn.className = `tab-btn ${isActive ? 'active' : ''}`;
+        tabBtn.dataset.category = category.name;
+        tabBtn.textContent = displayName;
+        tabsHeader.appendChild(tabBtn);
+        
+        // Create tab panel
+        const tabPanel = document.createElement('div');
+        tabPanel.className = `tab-panel ${isActive ? 'active' : ''}`;
+        tabPanel.dataset.category = category.name;
+        tabPanel.innerHTML = `
+            <div class="tab-panel__recommendation" id="rec-${category.name}">
                 <button class="btn btn--secondary generate-rec-btn" data-category="${category.name}">
                     Generate AI Recommendations
                 </button>
             </div>
         `;
-        combinedResultsEl.appendChild(combinedEl);
+        tabsContent.appendChild(tabPanel);
+    });
+    
+    tabsContainer.appendChild(tabsHeader);
+    tabsContainer.appendChild(tabsContent);
+    combinedResultsEl.appendChild(tabsContainer);
+    
+    // Add tab switching functionality
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const category = this.dataset.category;
+            
+            // Update active tab button
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update active tab panel
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelector(`.tab-panel[data-category="${category}"]`).classList.add('active');
+        });
     });
     
     // Add event listeners for generate buttons
