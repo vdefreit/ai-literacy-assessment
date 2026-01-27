@@ -1539,20 +1539,34 @@ body {
         color: #121c2d !important;
     }
     
+    /* Hide non-essential elements */
     .header,
     .footer,
     .navigation,
     .results__actions,
     .theme-toggle,
+    .ai-disclaimer,
+    .tabs-header,
+    .loading-recommendation,
+    .loading-spinner,
     #welcome-screen,
     #questionnaire-screen {
         display: none !important;
     }
     
+    /* Show results screen */
     #results-screen {
         display: block !important;
     }
     
+    /* Show all tab panels for print */
+    .tab-panel {
+        display: block !important;
+        page-break-inside: avoid;
+        margin-bottom: 2rem;
+    }
+    
+    /* Results container */
     .results {
         box-shadow: none;
         padding: 2rem 0;
@@ -1560,15 +1574,20 @@ body {
         border: none;
     }
     
+    /* Title and header */
     .results__title {
         color: #121c2d !important;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
         page-break-after: avoid;
+        font-size: 2rem;
     }
     
+    /* Overall score section */
     .results__overall {
         page-break-inside: avoid;
         margin-bottom: 2rem;
+        border-bottom: 2px solid #e1e3ea;
+        padding-bottom: 1.5rem;
     }
     
     .score-card {
@@ -1582,33 +1601,106 @@ body {
         color: #121c2d !important;
     }
     
-    .combined-result {
+    /* Category breakdown */
+    .category-breakdown {
         page-break-inside: avoid;
-        margin-bottom: 1.5rem;
-        border: 1px solid #e1e3ea !important;
-        background-color: white !important;
-        padding: 1rem;
-        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid #e1e3ea;
+        padding-bottom: 1.5rem;
     }
     
-    .combined-result__name,
-    .combined-result__maturity,
-    .combined-result__value,
-    .combined-result__recommendation p {
+    .breakdown-item {
+        page-break-inside: avoid;
+        margin-bottom: 0.75rem;
+    }
+    
+    .breakdown-item__name,
+    .breakdown-item__score,
+    .breakdown-item__maturity {
         color: #121c2d !important;
     }
     
-    .combined-result__bar {
-        background-color: #f4f5f6 !important;
+    /* Tabs container */
+    .tabs-container {
+        border: none !important;
+        box-shadow: none !important;
+        background: white !important;
     }
     
+    .tabs-content {
+        padding: 0 !important;
+    }
+    
+    /* Individual recommendations */
+    .tab-panel__recommendation {
+        min-height: auto;
+        page-break-inside: avoid;
+    }
+    
+    .recommendation-content {
+        color: #121c2d !important;
+        background: white !important;
+    }
+    
+    .recommendation-content h3 {
+        color: #0263e0 !important;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        page-break-after: avoid;
+        font-size: 1.125rem;
+    }
+    
+    .recommendation-content h3:first-child {
+        margin-top: 0;
+    }
+    
+    .recommendation-content p {
+        color: #121c2d !important;
+        line-height: 1.6;
+        margin-bottom: 0.75rem;
+    }
+    
+    .recommendation-content ul {
+        margin-bottom: 1rem;
+    }
+    
+    .recommendation-content li {
+        color: #121c2d !important;
+        margin-bottom: 0.5rem;
+        line-height: 1.5;
+    }
+    
+    .recommendation-content strong {
+        color: #0263e0 !important;
+    }
+    
+    /* Add category headers in print */
+    .tab-panel::before {
+        content: attr(data-category);
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0263e0 !important;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e1e3ea;
+        page-break-after: avoid;
+    }
+    
+    /* Page settings */
+    @page {
+        margin: 2cm;
+        size: A4;
+    }
+    
+    /* Page breaks */
     .results__section-title {
         color: #121c2d !important;
         page-break-after: avoid;
     }
     
-    @page {
-        margin: 2cm;
-        size: A4;
+    h1, h2, h3 {
+        page-break-after: avoid;
     }
 }
+
