@@ -22,9 +22,15 @@ Data collected:
 No names, emails, or other PII is collected.
 """
 
-import wmill
 import json
 from datetime import datetime
+
+# Import the correct Windmill PostgreSQL client
+try:
+    from wmill import PostgresClient
+except ImportError:
+    # Fallback if PostgresClient not available - just log
+    PostgresClient = None
 
 def main(
     timestamp: str,
@@ -57,10 +63,50 @@ def main(
         Success confirmation with row ID
     """
     
+    # For now, just log to execution logs (visible in Windmill UI)
+    # PostgreSQL integration may require additional Windmill setup
     try:
-        # Create table if it doesn't exist (idempotent - safe to run every time)
-        create_table_sql = """
-        CREATE TABLE IF NOT EXISTS assessment_responses (
+        print("=" * 60)
+        print("📊 ASSESSMENT RESPONSE LOGGED")
+        print("=" * 60)
+        print(f"Timestamp: {timestamp}")
+        print(f"Team: {team}")
+        print(f"Job Title: {jobTitle}")
+        print(f"Job Level: {jobLevel}")
+        print(f"Overall Score: {overallScore:.2f}")
+        print(f"Overall Maturity: {overallMaturity}")
+        print(f"Has Not Started: {hasNotStarted}")
+        print("")
+        print("Category Scores:")
+        for category, score in categoryScores.items():
+            maturity = categoryMaturities.get(category, 'Unknown')
+            print(f"  - {category}: {score:.2f} ({maturity})")
+        print("")
+        print(f"Total Questions Answered: {len(responses)}")
+        print("=" * 60)
+        print("")
+        print("Full Response Data (JSON):")
+        print(json.dumps({
+            'timestamp': timestamp,
+            'team': team,
+            'jobTitle': jobTitle,
+            'jobLevel': jobLevel,
+            'overallScore': overallScore,
+            'overallMaturity': overallMaturity,
+            'hasNotStarted': hasNotStarted,
+            'categoryScores': categoryScores,
+            'categoryMaturities': categoryMaturities,
+            'responses': responses
+        }, indent=2))
+        print("")
+        print("=" * 60)
+        
+        # Try PostgreSQL if available
+        if PostgresClient:
+            try:
+                # Create table if it doesn't exist
+                create_table_sql = """
+                CREATE TABLE IF NOT EXISTS assessment_responses (
             id SERIAL PRIMARY KEY,
             timestamp TIMESTAMP NOT NULL,
             team VARCHAR(100) NOT NULL,
@@ -83,84 +129,79 @@ def main(
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         
-        CREATE INDEX IF NOT EXISTS idx_team ON assessment_responses(team);
-        CREATE INDEX IF NOT EXISTS idx_job_level ON assessment_responses(job_level);
-        CREATE INDEX IF NOT EXISTS idx_overall_maturity ON assessment_responses(overall_maturity);
-        CREATE INDEX IF NOT EXISTS idx_timestamp ON assessment_responses(timestamp);
-        """
-        
-        wmill.task.pg_execute(create_table_sql)
-        
-        # Insert the assessment response
-        insert_sql = """
-        INSERT INTO assessment_responses (
-            timestamp, team, job_title, job_level,
-            overall_score, overall_maturity, has_not_started,
-            delegation_score, communication_score, discernment_score, twilio_score,
-            delegation_maturity, communication_maturity, discernment_maturity, twilio_maturity,
-            category_scores, category_maturities, responses
-        ) VALUES (
-            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
-        ) RETURNING id;
-        """
-        
-        # Extract individual category scores for easier querying
-        delegation_score = categoryScores.get('Delegation', 0)
-        communication_score = categoryScores.get('Communication', 0)
-        discernment_score = categoryScores.get('Discernment', 0)
-        twilio_score = categoryScores.get('Keeping It Twilio', 0)
-        
-        delegation_maturity = categoryMaturities.get('Delegation', '')
-        communication_maturity = categoryMaturities.get('Communication', '')
-        discernment_maturity = categoryMaturities.get('Discernment', '')
-        twilio_maturity = categoryMaturities.get('Keeping It Twilio', '')
-        
-        # Execute insert
-        result = wmill.task.pg_execute(insert_sql, (
-            timestamp,
-            team,
-            jobTitle,
-            jobLevel,
-            round(overallScore, 2),
-            overallMaturity,
-            hasNotStarted,
-            round(delegation_score, 2),
-            round(communication_score, 2),
-            round(discernment_score, 2),
-            round(twilio_score, 2),
-            delegation_maturity,
-            communication_maturity,
-            discernment_maturity,
-            twilio_maturity,
-            json.dumps(categoryScores),
-            json.dumps(categoryMaturities),
-            json.dumps(responses)
-        ))
-        
-        # Get the inserted row ID
-        row_id = result[0]['id'] if result and len(result) > 0 else None
-        
-        print(f"✅ Successfully logged assessment to PostgreSQL")
-        print(f"   Team: {team} | Job: {jobTitle} | Level: {jobLevel}")
-        print(f"   Overall: {overallMaturity} ({overallScore:.2f})")
-        print(f"   Row ID: {row_id}")
+                CREATE INDEX IF NOT EXISTS idx_team ON assessment_responses(team);
+                CREATE INDEX IF NOT EXISTS idx_job_level ON assessment_responses(job_level);
+                CREATE INDEX IF NOT EXISTS idx_overall_maturity ON assessment_responses(overall_maturity);
+                CREATE INDEX IF NOT EXISTS idx_timestamp ON assessment_responses(timestamp);
+                """
+                
+                # Note: Actual PostgreSQL integration depends on Windmill configuration
+                # This is a placeholder - update with actual connection method
+                print("Note: PostgreSQL integration available but needs configuration.")
+                print("Data has been logged to execution logs above.")
+                
+            except Exception as pg_error:
+                print(f"Note: PostgreSQL not configured: {str(pg_error)}")
+                print("Data logged to execution logs only.")
         
         return {
             'success': True,
-            'message': 'Response logged to PostgreSQL',
+            'message': 'Response logged to execution logs',
             'timestamp': timestamp,
-            'row_id': row_id,
             'team': team,
-            'overallMaturity': overallMaturity
+            'overallMaturity': overallMaturity,
+            'note': 'Data visible in Windmill execution logs. To enable PostgreSQL storage, contact Windmill admin.'
         }
         
     except Exception as e:
         error_msg = str(e)
-        print(f"❌ Error logging to PostgreSQL: {error_msg}")
+        print(f"❌ Error logging response: {error_msg}")
         
-        # Return error but don't crash (silent fail for user experience)
+        # Return error but don't crash
         return {
             'success': False,
             'error': error_msg,
-            'message': 'Failed to log response to database'
+            'message': 'Failed to log response'
         }
+
+
+# Alternative version using execution logs only
+# Uncomment and use this if PostgreSQL is not available:
+"""
+def main(
+    timestamp: str,
+    team: str,
+    jobTitle: str,
+    jobLevel: str,
+    overallScore: float,
+    overallMaturity: str,
+    hasNotStarted: bool,
+    categoryScores: dict,
+    categoryMaturities: dict,
+    responses: dict
+):
+    '''Simple logging version - just prints to execution logs'''
+    
+    # Insert the assessment response (PLACEHOLDER - needs actual PostgreSQL client)
+    insert_sql = '''
+    print(f"Assessment Response Logged:")
+    print(f"  Team: {team}")
+    print(f"  Job: {jobTitle} ({jobLevel})")
+    print(f"  Score: {overallMaturity} ({overallScore:.2f})")
+    print(json.dumps({
+        'timestamp': timestamp,
+        'team': team,
+        'jobTitle': jobTitle,
+        'jobLevel': jobLevel,
+        'overallScore': overallScore,
+        'overallMaturity': overallMaturity,
+        'categoryScores': categoryScores,
+        'categoryMaturities': categoryMaturities
+    }, indent=2))
+    
+    return {
+        'success': True,
+        'message': 'Response logged',
+        'timestamp': timestamp
+    }
+"""
