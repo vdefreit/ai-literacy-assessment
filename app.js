@@ -1115,9 +1115,11 @@ function markdownToHtml(text) {
     let html = text;
     
     // Convert code blocks first (```language\ncode\n``` or ```\ncode\n```)
-    html = html.replace(/```(?:\w+)?\n([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+    html = html.replace(/```[\w]*\s*\n([\s\S]*?)\n```/g, '<pre><code>$1</code></pre>');
     
-    // Convert headers (### -> h3, ## -> h2, # -> h1)
+    // Convert headers (#### -> h4, ### -> h3, ## -> h2, # -> h1)
+    // Process from most specific (####) to least specific (#) to avoid conflicts
+    html = html.replace(/^####\s+(.+)$/gm, '<h4>$1</h4>');
     html = html.replace(/^###\s+(.+)$/gm, '<h3>$1</h3>');
     html = html.replace(/^##\s+(.+)$/gm, '<h2>$1</h2>');
     html = html.replace(/^#\s+(.+)$/gm, '<h1>$1</h1>');
@@ -1192,8 +1194,8 @@ function markdownToHtml(text) {
  * Generates one recommendation for a specific category
  */
 async function generateSingleRecommendation(category, scores) {
-    // Check if CONFIG exists first
-    if (typeof CONFIG === 'undefined' || !CONFIG.USE_AI_RECOMMENDATIONS || CONFIG.OPENAI_API_KEY === 'YOUR_OPENAI_API_KEY_HERE') {
+    // Check if CONFIG exists and Windmill is configured
+    if (typeof CONFIG === 'undefined' || !CONFIG.USE_AI_RECOMMENDATIONS || CONFIG.WINDMILL_ENDPOINT === 'YOUR_WINDMILL_WEBHOOK_URL_HERE') {
         console.log(`CONFIG not available or AI disabled, using static recommendation for ${category}`);
         const staticRecs = generateRecommendations(scores);
         return staticRecs.find(r => r.category === category);
@@ -1206,98 +1208,129 @@ async function generateSingleRecommendation(category, scores) {
     prompt += `- Has Direct Reports: ${hasDirectReports ? 'Yes' : 'No'}\n`;
     prompt += `- Can Procure New Tools: ${canProcureTools ? 'Yes' : 'No'}\n\n`;
     prompt += `**Category to focus on: ${category}**\n\n`;
-    prompt += `**Their Score:**\n`;
+    prompt += `**Their Overall Score:**\n`;
     const score = scores.categories[category];
     const maturity = scores.categoryMaturities[category];
     prompt += `- ${category}: ${maturity} (${score.toFixed(2)}/4.00)\n\n`;
-    prompt += `Provide a comprehensive, detailed recommendation following the structure in your system prompt. Focus ONLY on this one category. Use markdown formatting.`;
     
-    try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${CONFIG.OPENAI_API_KEY}`
-            },
-            body: JSON.stringify({
-                model: CONFIG.OPENAI_MODEL,
-                messages: [
-                    {
-                        role: 'system',
-                        content: `You are an experienced AI literacy coach at Twilio helping employees leverage AI tools effectively.
+    // Add specific question responses for this category
+    prompt += `**Specific Responses in ${category}:**\n`;
+    const categoryQuestions = state.questions.filter(q => q.category === category);
+    categoryQuestions.forEach(question => {
+        const answer = state.answers[question.id];
+        if (answer) {
+            const selectedOption = question.options.find(opt => opt.value === answer);
+            if (selectedOption) {
+                // Extract the question subcategory (before the colon)
+                const colonIndex = question.text.indexOf(':');
+                const subcategory = colonIndex !== -1 ? question.text.substring(0, colonIndex).trim() : question.text;
+                
+                prompt += `- ${subcategory}: ${selectedOption.label} - "${selectedOption.description}"\n`;
+            }
+        }
+    });
+    
+    prompt += `\n**Instructions:**\n`;
+    prompt += `Based on their SPECIFIC responses above, provide personalized advice that addresses the areas where they scored lower or where their descriptions indicate gaps. Reference their actual behavior patterns from their selected responses. Make it feel personal and actionable.\n\n`;
+    prompt += `Use markdown formatting with the structure from your system prompt.`;
+    
+    // System message for the AI coach
+    const systemMessage = `You are an experienced AI literacy coach at Twilio helping employees improve their AI collaboration skills.
 
 TWILIO CONTEXT:
-- Primary tool: Google Gemini webapp (multi-modal capabilities, web search, deep research mode)
+- Primary tool: Google Gemini, NotebookLM, ZoomAI for AI collaboration. Use websearch to understand most current features
 - Employees can build and share Gems (custom AI assistants) with their teams
 - OpenAI API is available for developers (not the webapp)
 - Switchboard is Twilio's resource hub where employees can learn about available tools in the AI Hub
 - If the employee CANNOT procure tools, direct them to Switchboard to discover available tools rather than suggesting specific new tools
-- If the employee CAN procure tools, suggest specific tools and platforms to evaluate based on 2025 data. 
-- If
+- If the employee CAN procure tools, suggest specific tools and platforms to evaluate based on 2025 data
+- Don't ever recommend specific AI tools/platforms outside of Gemini
 
 FEEDBACK GUIDANCE:
 - Prioritize responsible AI use, data privacy, and bias/ethical considerations in all recommendations
 - When referring to Delegation, Communication, Discernment only refer to the user's ability to do those things with AI tools and LLMs, not to members of their team
-- When giving feedback to Leaders/Managers, emphasize strategies that focus on Twilio's leadership expectations: Build Trust, Grow Together, Solve Impactful Problems, Lead Change, Think Long Term 
-- When referecing Twilio's Leadership Expectations to Leaders, specifically call it "Twilio's Leadership Expectations"
-- For Individual Contributors, focus on personal productivity, skill development, and quality assurance
+- When discussing multi-modal capabilities, focus on Gemini's ability to understand various modalities more than its ability to generate multiple modaliities. 
+- When giving feedback to Leaders/Managers, emphasize strategies that focus on Twilio's leadership expectations: Build Trust, Grow Together, Solve Impactful Problems, Lead Change, Think Long Term
+- When referencing Twilio's Leadership Expectations to Leaders, specifically call it "Twilio's Leadership Expectations"
 - Always align recommendations with Twilio's Magic Values
-- Don't ever recommend specific AI tools/platforms outside of Gemini webapp 
+- Stay LASER FOCUSED on the specific dimension being assessed - don't drift into other topics
 
 RECOMMENDATION STRUCTURE:
-1. **Overview** (2-3 sentences): High-level summary of the key opportunity for their role and current maturity level
+### What to Focus On
+2-3 concise paragraphs covering:
+- The specific skill they need to develop for THIS dimension only
+- Clear, actionable steps they can take immediately
+- How this will improve their effectiveness with AI
+- One key pitfall to avoid at their level
 
-2. **Three Specific Use Cases**:
-   ### Use Case 1 (Quick Win): [Title]
-   - **Scenario:** [1-2 sentences describing the situation]
-   - **Step-by-Step Approach:** [2-3 sentences with specific actions]
-   - **Expected Outcome:** [1-2 sentences on results]
-   - **Time Saved:** [Specific time estimate]
-   - **Starter Prompt:** (in code block)
-     [Copy-paste ready prompt for Use Case 1 with [placeholders]]
-   
-   ### Use Case 2 (Build On It): [Title]
-   - **When to Try This:** [1 sentence on timing]
-   - **How It Differs:** [2-3 sentences on the advancement]
-   - **Skills It Develops:** [1-2 sentences on learning outcomes]
-   - **Starter Prompt:** (in code block)
-     [Copy-paste ready prompt for Use Case 2 with [placeholders]]
-   
-   ### Use Case 3 (Stretch Goal): [Title]
-   - **Prerequisites:** [1-2 sentences on what's needed first]
-   - **Potential Impact:** [2-3 sentences on transformative value]
-   - **What Makes It Advanced:** [1-2 sentences on complexity]
-   - **Starter Prompt:** (in code block)
-     [Copy-paste ready prompt for Use Case 3 with [placeholders]]
+### Quick Wins
+- 2-3 concrete actions they can take this week
+- Simple practices to build into their workflow
+- Low-effort, high-impact improvements
 
-3. **Gemini Tips**:
-   - [2-3 specific Gemini features as bullets]
+### Gemini Tips
+- 2-3 specific Gemini features that support their development
+- How to use Gemini more effectively for their needs
 
 FORMATTING RULES:
-- Use ### for each Use Case title (creates H3 headings)
-- Use **bold** for sub-item labels (Scenario, Expected Outcome, Starter Prompt, etc.)
-- Use - for bullet lists under each heading
-- Add blank lines between Use Cases
-- Wrap each Starter Prompt text in triple backticks to create a code block
-- Each starter prompt should be specifically tailored to its use case
-- Total: 500-700 words`
+- Use ### for section titles (What to Focus On, Quick Wins, Gemini Tips)
+- Use **bold** for key concepts within paragraphs
+- Use - for bullet lists
+- Keep it conversational and encouraging
+- Stay tightly focused on the ONE dimension being assessed
+- Total: 300-400 words`;
+    
+    try {
+        // Call Windmill backend instead of OpenAI directly
+        const response = await fetch(CONFIG.WINDMILL_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${CONFIG.WINDMILL_TOKEN}`
+            },
+            body: JSON.stringify({
+                rapid_openai: "$res:u/VinceDeFreitas/rapid_openai", // Windmill resource reference
+                messages: [
+                    {
+                        role: 'system',
+                        content: systemMessage
                     },
                     {
                         role: 'user',
                         content: prompt
                     }
                 ],
-                max_tokens: 1500,
-                temperature: 0.7
+                model: CONFIG.OPENAI_MODEL,
+                max_tokens: CONFIG.OPENAI_MAX_TOKENS,
+                temperature: CONFIG.OPENAI_TEMPERATURE
             })
         });
         
         if (!response.ok) {
-            throw new Error(`OpenAI API error: ${response.status}`);
+            const errorText = await response.text();
+            console.error('Windmill API error:', errorText);
+            throw new Error(`Windmill API error: ${response.status}`);
         }
         
         const data = await response.json();
-        const recommendationText = data.choices[0].message.content;
+        
+        // Handle Windmill response format from Python script
+        let recommendationText;
+        if (data.success && data.response) {
+            // Python script returns data.response (not data.content)
+            recommendationText = data.response;
+        } else if (data.success && data.content) {
+            // Legacy format fallback
+            recommendationText = data.content;
+        } else if (data.choices && data.choices[0]) {
+            // If using OpenAI's native format
+            recommendationText = data.choices[0].message.content;
+        } else if (data.error) {
+            throw new Error(`Windmill error: ${data.error}`);
+        } else {
+            throw new Error('Unexpected response format from Windmill');
+        }
+        
         
         return {
             category: category,
@@ -1498,29 +1531,20 @@ function updateSingleRecommendation(recommendation, scores) {
  * @param {Array|null} recommendations - Generated recommendations or null for loading state
  */
 function renderResults(scores, recommendations) {
-    // Overall score - show maturity level instead of percentage
+    // Overall maturity level (no bar, no score number)
     const overallScoreEl = document.getElementById('overall-score');
-    const overallScoreBar = document.getElementById('overall-score-bar');
-    const overallMaturity = document.getElementById('overall-maturity');
     const scoreCelebration = document.getElementById('score-celebration');
+    const categoryBreakdownEl = document.getElementById('category-breakdown');
     
     // Get maturity level and color
     const maturityLevel = scores.overallMaturity;
     const level = maturityLevels.find(l => l.label === maturityLevel);
     const levelColor = level ? level.color : 'var(--accent-primary)';
-    const percentage = Math.round((scores.overall / 4) * 100);
     
-    // Display maturity level (not percentage)
+    // Display maturity level only
     setTimeout(() => {
         overallScoreEl.textContent = maturityLevel;
         overallScoreEl.style.color = levelColor;
-        overallMaturity.textContent = `Score: ${scores.overall.toFixed(2)}/4.00`;
-        
-        // Animate progress bar
-        setTimeout(() => {
-            overallScoreBar.style.width = percentage + '%';
-            overallScoreBar.style.backgroundColor = levelColor;
-        }, 300);
         
         // Trigger celebration effect for high maturity
         if (maturityLevel === 'Creative' || maturityLevel === 'Competent') {
@@ -1533,37 +1557,50 @@ function renderResults(scores, recommendations) {
         }
     }, 300);
     
-    // Combined results (category score + recommendation together)
-    const combinedResultsEl = document.getElementById('combined-results');
-    combinedResultsEl.innerHTML = '';
+    // Create category breakdown bars
+    const displayNames = {
+        'Delegation': 'Delegating to AI systems',
+        'Communication': 'Communicating with AI systems',
+        'Discernment': 'Discernment and Judgement',
+        'Keeping It Twilio': 'Keeping It Twilio'
+    };
     
+    categoryBreakdownEl.innerHTML = '';
     state.categories.forEach(category => {
         const avgScore = scores.categories[category.name] || 0;
         const maturity = scores.categoryMaturities[category.name] || 'Not Started';
         const level = maturityLevels.find(l => l.label === maturity);
         const levelColor = level ? level.color : 'var(--color-neutral-600)';
         const percentage = (avgScore / 4) * 100;
+        const displayName = displayNames[category.name] || category.name;
+        
+        const breakdownItem = document.createElement('div');
+        breakdownItem.className = 'breakdown-item';
+        breakdownItem.innerHTML = `
+            <div class="breakdown-item__header">
+                <span class="breakdown-item__name">${displayName}</span>
+                <span class="breakdown-item__score">${avgScore.toFixed(2)}/4.00</span>
+                <span class="breakdown-item__maturity" style="color: ${levelColor}">${maturity}</span>
+            </div>
+            <div class="breakdown-item__bar">
+                <div class="breakdown-item__fill" style="width: ${percentage}%; background-color: ${levelColor}"></div>
+            </div>
+        `;
+        categoryBreakdownEl.appendChild(breakdownItem);
+    });
+    
+    // Combined results (category score + recommendation together)
+    const combinedResultsEl = document.getElementById('combined-results');
+    combinedResultsEl.innerHTML = '';
+    
+    state.categories.forEach(category => {
+        const displayName = displayNames[category.name] || category.name;
         
         const combinedEl = document.createElement('div');
         combinedEl.className = 'combined-result';
         combinedEl.innerHTML = `
             <div class="combined-result__header">
-                <div class="combined-result__score">
-                    <span class="combined-result__name">${category.name}</span>
-                    <span class="combined-result__maturity" style="color: ${levelColor}">${maturity}</span>
-                </div>
-                <span class="combined-result__value">${avgScore.toFixed(2)}</span>
-            </div>
-            <div class="combined-result__bar">
-                <div class="combined-result__bar-track">
-                    <div class="combined-result__fill" style="width: ${percentage}%; background-color: ${levelColor}"></div>
-                </div>
-                <div class="combined-result__markers">
-                    <span class="marker" style="left: 0%">Not Started</span>
-                    <span class="marker" style="left: 33.33%">Compliant</span>
-                    <span class="marker" style="left: 66.66%">Competent</span>
-                    <span class="marker" style="left: 100%">Creative</span>
-                </div>
+                <h4 class="combined-result__title">${displayName}</h4>
             </div>
             <div class="combined-result__recommendation" id="rec-${category.name}">
                 <button class="btn btn--secondary generate-rec-btn" data-category="${category.name}">
