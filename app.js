@@ -815,11 +815,26 @@ function selectAnswer(questionId, value) {
 }
 
 /**
+ * Detect if user is on mobile device
+ */
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+        || (navigator.maxTouchPoints && navigator.maxTouchPoints > 2);
+}
+
+/**
  * Update Double-click Hint Visibility
- * Shows hint on first 3 questions
+ * Shows hint on first 3 questions with platform-appropriate text
  */
 function updateDoubleClickHint() {
     const hintEl = document.getElementById('double-click-hint');
+    const hintTextEl = document.getElementById('double-click-hint-text');
+    
+    // Update text based on platform
+    const isMobile = isMobileDevice();
+    hintTextEl.textContent = isMobile 
+        ? 'Double-tap an answer to select and continue'
+        : 'Double-click an answer to select and continue';
     
     // Show hint only on first 3 questions (index 0, 1, 2)
     if (state.currentQuestionIndex >= 3) {
