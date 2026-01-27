@@ -1082,7 +1082,7 @@ body {
     gap: 0;
     background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
     border-bottom: 1px solid var(--border-color);
-    padding: var(--space-2);
+    padding: var(--space-1);
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
@@ -1090,12 +1090,12 @@ body {
 .tab-btn {
     flex: 1;
     min-width: max-content;
-    padding: var(--space-3) var(--space-6);
+    padding: var(--space-2) var(--space-4);
     margin: 0 var(--space-1);
     border: none;
     background: transparent;
     color: var(--text-secondary);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     cursor: pointer;
     transition: all var(--transition-base);
@@ -1126,7 +1126,7 @@ body {
 }
 
 .tabs-content {
-    padding: var(--space-10);
+    padding: var(--space-6);
 }
 
 .tab-panel {
@@ -1150,7 +1150,7 @@ body {
 }
 
 .tab-panel__recommendation {
-    min-height: 200px;
+    min-height: 150px;
 }
 
 .combined-result {
