@@ -31,12 +31,28 @@ const state = {
 };
 
 /**
+ * Normalize answers to support multi-select.
+ * Historical saved progress may store a single number; we now store an array of numbers.
+ */
+function normalizeAnswerValue(value) {
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'number') return [value];
+    return [];
+}
+
+function getAnswersArray(questionId) {
+    const normalized = normalizeAnswerValue(state.answers[questionId]);
+    state.answers[questionId] = normalized;
+    return normalized;
+}
+
+/**
  * Maturity Levels - 4-stage progression model
  * Each question maps to one of these maturity levels
  */
 const maturityLevels = [
     { value: 1, label: 'Not Started', color: '#d61f1f' },   // Red - Twilio Paste error color
-    { value: 2, label: 'Compliant', color: '#d97706' },     // Darker Orange - Better contrast for accessibility
+    { value: 2, label: 'Compliant', color: '#0891b2' },     // Teal - Neutral, progress-oriented
     { value: 3, label: 'Competent', color: '#14b053' },     // Green - Twilio Paste success color
     { value: 4, label: 'Creative', color: '#0263e0' }       // Blue - Twilio Paste primary color
 ];
@@ -506,10 +522,26 @@ const dummyQuestions = [
  * Four key areas of AI literacy assessment
  */
 const dummyCategories = [
-    { name: 'Delegation', description: 'Making thoughtful decisions about what work to hand over to AI systems' },
-    { name: 'Communication', description: 'Clear communication when working with AI systems' },
-    { name: 'Discernment', description: 'Evaluating AI outputs and behavior with a critical eye' },
-    { name: 'Keeping It Twilio', description: 'Smart, responsible and ethical AI collaborations aligned with Twilio values' }
+    { 
+        name: 'Delegation', 
+        description: 'Making thoughtful decisions about what work to hand over to AI systems',
+        fullDescription: 'Delegation is about making thoughtful decisions about what work you should hand over to AI systems, and what work you should continue to manage on your own. Effective delegation requires both domain expertise and a comprehensive understanding of current AI capabilities.'
+    },
+    { 
+        name: 'Communication', 
+        description: 'Clear communication when working with AI systems',
+        fullDescription: 'Clear communication is essential when working AI systems. How you articulate your intention, standards and expectations makes the difference when writing prompts or designing AI systems that automate multiple stages of work.'
+    },
+    { 
+        name: 'Discernment', 
+        description: 'Evaluating AI outputs and behavior with a critical eye',
+        fullDescription: 'Discernment is about evaluating AI outputs and behavior with a critical eye. As a leader, your role is to act as the final filter, ensuring that the logic, accuracy, and quality of an output meet your standards rather than accepting results at face value.'
+    },
+    { 
+        name: 'Keeping It Twilio', 
+        description: 'Smart, responsible and ethical AI collaborations aligned with Twilio values',
+        fullDescription: 'Keeping it Twilio focuses on smart, responsible and ethical AI collaborations. As a leader, you are the steward of your team\'s integrity, ensuring that AI use aligns with organizational values, legal standards, and ethical best practices.'
+    }
 ];
 
 /**
@@ -524,6 +556,7 @@ function init() {
     state.sections = state.categories.map(category => ({
         name: category.name,
         description: category.description,
+        fullDescription: category.fullDescription,
         questions: state.questions.filter(q => q.category === category.name)
     }));
     
@@ -566,6 +599,11 @@ function loadProgress() {
             state.currentQuestionIndex = progressData.currentQuestionIndex || 0;
             state.currentSection = progressData.currentSection || 0;
             state.answers = progressData.answers || {};
+
+            // Migration: older versions stored a single number per question.
+            Object.keys(state.answers).forEach((questionId) => {
+                state.answers[questionId] = normalizeAnswerValue(state.answers[questionId]);
+            });
             
             // Check if there's progress to restore
             if (Object.keys(state.answers).length > 0) {
@@ -664,7 +702,43 @@ function startAssessment() {
     };
     
     showScreen('questionnaire-screen');
-    renderQuestion();
+    
+    // Show the first section intro screen
+    showSectionIntroScreen(0);
+}
+
+/**
+ * Show Section Introduction Screen
+ * Displays a full screen with section description
+ * @param {number} sectionIndex - The index of the section to introduce
+ */
+function showSectionIntroScreen(sectionIndex) {
+    const section = state.sections[sectionIndex];
+    
+    // Show section intro screen first
+    showScreen('section-intro-screen');
+    
+    // Set content
+    document.getElementById('section-intro-fullscreen-title').textContent = section.name;
+    document.getElementById('section-intro-fullscreen-description').textContent = section.fullDescription;
+    
+    // Set up continue button
+    const continueBtn = document.getElementById('section-intro-fullscreen-continue');
+    const newContinueBtn = continueBtn.cloneNode(true);
+    continueBtn.parentNode.replaceChild(newContinueBtn, continueBtn);
+    
+    document.getElementById('section-intro-fullscreen-continue').addEventListener('click', () => {
+        showScreen('questionnaire-screen');
+        renderQuestion();
+    });
+    
+    // Set up theme toggle
+    const themeToggle = document.getElementById('theme-toggle-section-intro');
+    if (themeToggle) {
+        const newToggle = themeToggle.cloneNode(true);
+        themeToggle.parentNode.replaceChild(newToggle, themeToggle);
+        document.getElementById('theme-toggle-section-intro').addEventListener('click', toggleTheme);
+    }
 }
 
 /**
@@ -705,7 +779,7 @@ function renderQuestion() {
     // Clear previous options
     answerOptionsEl.innerHTML = '';
     answerOptionsEl.setAttribute('role', 'group');
-    answerOptionsEl.setAttribute('aria-label', 'Answer options');
+    answerOptionsEl.setAttribute('aria-label', 'Answer options - you may select multiple options');
     
     // Randomize answer options order
     const shuffledOptions = [...question.options].sort(() => Math.random() - 0.5);
@@ -721,8 +795,9 @@ function renderQuestion() {
         optionEl.setAttribute('aria-label', `Option ${option.value}: ${option.label}`);
         optionEl.setAttribute('aria-describedby', `option-desc-${question.id}-${index}`);
         
-        // Check if this option is already selected
-        if (state.answers[question.id] === option.value) {
+        // Check if this option is already selected (multi-select support)
+        const currentAnswers = state.answers[question.id] || [];
+        if (currentAnswers.includes(option.value)) {
             optionEl.classList.add('answer-option--selected');
             optionEl.setAttribute('aria-pressed', 'true');
         } else {
@@ -798,17 +873,25 @@ function renderQuestion() {
  * @param {number} value - The maturity level value (1-4)
  */
 function selectAnswer(questionId, value) {
-    state.answers[questionId] = value;
+    const currentAnswers = getAnswersArray(questionId);
+
+    // Toggle selection
+    const index = currentAnswers.indexOf(value);
+    if (index >= 0) {
+        currentAnswers.splice(index, 1);
+    } else {
+        currentAnswers.push(value);
+    }
     
     // Update UI to show selected answer and ARIA states
     const options = document.querySelectorAll('.answer-option');
     options.forEach(option => {
-        option.classList.remove('answer-option--selected');
         const optionValue = parseInt(option.dataset.value);
-        if (optionValue === value) {
+        if (currentAnswers.includes(optionValue)) {
             option.classList.add('answer-option--selected');
             option.setAttribute('aria-pressed', 'true');
         } else {
+            option.classList.remove('answer-option--selected');
             option.setAttribute('aria-pressed', 'false');
         }
     });
@@ -837,9 +920,9 @@ function updateDoubleClickHint() {
     
     // Update text based on platform
     const isMobile = isMobileDevice();
-    hintTextEl.textContent = isMobile 
-        ? 'Double-tap an answer to select and continue'
-        : 'Double-click an answer to select and continue';
+    hintTextEl.textContent = isMobile
+        ? 'Select one or more options. Tap Next when you\'re ready.'
+        : 'Select one or more options. Click Next when you\'re ready.';
     
     // Show hint only on first 3 questions (index 0, 1, 2)
     if (state.currentQuestionIndex >= 3) {
@@ -862,8 +945,9 @@ function updateNavigation() {
     // Previous button
     prevBtn.disabled = state.currentQuestionIndex === 0;
     
-    // Next/Submit button
-    const hasAnswer = state.answers[currentQuestion.id] !== undefined;
+    // Next/Submit button (allow proceeding if at least one option selected)
+    const currentAnswers = getAnswersArray(currentQuestion.id);
+    const hasAnswer = currentAnswers.length > 0;
     
     if (state.currentQuestionIndex === state.questions.length - 1) {
         // Last question - show submit button
@@ -890,7 +974,8 @@ function updateProgress() {
     // Calculate progress within current section
     // Progress fills up as you answer questions, not just view them
     const currentQuestion = state.questions[state.currentQuestionIndex];
-    const hasAnswer = state.answers[currentQuestion.id] !== undefined;
+    const currentAnswers = getAnswersArray(currentQuestion.id);
+    const hasAnswer = currentAnswers.length > 0;
     const completedQuestions = questionIndexInSection + (hasAnswer ? 1 : 0);
     const progress = (completedQuestions / sectionQuestions.length) * 100;
     
@@ -907,6 +992,42 @@ function updateProgress() {
     document.getElementById('section-title').textContent = `Section ${state.currentSection + 1}: ${currentSection.name}`;
     document.getElementById('current-question').textContent = questionIndexInSection + 1;
     document.getElementById('section-total').textContent = sectionQuestions.length;
+    
+    // Update overall progress circles
+    const circles = document.querySelectorAll('.progress__circle');
+    if (circles.length > 0) {
+        circles.forEach((circle, index) => {
+            // Remove all state classes
+            circle.classList.remove('progress__circle--completed', 'progress__circle--current');
+            
+            // Get answers for this question
+            const question = state.questions[index];
+            const answers = question ? getAnswersArray(question.id) : [];
+            const hasAnswer = answers.length > 0;
+            
+            if (index < state.currentQuestionIndex || (index === state.currentQuestionIndex && hasAnswer)) {
+                // Completed questions
+                circle.classList.add('progress__circle--completed');
+            } else if (index === state.currentQuestionIndex) {
+                // Current question
+                circle.classList.add('progress__circle--current');
+            }
+        });
+        
+        // Update ARIA attribute
+        const circlesContainer = document.getElementById('progress-circles');
+        if (circlesContainer) {
+            const completedCount = state.questions.filter((q, idx) => {
+                if (idx < state.currentQuestionIndex) return true;
+                if (idx === state.currentQuestionIndex) {
+                    const answers = getAnswersArray(q.id);
+                    return answers.length > 0;
+                }
+                return false;
+            }).length;
+            circlesContainer.setAttribute('aria-valuenow', completedCount);
+        }
+    }
 }
 
 /**
@@ -924,29 +1045,35 @@ function nextQuestion() {
         const currentQuestion = state.questions[state.currentQuestionIndex];
         const nextQuestionData = state.questions[state.currentQuestionIndex + 1];
         
-        // Add transition class
-        const container = document.querySelector('.question-container');
-        if (container) {
-            container.classList.add('transitioning-out');
-            
-            setTimeout(() => {
-                // Check if we're moving to a new section
-                if (currentQuestion.category !== nextQuestionData.category) {
-                    state.currentSection++;
-                }
+        // Check if we're moving to a new section
+        const isNewSection = currentQuestion.category !== nextQuestionData.category;
+        
+        // Check if moving to new section
+        if (isNewSection) {
+            // Immediately show section intro screen for new section
+            state.currentSection++;
+            state.currentQuestionIndex++;
+            showSectionIntroScreen(state.currentSection);
+        } else {
+            // Normal question transition
+            const container = document.querySelector('.question-container');
+            if (container) {
+                container.classList.add('transitioning-out');
                 
-                state.currentQuestionIndex++;
-                renderQuestion();
-                
-                // Remove out class and add in class
-                container.classList.remove('transitioning-out');
-                container.classList.add('transitioning-in');
-                
-                // Clean up animation class after animation completes
                 setTimeout(() => {
-                    container.classList.remove('transitioning-in');
+                    state.currentQuestionIndex++;
+                    renderQuestion();
+                    
+                    // Remove out class and add in class
+                    container.classList.remove('transitioning-out');
+                    container.classList.add('transitioning-in');
+                    
+                    // Clean up animation class after animation completes
+                    setTimeout(() => {
+                        container.classList.remove('transitioning-in');
+                    }, 300);
                 }, 300);
-            }, 300);
+            }
         }
     }
 }
@@ -997,19 +1124,40 @@ function calculateScores() {
     const categoryScores = {};
     const categoryCounts = {};
     const categoryAverages = {};
+    const questionNuance = {}; // Track multi-select nuance per question
+    const categoryNuance = {}; // Track contextual complexity per category
     
     // Initialize category data
     state.categories.forEach(category => {
         categoryScores[category.name] = 0;
         categoryCounts[category.name] = 0;
+        categoryNuance[category.name] = { multiSelectCount: 0, totalQuestions: 0, avgSpread: 0 };
     });
     
-    // Calculate scores per category
+    // Calculate scores per category (handle multi-select by averaging)
     state.questions.forEach(question => {
-        const answer = state.answers[question.id];
-        if (answer !== undefined) {
-            categoryScores[question.category] += answer;
+        const answers = normalizeAnswerValue(state.answers[question.id]);
+        if (answers.length > 0) {
+            // Calculate average of selected values
+            const avgAnswer = answers.reduce((sum, val) => sum + val, 0) / answers.length;
+            categoryScores[question.category] += avgAnswer;
             categoryCounts[question.category] += 1;
+            
+            // Track nuance: multiple selections indicate contextual judgment
+            const spread = answers.length > 1 ? Math.max(...answers) - Math.min(...answers) : 0;
+            questionNuance[question.id] = {
+                count: answers.length,
+                values: answers,
+                spread: spread,
+                isContextual: answers.length > 1 // User varies approach by situation
+            };
+            
+            // Aggregate category-level nuance
+            categoryNuance[question.category].totalQuestions += 1;
+            if (answers.length > 1) {
+                categoryNuance[question.category].multiSelectCount += 1;
+                categoryNuance[question.category].avgSpread += spread;
+            }
         }
     });
     
@@ -1017,6 +1165,13 @@ function calculateScores() {
     Object.keys(categoryScores).forEach(category => {
         if (categoryCounts[category] > 0) {
             categoryAverages[category] = categoryScores[category] / categoryCounts[category];
+            
+            // Finalize category nuance metrics
+            if (categoryNuance[category].multiSelectCount > 0) {
+                categoryNuance[category].avgSpread /= categoryNuance[category].multiSelectCount;
+                categoryNuance[category].contextualPercentage = 
+                    (categoryNuance[category].multiSelectCount / categoryNuance[category].totalQuestions) * 100;
+            }
         } else {
             categoryAverages[category] = 0;
         }
@@ -1044,7 +1199,9 @@ function calculateScores() {
         categories: categoryAverages,
         categoryMaturities: Object.fromEntries(
             Object.entries(categoryAverages).map(([cat, avg]) => [cat, getMaturityLevel(avg)])
-        )
+        ),
+        questionNuance: questionNuance,
+        categoryNuance: categoryNuance
     };
 }
 
@@ -1309,23 +1466,44 @@ async function generateSingleRecommendation(category, scores) {
     const maturity = scores.categoryMaturities[category];
     prompt += `- ${category}: ${maturity} (${score.toFixed(2)}/4.00)\n\n`;
     
+    // Add contextual nuance summary
+    const categoryNuanceData = scores.categoryNuance[category];
+    if (categoryNuanceData && categoryNuanceData.multiSelectCount > 0) {
+        prompt += `**CONTEXTUAL AWARENESS:**\n`;
+        prompt += `This user selected multiple options on ${categoryNuanceData.multiSelectCount} out of ${categoryNuanceData.totalQuestions} questions in ${category}. `;
+        prompt += `This indicates they vary their approach based on context - a sign of sophisticated judgment. `;
+        prompt += `DO NOT push them toward "always use the most advanced approach." Instead, help them expand their toolkit while honoring that different situations call for different levels of AI use.\n\n`;
+    }
+    
     // Add specific question responses for this category
     prompt += `**THEIR ACTUAL RESPONSES in ${category} - USE THESE TO GROUND YOUR FEEDBACK:**\n`;
     const categoryQuestions = state.questions.filter(q => q.category === category);
     categoryQuestions.forEach(question => {
-        const answer = state.answers[question.id];
-        if (answer) {
-            const selectedOption = question.options.find(opt => opt.value === answer);
-            if (selectedOption) {
-                // Extract the question subcategory (before the colon)
-                const colonIndex = question.text.indexOf(':');
-                const subcategory = colonIndex !== -1 ? question.text.substring(0, colonIndex).trim() : question.text;
-                
-                prompt += `\n**${subcategory}:**\n`;
-                prompt += `Selected: ${selectedOption.label} (${answer}/4)\n`;
-                prompt += `Their behavior: "${selectedOption.description}"\n`;
-            }
+        const answers = normalizeAnswerValue(state.answers[question.id]);
+        if (answers.length === 0) return;
+
+        // Extract the question subcategory (before the colon)
+        const colonIndex = question.text.indexOf(':');
+        const subcategory = colonIndex !== -1 ? question.text.substring(0, colonIndex).trim() : question.text;
+
+        prompt += `\n**${subcategory}:**\n`;
+
+        // Include each selected behavior (multi-select)
+        const selectedOptions = answers
+            .map((value) => ({ value, option: question.options.find(opt => opt.value === value) }))
+            .filter((x) => Boolean(x.option));
+
+        if (selectedOptions.length === 0) return;
+
+        const nuanceInfo = scores.questionNuance[question.id];
+        if (nuanceInfo && nuanceInfo.isContextual) {
+            prompt += `Selected (${selectedOptions.length}) - CONTEXTUAL: they vary their approach:\n`;
+        } else {
+            prompt += `Selected (${selectedOptions.length}):\n`;
         }
+        selectedOptions.forEach(({ value, option }) => {
+            prompt += `- ${option.label} (${value}/4): "${option.description}"\n`;
+        });
     });
     
     prompt += `\n\n**CRITICAL INSTRUCTIONS:**\n`;
@@ -1333,7 +1511,9 @@ async function generateSingleRecommendation(category, scores) {
     prompt += `2. If they scored 1-2 on something, call out THAT SPECIFIC behavior they described and how to improve it\n`;
     prompt += `3. If they scored 3-4 on something, acknowledge THAT SPECIFIC strength they demonstrated\n`;
     prompt += `4. Make it feel like you read their actual responses, not a template\n`;
-    prompt += `5. Be specific about which behaviors to START, STOP, or CONTINUE based on what they selected\n\n`;
+    prompt += `5. Be specific about which behaviors to START, STOP, or CONTINUE based on what they selected\n`;
+    prompt += `6. **RIGHT-SIZED AI USE**: If they showed contextual judgment (multiple selections), CELEBRATE this as sophisticated. Frame recommendations as "expand your toolkit" not "always do X." Emphasize matching AI intensity to task complexity - sometimes a simple prompt is perfect, sometimes you need advanced techniques.\n`;
+    prompt += `7. **AVOID ONE-SIZE-FITS-ALL**: Don't imply they should always use the most advanced approach. Help them recognize when to use different levels of AI engagement.\n\n`;
     prompt += `Use markdown formatting with the structure from your system prompt.`;
     
     // System message for the AI coach
@@ -1428,6 +1608,8 @@ FEEDBACK GUIDANCE:
 - When referencing Twilio's Leadership Expectations to Leaders, specifically call it "Twilio's Leadership Expectations"
 - Connect AI literacy skills to relevant Twilio Magic Values principles (e.g., effective prompting = "Write it Down", experimentation = "Learn Cheap Lessons", AI transparency = "No Shenanigans")
 - Stay LASER FOCUSED on the specific dimension being assessed - don't drift into other topics
+- **CONTEXTUAL JUDGMENT**: When users select multiple options, recognize this as SOPHISTICATED - they understand AI use is situational. Frame advice as "expand your toolkit" not "always use the most advanced method." Celebrate right-sizing AI to the task (simple prompts for simple tasks, advanced techniques for complex problems).
+- **AVOID ONE-SIZE-FITS-ALL**: Don't imply users should always operate at the highest maturity level. Sometimes "Compliant" approaches are perfectly appropriate. Help users build judgment about WHEN to use different approaches.
 
 AVAILABLE AI TOOLS FOR TIPS SECTION:
 - Gemini: Available to all - multimodal input, Gems, conversation history
@@ -1435,9 +1617,10 @@ AVAILABLE AI TOOLS FOR TIPS SECTION:
 - ZoomAI: Available to all - meeting summaries, action items, highlights
 - LoomAI: Available to all - video titles, chapters, summaries from Loom videos
 - FigmaAI: Available to Design team - AI features in Figma
-- LinkedInAI: Available to People/Talent team - LinkedIn Recruiter AI features
+- LinkedInAI: Available to Talent acquisition team - LinkedIn Recruiter AI features
 - LucidAI: Available to relevant teams - Lucidchart/Lucidspark AI features
 - ZoomInfoAI: Available to Sales team - ZoomInfo Copilot features
+- JarvisAI: Available to Sales team - Jarvis AI sales assistant features
 
 RECOMMENDATION STRUCTURE:
 ### What to Focus On
