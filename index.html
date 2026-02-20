@@ -27,7 +27,7 @@
         window.CONFIG = window.CONFIG || {
             OPENAI_API_KEY: 'YOUR_OPENAI_API_KEY_HERE',
             OPENAI_MODEL: 'gpt-4o',
-            OPENAI_MAX_TOKENS: 2200,
+            OPENAI_MAX_TOKENS: 2800,
             OPENAI_TEMPERATURE: 0.7,
             USE_AI_RECOMMENDATIONS: false,
             FALLBACK_ON_ERROR: true
@@ -178,6 +178,10 @@
                                             <span class="form-checkbox__label">GitHub Copilot</span>
                                         </label>
                                         <label class="form-checkbox">
+                                            <input type="checkbox" class="form-checkbox__input" name="ai-tools" value="Claude Code">
+                                            <span class="form-checkbox__label">Claude Code</span>
+                                        </label>
+                                        <label class="form-checkbox">
                                             <input type="checkbox" class="form-checkbox__input" name="ai-tools" value="ZoomAI">
                                             <span class="form-checkbox__label">ZoomAI</span>
                                         </label>
@@ -186,13 +190,18 @@
                                             <span class="form-checkbox__label">LoomAI</span>
                                         </label>
                                         <label class="form-checkbox">
-                                            <input type="checkbox" class="form-checkbox__input" name="ai-tools" value="Other">
-                                            <span class="form-checkbox__label">Other AI tools</span>
-                                        </label>
-                                        <label class="form-checkbox">
                                             <input type="checkbox" class="form-checkbox__input" name="ai-tools" value="None">
                                             <span class="form-checkbox__label">None yet</span>
                                         </label>
+                                    </div>
+                                    <div class="form-group--other-tools" id="other-tools-group">
+                                        <label for="other-tools-input" class="form-label form-label--small">Using other AI tools? List them here:</label>
+                                        <input 
+                                            type="text" 
+                                            id="other-tools-input" 
+                                            class="form-input" 
+                                            placeholder="e.g., Perplexity, Cursor, Midjourney, Claude"
+                                        />
                                     </div>
                                 </div>
 
@@ -268,7 +277,7 @@
                         <div class="question">
                             <p id="question-subcategory" class="question__category"></p>
                             <h2 id="question-text" class="question__text"></h2>
-                            <p class="question__instruction" style="display: none;">Select one or more options based on your personal and professional AI experience</p>
+                            <p class="question__instruction">💡 Select <strong>all</strong> responses that apply to you — your answer can vary by context</p>
                         </div>
 
                         <!-- Double-click Hint -->
@@ -353,6 +362,7 @@
                     <!-- Actions -->
                     <div class="results__actions">
                         <button id="print-btn" class="btn btn--secondary" disabled title="Generate all recommendations to enable PDF export" aria-label="Print or save results as PDF">Print / Save as PDF</button>
+                        <button id="prev-tab-btn" class="btn btn--secondary" aria-label="View previous recommendation">Back</button>
                         <button id="next-tab-btn" class="btn btn--secondary" aria-label="View next recommendation">Next</button>
                         <button id="restart-btn" class="btn btn--primary" aria-label="Restart assessment from beginning">Start Over</button>
                     </div>

@@ -299,7 +299,7 @@ const dummyQuestions = [
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I upload or paste relevant documents, spreadsheets, or PDFs to give the AI a relevant knowledge base.'
+                description: 'I upload or paste relevant documents, spreadsheets, images or PDFs with a prompt when helpful.'
             },
             { 
                 value: 3, 
@@ -309,7 +309,7 @@ const dummyQuestions = [
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I create a "Knowledge Libraries" that connect the AI to multiple vetted data sources for a more holistic view'
+                description: 'I create knowledge libraries that connect the AI to multiple vetted data sources for a more holistic view.'
             }
         ],
         weight: 1.0
@@ -324,7 +324,7 @@ const dummyQuestions = [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I accept the output as a finished product if it sounds professional and grammatically correct'
+                description: 'I accept the output as a finished product if it sounds professional and grammatically correct.'
             },
             { 
                 value: 2, 
@@ -664,13 +664,16 @@ function initSubDepartmentToggle() {
  */
 function initAiToolsCheckboxes() {
     const checkboxes = document.querySelectorAll('input[name="ai-tools"]');
+    const otherToolsInput = document.getElementById('other-tools-input');
+    
     checkboxes.forEach(cb => {
         cb.addEventListener('change', () => {
             if (cb.value === 'None' && cb.checked) {
-                // Uncheck everything else
+                // Uncheck everything else and clear other tools input
                 checkboxes.forEach(other => {
                     if (other !== cb) other.checked = false;
                 });
+                if (otherToolsInput) otherToolsInput.value = '';
             } else if (cb.value !== 'None' && cb.checked) {
                 // Uncheck "None"
                 const noneCb = document.querySelector('input[name="ai-tools"][value="None"]');
@@ -678,6 +681,16 @@ function initAiToolsCheckboxes() {
             }
         });
     });
+    
+    // If user types in "other tools", uncheck "None"
+    if (otherToolsInput) {
+        otherToolsInput.addEventListener('input', () => {
+            if (otherToolsInput.value.trim()) {
+                const noneCb = document.querySelector('input[name="ai-tools"][value="None"]');
+                if (noneCb) noneCb.checked = false;
+            }
+        });
+    }
 }
 
 /**
@@ -696,6 +709,18 @@ function startAssessment() {
     // Collect checked AI tools
     const aiToolCheckboxes = document.querySelectorAll('input[name="ai-tools"]:checked');
     const aiToolsUsed = Array.from(aiToolCheckboxes).map(cb => cb.value);
+    
+    // Collect custom "other tools" text
+    const otherToolsInput = document.getElementById('other-tools-input').value.trim();
+    if (otherToolsInput) {
+        // Split by commas and clean up each tool name
+        const customTools = otherToolsInput.split(/[,;]+/).map(t => t.trim()).filter(t => t.length > 0);
+        customTools.forEach(tool => {
+            if (!aiToolsUsed.includes(tool)) {
+                aiToolsUsed.push(tool);
+            }
+        });
+    }
     
     if (!jobTitle) {
         alert('Please enter your job title to continue.');
@@ -1550,13 +1575,18 @@ async function generateSingleRecommendation(category, scores) {
     
     // Build tools context
     const hasNone = aiToolsUsed.includes('None');
+    const knownPlatformTools = ['Gemini', 'NotebookLM', 'ChatGPT', 'GitHub Copilot', 'Claude Code', 'ZoomAI', 'LoomAI'];
     let toolsContext;
     if (hasNone || aiToolsUsed.length === 0) {
         toolsContext = 'Has not used any AI tools yet. Introduce tools gently — recommend starting with ONE tool (Gemini) rather than overwhelming with multiple.';
     } else {
-        const knownTools = aiToolsUsed.filter(t => t !== 'Other');
-        const hasOther = aiToolsUsed.includes('Other');
-        toolsContext = `Already uses: ${knownTools.join(', ')}${hasOther ? ' (plus other tools)' : ''}. Do NOT recommend tools they already use as if they're new — instead, suggest ADVANCED features or new use patterns for tools they know, and introduce tools they HAVEN'T tried.`;
+        const platformTools = aiToolsUsed.filter(t => knownPlatformTools.includes(t));
+        const customTools = aiToolsUsed.filter(t => !knownPlatformTools.includes(t) && t !== 'None');
+        let toolsList = platformTools.join(', ');
+        if (customTools.length > 0) {
+            toolsList += (toolsList ? ', ' : '') + customTools.join(', ') + ' (user-specified tools — provide tips for these if you can identify what they are)';
+        }
+        toolsContext = `Already uses: ${toolsList}. For tools they already know, suggest ADVANCED features or new use patterns. For tools they HAVEN'T tried, introduce them. For any user-specified tools you recognize, provide a relevant tip.`;
     }
     
     let prompt = `Generate ONE detailed, deeply personalized recommendation for this specific Twilio employee.\n\n`;
@@ -1902,33 +1932,39 @@ WRITING DENSITY — NON-NEGOTIABLE:
 - **NEVER end with a summary or motivational sentence.** Your LAST sentence must be your last piece of actionable advice or your last concrete tip — NOT a restatement like "By doing this, you'll elevate your impact" or "These changes will help you grow." If your final sentence doesn't contain a specific action, delete it.
 - **NEVER start a sentence with "By enhancing", "By doing this", "By implementing", "This will help you", or "These changes will".** These are summary filler. End on the advice itself.
 
-AI TOOL SELECTION — STRICT RULES:
+AI TOOL SELECTION — DYNAMIC APPROACH:
 
-**UNIVERSAL TOOLS (available to all employees):**
+The employee's selected tools are listed in their profile above. Your tool tips should be tailored to what they actually use AND what they should try.
+
+**KNOWN TWILIO TOOLS (you have deep knowledge of these):**
 - Gemini: Multimodal input, Gems (custom assistants), conversation history (60-day retention — remind users to save important chats)
 - NotebookLM: Document analysis, source grounding, study guides
-
-**ROLE-SPECIFIC TOOLS (ONLY for exact team matches):**
+- GitHub Copilot: AI-powered code completion, chat, and code explanation — available to ALL Twilio employees, not just engineers. Useful for anyone who touches code, scripts, data queries, or wants to understand technical concepts.
+- Claude Code: Agentic coding tool that lives in the terminal — reads your codebase, edits files, runs commands, handles multi-step dev tasks autonomously. ONLY relevant for Product and Engineering teams.
+- ZoomAI: Meeting summaries, action items, key highlights. Only relevant when meetings are a core part of their work.
+- LoomAI: Auto-generates titles, chapters, summaries from video. Only relevant for async video creators.
 - FigmaAI: ONLY for Design team employees
-- LinkedInAI: ONLY for Talent Acquisition team (NOT hiring managers, NOT general HR)
-- ZoomInfoAI: ONLY for Sales team employees
-- JarvisAI: ONLY for Sales team employees
-- LucidAI: ONLY for teams that regularly use Lucidchart/Lucidspark (typically Product, Engineering, Operations)
+- LinkedInAI: ONLY for Talent Acquisition (NOT general HR)
+- ZoomInfoAI / JarvisAI: ONLY for Sales team
+- LucidAI: ONLY for teams using Lucidchart/Lucidspark (Product, Engineering, Operations)
 
-**MEETING/VIDEO TOOLS (use sparingly):**
-- ZoomAI: ONLY recommend if the dimension being assessed is directly meeting-related AND the employee's work involves heavy meeting load
-- LoomAI: ONLY recommend if the employee creates async video content as a core part of their role
+**MANDATORY TOOL TIPS:**
+- GitHub Copilot: MUST appear for EVERY employee. For non-technical roles, frame as a learning/exploration tool (e.g., "use Copilot Chat to explain a code snippet" or "ask Copilot to write a simple data query"). For technical roles, give advanced tips.
+- Claude Code: MUST appear for Product and Engineering employees.
 
-**TOOL SELECTION DECISION TREE — FOLLOW THIS EXACTLY:**
-1. Start with Gemini + NotebookLM as your default picks
-2. Check employee's Team/Department against role-specific tools above
-3. If their team EXACTLY matches a role-specific tool (e.g., team="Sales" → ZoomInfoAI eligible), you MAY swap ONE universal tool for the role-specific one
-4. If their team does NOT match any role-specific tool, stick with Gemini + NotebookLM
-5. NEVER recommend FigmaAI to non-Design teams. NEVER recommend ZoomInfoAI/JarvisAI to non-Sales teams. NEVER recommend LinkedInAI to anyone outside Talent Acquisition.
-6. HR/People team does NOT qualify for LinkedInAI unless their sub-department is specifically "Talent Acquisition"
-7. If the employee already uses Gemini (from their tools list), suggest an ADVANCED Gemini feature they likely haven't tried (e.g., creating a Gem, multimodal input with images/PDFs)
+**DYNAMIC TOOL TIPS (based on what the user selected):**
+- If the user listed tools they use, provide tips for those tools — suggest advanced features or new use patterns they likely haven't tried.
+- If the user listed tools you don't recognize (user-specified/custom tools), do your best to identify what the tool is and give a relevant tip. If you truly can't identify it, skip it — don't make things up.
+- If the user hasn't tried tools that would clearly help their role, recommend one new tool with a concrete use case.
 
-Total tools per recommendation: EXACTLY 2. No more, no exceptions.
+**TOOL SELECTION RULES:**
+1. GitHub Copilot is ALWAYS included. No exceptions.
+2. For Product/Engineering: Claude Code is ALWAYS included.
+3. Include tips for tools the user already uses (suggest advanced features).
+4. NEVER recommend role-specific tools to wrong teams (no FigmaAI to non-Design, no ZoomInfoAI to non-Sales, no Claude Code to non-Product/Engineering, no LinkedInAI to non-Talent-Acquisition).
+5. HR/People team does NOT qualify for LinkedInAI unless sub-department is "Talent Acquisition".
+6. If the employee already uses Gemini, suggest an ADVANCED feature (Gem creation, multimodal input).
+7. Total tools per recommendation: 2–4 tips depending on how many tools the user selected. Mandatory tools + 1–2 from their selected tools. Don't exceed 4.
 
 RECOMMENDATION STRUCTURE:
 ### What to Focus On
@@ -1951,13 +1987,14 @@ EXACTLY 3 bullets. Each bullet MUST follow this pattern:
 NO generic bullets. Every bullet must name a real deliverable.
 
 ### Tips for Using AI Tools
-EXACTLY 2 tools. EXACTLY 2 bullets.
+2–4 tool tips depending on the employee's selected tools. Each tip gets its own bullet.
 
 For each tool:
 - Name the SPECIFIC feature
 - Give an executable recipe with a real deliverable from their role
 - Example format: "**Gemini → Gem Creation**: Create a Gem called '[Name]' with instructions: '[exact prompt]'. Use it when [specific workflow in their role]."
 - **CONVERSATION HISTORY RULE**: Any time you mention Gemini's conversation history, you MUST include the 60-day retention note. Example: "...pick up where you left off in Gemini (your conversations are kept for 60 days, so save anything you want to keep long-term)."
+- For user-specified tools you recognize (e.g., Perplexity, Cursor, Midjourney, Claude): give a genuine tip based on what that tool actually does. If you're not confident in the tool's features, skip it.
 
 NO generic tips. If you can't name a specific feature and a real deliverable, don't include the tool.
 
@@ -1967,7 +2004,7 @@ FORMATTING RULES:
 - Use - for bullet lists in Quick Wins and Tips sections
 - Tone: Direct, expert, warm but not sycophantic. No cheerleading. No validation fluff.
 - Stay tightly focused on the ONE dimension being assessed
-- Total: 250-300 words. Hard cap. Count your words. If over 300, delete sentences until you're under.`;
+- Total: 300-450 words. Hard cap. Count your words. If over 450, delete sentences until you're under.`;
     
     // API call with retry logic (prevents transient failures from killing the recommendation)
     const MAX_RETRIES = 2;
@@ -2556,6 +2593,20 @@ function renderResults(scores, recommendations) {
         allBtns[nextIndex].click();
         
         // Scroll to top of results
+        document.querySelector('.tabs-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    
+    // Back button to navigate to previous tab
+    document.getElementById('prev-tab-btn').addEventListener('click', function() {
+        const currentActiveBtn = document.querySelector('.tab-btn.active');
+        const allBtns = Array.from(document.querySelectorAll('.tab-btn'));
+        const currentIndex = allBtns.indexOf(currentActiveBtn);
+        const prevIndex = (currentIndex - 1 + allBtns.length) % allBtns.length;
+        
+        // Click the previous tab button
+        allBtns[prevIndex].click();
+        
+        // Scroll to tabs area
         document.querySelector('.tabs-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 }

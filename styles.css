@@ -457,6 +457,16 @@ textarea.form-input {
     gap: var(--space-2) var(--space-4);
 }
 
+.form-group--other-tools {
+    margin-top: var(--space-3);
+}
+
+.form-label--small {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--space-2);
+}
+
 .form-checkbox {
     display: flex;
     align-items: center;

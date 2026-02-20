@@ -19,7 +19,7 @@ const CONFIG = {
     
     // OpenAI settings (passed to Windmill backend)
     OPENAI_MODEL: 'gpt-4o', // or 'gpt-4-turbo' for faster responses
-    OPENAI_MAX_TOKENS: 1500,
+    OPENAI_MAX_TOKENS: 2800,
     OPENAI_TEMPERATURE: 0.7,
     
     // Feature flags
