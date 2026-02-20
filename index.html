@@ -27,7 +27,7 @@
         window.CONFIG = window.CONFIG || {
             OPENAI_API_KEY: 'YOUR_OPENAI_API_KEY_HERE',
             OPENAI_MODEL: 'gpt-4o',
-            OPENAI_MAX_TOKENS: 1500,
+            OPENAI_MAX_TOKENS: 2200,
             OPENAI_TEMPERATURE: 0.7,
             USE_AI_RECOMMENDATIONS: false,
             FALLBACK_ON_ERROR: true
@@ -53,90 +53,161 @@
                     </p>
                     
                     <div class="welcome__content">
-                        <!-- User Context Form -->
-                        <div class="welcome__form">
-                            <h3 class="welcome__section-title">Tell us about yourself</h3>
-                            <p class="welcome__section-description">
-                                This helps us provide AI-powered personalized recommendations and use-cases tailored to your role.
-                            </p>
-                            
-                            <div class="form-group">
-                                <label for="team" class="form-label">Team / Department</label>
-                                <select id="team" class="form-select" required>
-                                    <option value="">Select your team...</option>
-                                    <option value="Engineering">Engineering</option>
-                                    <option value="Product">Product</option>
-                                    <option value="Sales">Sales</option>
-                                    <option value="Customer Success">Customer Success</option>
-                                    <option value="Support">Support</option>
-                                    <option value="Marketing">Marketing</option>
-                                    <option value="Operations">Operations</option>
-                                    <option value="Finance">Finance</option>
-                                    <option value="HR / People">HR / People</option>
-                                    <option value="Legal">Legal</option>
-                                    <option value="Executive">Executive</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="job-title" class="form-label">Job Title</label>
-                                <input 
-                                    type="text" 
-                                    id="job-title" 
-                                    class="form-input" 
-                                    placeholder="e.g., Engineering Manager, Sales Director"
-                                    required
-                                />
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="job-level" class="form-label">Job Level</label>
-                                <select id="job-level" class="form-select" required>
-                                    <option value="">Select your level...</option>
-                                    <optgroup label="Specialist Track">
-                                        <option value="S1">S1 - Junior Specialist</option>
-                                        <option value="S2">S2 - Specialist</option>
-                                        <option value="S3">S3 - Intermediate Specialist</option>
-                                        <option value="S4">S4 - Senior Specialist</option>
-                                        <option value="S5">S5 - Lead Specialist</option>
-                                    </optgroup>
-                                    <optgroup label="Professional Track">
-                                        <option value="P1">P1 - Associate Professional</option>
-                                        <option value="P2">P2 - Professional</option>
-                                        <option value="P3">P3 - Senior Professional</option>
-                                        <option value="P4">P4 - Staff Professional</option>
-                                        <option value="P5">P5 - Principal Professional</option>
-                                        <option value="P6">P6 - Senior Principal Professional</option>
-                                        <option value="P7">P7 - Distinguished Professional</option>
-                                    </optgroup>
-                                    <optgroup label="Management Track">
-                                        <option value="M2">M2 - Junior Manager</option>
-                                        <option value="M3">M3 - Manager</option>
-                                        <option value="M4">M4 - Senior Manager</option>
-                                        <option value="M5">M5 - Director</option>
-                                        <option value="M6">M6 - Senior Director</option>
-                                    </optgroup>
-                                    <optgroup label="Executive Track">
-                                        <option value="E7">E7 - Vice President</option>
-                                        <option value="E8">E8 - Senior Vice President</option>
-                                    </optgroup>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <!-- What to Expect -->
+                        <!-- What to Expect - Compact horizontal bar -->
                         <div class="welcome__expectations">
                             <h3 class="welcome__section-title">What to expect</h3>
                             <ul class="welcome__list">
-                                <li>Complete 4 sections with 3-4 questions each</li>
-                                <li>Select the answer that best describes your current approach</li>
-                                <li>Receive AI-powered personalized recommendations based on your responses</li>
-                                <li>Takes approximately 10-15 minutes to complete</li>
+                                <li>Complete <strong>4 sections</strong> with 12 total questions — takes about <strong>10 minutes</strong></li>
+                                <li><strong>Select multiple answers</strong> — your personal and professional AI use both count</li>
+                                <li>Receive <strong>AI-powered personalized recommendations</strong> based on your responses</li>
+                                <li>Your progress is <strong>automatically saved</strong> in this browser</li>
                             </ul>
-                            <p class="welcome__note">
-                                Your progress is automatically saved in this browser
-                            </p>
+                        </div>
+
+                        <!-- User Context Form -->
+                        <div class="welcome__form">
+                            <div class="welcome__form-header">
+                                <h3 class="welcome__section-title">Tell us about yourself</h3>
+                                <p class="welcome__section-description">
+                                    This helps us provide AI-powered personalized recommendations tailored to your role.
+                                </p>
+                            </div>
+                            
+                            <div class="welcome__form-grid">
+                                <div class="form-group">
+                                    <label for="team" class="form-label">Team / Department</label>
+                                    <select id="team" class="form-select" required>
+                                        <option value="">Select your team...</option>
+                                        <option value="Engineering">Engineering</option>
+                                        <option value="Product">Product</option>
+                                        <option value="Sales">Sales</option>
+                                        <option value="Customer Success">Customer Success</option>
+                                        <option value="Support">Support</option>
+                                        <option value="Marketing">Marketing</option>
+                                        <option value="Operations">Operations</option>
+                                        <option value="Finance">Finance</option>
+                                        <option value="HR / People">HR / People</option>
+                                        <option value="Legal">Legal</option>
+                                        <option value="Executive">Executive</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="job-title" class="form-label">Job Title</label>
+                                    <input 
+                                        type="text" 
+                                        id="job-title" 
+                                        class="form-input" 
+                                        placeholder="e.g., Engineering Manager, Sales Director"
+                                        required
+                                    />
+                                </div>
+
+                                <!-- Sub-department: conditionally shown for broad teams -->
+                                <div class="form-group form-group--sub-dept" id="sub-dept-group" style="display: none;">
+                                    <label for="sub-department" class="form-label">Specialization</label>
+                                    <select id="sub-department" class="form-select">
+                                        <option value="">Select your focus area...</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="job-level" class="form-label">Job Level</label>
+                                    <select id="job-level" class="form-select" required>
+                                        <option value="">Select your level...</option>
+                                        <optgroup label="Specialist Track">
+                                            <option value="S1">S1 - Junior Specialist</option>
+                                            <option value="S2">S2 - Specialist</option>
+                                            <option value="S3">S3 - Intermediate Specialist</option>
+                                            <option value="S4">S4 - Senior Specialist</option>
+                                            <option value="S5">S5 - Lead Specialist</option>
+                                        </optgroup>
+                                        <optgroup label="Professional Track">
+                                            <option value="P1">P1 - Associate Professional</option>
+                                            <option value="P2">P2 - Professional</option>
+                                            <option value="P3">P3 - Senior Professional</option>
+                                            <option value="P4">P4 - Staff Professional</option>
+                                            <option value="P5">P5 - Principal Professional</option>
+                                            <option value="P6">P6 - Senior Principal Professional</option>
+                                            <option value="P7">P7 - Distinguished Professional</option>
+                                        </optgroup>
+                                        <optgroup label="Management Track">
+                                            <option value="M2">M2 - Junior Manager</option>
+                                            <option value="M3">M3 - Manager</option>
+                                            <option value="M4">M4 - Senior Manager</option>
+                                            <option value="M5">M5 - Director</option>
+                                            <option value="M6">M6 - Senior Director</option>
+                                        </optgroup>
+                                        <optgroup label="Executive Track">
+                                            <option value="E7">E7 - Vice President</option>
+                                            <option value="E8">E8 - Senior Vice President</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="ai-frequency" class="form-label">How often do you use AI tools?</label>
+                                    <select id="ai-frequency" class="form-select" required>
+                                        <option value="">Select frequency...</option>
+                                        <option value="never">Never — I haven't used AI tools yet</option>
+                                        <option value="rarely">Rarely — A few times total</option>
+                                        <option value="monthly">Sometimes — A few times a month</option>
+                                        <option value="weekly">Regularly — A few times a week</option>
+                                        <option value="daily">Daily — AI is part of my workflow</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group form-group--full">
+                                    <label class="form-label">Which AI tools have you used? <span class="form-label--hint">(select all that apply)</span></label>
+                                    <div class="form-group--checkboxes form-group--checkboxes-grid" id="ai-tools-checkboxes">
+                                        <label class="form-checkbox">
+                                            <input type="checkbox" class="form-checkbox__input" name="ai-tools" value="Gemini">
+                                            <span class="form-checkbox__label">Google Gemini</span>
+                                        </label>
+                                        <label class="form-checkbox">
+                                            <input type="checkbox" class="form-checkbox__input" name="ai-tools" value="NotebookLM">
+                                            <span class="form-checkbox__label">NotebookLM</span>
+                                        </label>
+                                        <label class="form-checkbox">
+                                            <input type="checkbox" class="form-checkbox__input" name="ai-tools" value="ChatGPT">
+                                            <span class="form-checkbox__label">ChatGPT / OpenAI</span>
+                                        </label>
+                                        <label class="form-checkbox">
+                                            <input type="checkbox" class="form-checkbox__input" name="ai-tools" value="GitHub Copilot">
+                                            <span class="form-checkbox__label">GitHub Copilot</span>
+                                        </label>
+                                        <label class="form-checkbox">
+                                            <input type="checkbox" class="form-checkbox__input" name="ai-tools" value="ZoomAI">
+                                            <span class="form-checkbox__label">ZoomAI</span>
+                                        </label>
+                                        <label class="form-checkbox">
+                                            <input type="checkbox" class="form-checkbox__input" name="ai-tools" value="LoomAI">
+                                            <span class="form-checkbox__label">LoomAI</span>
+                                        </label>
+                                        <label class="form-checkbox">
+                                            <input type="checkbox" class="form-checkbox__input" name="ai-tools" value="Other">
+                                            <span class="form-checkbox__label">Other AI tools</span>
+                                        </label>
+                                        <label class="form-checkbox">
+                                            <input type="checkbox" class="form-checkbox__input" name="ai-tools" value="None">
+                                            <span class="form-checkbox__label">None yet</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group form-group--full">
+                                    <label for="work-focus" class="form-label">What do you spend most of your time on?</label>
+                                    <textarea 
+                                        id="work-focus" 
+                                        class="form-input" 
+                                        rows="2"
+                                        placeholder="e.g., Building onboarding programs, Running QBRs, Writing product specs"
+                                        required
+                                    ></textarea>
+                                    <p class="form-hint">The more specific you are, the better your coaching will be. Try describing 2–3 key activities.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -167,10 +238,7 @@
                     <!-- Progress Indicator -->
                     <div class="progress">
                         <div class="progress__overall">
-                            <div class="progress__circles" id="progress-circles" role="progressbar" aria-label="Overall progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="14">
-                                <div class="progress__circle"></div>
-                                <div class="progress__circle"></div>
-                                <div class="progress__circle"></div>
+                            <div class="progress__circles" id="progress-circles" role="progressbar" aria-label="Overall progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="11">
                                 <div class="progress__circle"></div>
                                 <div class="progress__circle"></div>
                                 <div class="progress__circle"></div>
@@ -200,7 +268,7 @@
                         <div class="question">
                             <p id="question-subcategory" class="question__category"></p>
                             <h2 id="question-text" class="question__text"></h2>
-                            <p class="question__instruction">Select one or more options that best describe your current approach</p>
+                            <p class="question__instruction" style="display: none;">Select one or more options based on your personal and professional AI experience</p>
                         </div>
 
                         <!-- Double-click Hint -->
@@ -275,6 +343,12 @@
                         <div id="combined-results" class="combined-results" role="region" aria-label="Assessment results and recommendations"></div>
                     </div>
 
+
+                    <!-- PDF Reminder -->
+                    <div class="results__pdf-reminder">
+                        <span class="results__pdf-reminder-icon">💡</span>
+                        <p>Want to go deeper? <strong>Save your results as a PDF</strong>, then share it with <strong>Gemini</strong> to continue the conversation and get more tailored coaching.</p>
+                    </div>
 
                     <!-- Actions -->
                     <div class="results__actions">

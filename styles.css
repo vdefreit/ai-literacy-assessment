@@ -290,8 +290,8 @@ body {
 }
 
 .welcome__note {
-    margin-top: var(--space-6);
-    padding: var(--space-4);
+    margin-top: var(--space-4);
+    padding: var(--space-3) var(--space-4);
     background-color: var(--accent-primary-light);
     border-left: 4px solid var(--accent-primary);
     border-radius: var(--radius-md);
@@ -313,12 +313,27 @@ body {
     justify-content: flex-start;
 }
 
-/* Welcome Content - Side by Side Layout */
+/* Welcome Content - Stacked Layout */
 .welcome__content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: var(--space-6);
     margin-bottom: var(--space-8);
+}
+
+/* What to Expect - Compact horizontal bar */
+.welcome__expectations {
+    padding: var(--space-5) var(--space-6);
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+}
+
+.welcome__expectations .welcome__list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4) var(--space-8);
+    margin-top: var(--space-3);
 }
 
 /* Form Styles */
@@ -329,11 +344,23 @@ body {
     border: 1px solid var(--border-color);
 }
 
-.welcome__expectations {
-    padding: var(--space-6);
-    background-color: var(--bg-secondary);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color);
+.welcome__form-header {
+    margin-bottom: var(--space-6);
+}
+
+.welcome__form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4) var(--space-5);
+}
+
+.welcome__form-grid .form-group--full {
+    grid-column: 1 / -1;
+}
+
+/* When sub-dept appears, it takes the right column alongside team */
+.welcome__form-grid .form-group--sub-dept {
+    /* Stays in natural grid flow */
 }
 
 .form-group {
@@ -342,6 +369,29 @@ body {
 
 .form-group:last-child {
     margin-bottom: 0;
+}
+
+.form-label--hint {
+    font-weight: 400;
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
+}
+
+.form-label--optional {
+    display: block;
+    font-weight: 400;
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+
+.form-group--sub-dept {
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .form-label {
@@ -376,6 +426,20 @@ body {
     color: var(--text-tertiary);
 }
 
+textarea.form-input {
+    resize: vertical;
+    min-height: 3.5rem;
+    max-height: 10rem;
+    line-height: var(--line-height-relaxed);
+}
+
+.form-hint {
+    font-size: var(--font-size-sm);
+    color: var(--text-tertiary);
+    margin-top: var(--space-2);
+    line-height: var(--line-height-normal);
+}
+
 .form-select {
     cursor: pointer;
 }
@@ -385,6 +449,12 @@ body {
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
+}
+
+.form-group--checkboxes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2) var(--space-4);
 }
 
 .form-checkbox {
@@ -825,19 +895,26 @@ body {
 }
 
 .answer-option:hover {
-    border-color: var(--accent-primary);
-    background-color: var(--accent-primary-light);
+    border-color: var(--border-hover);
+    background-color: var(--bg-tertiary);
     transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-sm);
 }
 
 [data-theme="dark"] .answer-option:hover {
-    background-color: var(--accent-primary-light);
+    background-color: var(--bg-tertiary);
 }
 
 .answer-option--selected {
     border-color: var(--accent-primary);
     background-color: var(--accent-primary-light);
+    box-shadow: var(--shadow-md);
+}
+
+.answer-option--selected:hover {
+    border-color: var(--accent-primary);
+    background-color: var(--accent-primary-light);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-md);
 }
 
@@ -1661,6 +1738,34 @@ body {
     word-wrap: break-word;
 }
 
+.results__pdf-reminder {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-6);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    line-height: var(--line-height-relaxed);
+}
+
+.results__pdf-reminder-icon {
+    font-size: var(--font-size-lg);
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.results__pdf-reminder p {
+    margin: 0;
+}
+
+.results__pdf-reminder strong {
+    color: var(--text-primary);
+}
+
 .results__actions {
     display: flex;
     gap: var(--space-4);
@@ -1669,8 +1774,6 @@ body {
     border-top: 1px solid var(--border-color);
     justify-content: center;
 }
-
-/* Footer */
 .footer {
     background-color: var(--bg-primary);
     border-top: 1px solid var(--border-color);
@@ -1726,6 +1829,18 @@ body {
     
     /* Stack form and expectations on mobile */
     .welcome__content {
+        flex-direction: column;
+    }
+
+    .welcome__form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .welcome__expectations .welcome__list {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group--checkboxes-grid {
         grid-template-columns: 1fr;
     }
     

@@ -26,7 +26,11 @@ const state = {
     userContext: {             // User's role information for personalized recommendations
         jobTitle: '',
         team: '',
-        jobLevel: ''
+        subDepartment: '',
+        jobLevel: '',
+        aiFrequency: '',
+        aiToolsUsed: [],
+        workFocus: ''
     }
 };
 
@@ -108,210 +112,181 @@ const dummyQuestions = [
     // Section 1: Delegation to AI Systems
     {
         id: 'q1',
-        text: 'Understanding the problem: When working with AI tools and systems…',
+        text: 'Platform Awareness: When selecting which AI tool, model or service to use...',
         category: 'Delegation',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I provide generic prompts without context, often resulting in AI outputs that are too broad or irrelevant to the problem I\'m solving.'
+                description: 'I use the most convenient tool available to me at that moment.'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I include basic operational details and department-approved goals in my instructions, ensuring the AI stays aligned with our standard KPIs.'
+                description: 'I only use AI tools approved by my organization at work, and whatever I want at home'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I provide "signal" by including root-cause data and cross-functional impacts, enabling the AI to separate relevant information from noise and offer business-aligned solutions.'
+                description: 'I change the model in the Gemini WebApp (ie. Fast, Thinking, Pro) based on the complexity of the task I\'m working on.'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I synthesize complex, conflicting data points within the prompt to uncover non-obvious patterns, using AI to anticipate future risks and build proactive mitigation strategies.'
+                description: 'I use different AI models and services (ie. Gemini, Claude, ChatGPT) based on their individual strengths and weaknesses'
             }
         ],
         weight: 1.0
     },
     {
         id: 'q2',
-        text: 'Understanding the goal: When working with AI tools and systems…',
+        text: 'Task decomposition: When planning and sharing a plan with AI tools and systems...',
         category: 'Delegation',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I provide vague goals (e.g., "make this better"), which leads to generic AI outputs that rarely meets my needs.'
+                description: 'I ask the AI to handle the entire project or large, complex task in a single prompt'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I define success using standard benchmarks and KPIs in my prompts, ensuring the AI output is safe and meets minimum departmental requirements.'
+                description: 'I break the project down into smaller, logical steps before I start prompting'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I translate high-level business objectives into specific constraints for the AI, resulting in highly relevant outcomes that align with my problem-statement and needs.'
+                description: 'I collaborate with AI to outline the necessary steps for a project before asking it to execute on any of them'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I build context over time with AI tools through clear examples and repeated system utilization to balance immediate results with sustainable innovation and future-readiness.'
+                description: 'I use a chain-of-thought approach, where I have the AI solve one piece of the puzzle and then revise and use that to inform the next output and prompt'
             }
         ],
         weight: 1.0
     },
     {
         id: 'q3',
-        text: 'Task decomposition: When planning and sharing a plan with AI tools and systems…',
+        text: 'Understanding the problem: When working with AI tools and systems...',
         category: 'Delegation',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I feed AI entire projects as a single block; I rely on the AI to "figure out" the steps, which often results in superficial or missing sub-tasks.'
+                description: 'I don\'t usually share much context and go straight to prompting'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I provide the AI with a pre-defined list of linear steps; I use the system to complete one phase at a time based on our standard team checklist.'
+                description: 'I provide context relevant to the output I\'m trying to generate in my starting prompt'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I define the logical dependencies between tasks for the AI; I provide a structured sequence that ensures the AI understands how the output of one "unit of work" feeds into the next.'
+                description: 'I include context about what I\'m working on and why in my starting prompt'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I architect multi-threaded workflows; I use AI to simultaneously solve different elements of a problem, then synthesize those parallel outputs into a single, innovative solution.'
-            }
-        ],
-        weight: 1.0
-    },
-    {
-        id: 'q4',
-        text: 'Platform Awareness: When selecting which AI tool or service to use…',
-        category: 'Delegation',
-        type: 'maturity',
-        options: [
-            { 
-                value: 1, 
-                label: 'Not Started',
-                description: 'I use whichever tool is most convenient without knowing its technical limitations or approval status.'
-            },
-            { 
-                value: 2, 
-                label: 'Compliant',
-                description: 'I use only enterprise-approved platforms and stay within compliant boundaries, ensuring my team uses safe, vetted tools for basic tasks.'
-            },
-            { 
-                value: 3, 
-                label: 'Competent',
-                description: 'I understand the specific strengths of different models (e.g., reasoning vs. creativity) and guide my team on selecting the tool best suited for the task.'
-            },
-            { 
-                value: 4, 
-                label: 'Creative',
-                description: 'I stay ahead of emerging features, strategically pairing unique platform capabilities with complex business challenges to create previously unattainable value.'
+                description: 'I share substantial context about my project and its audience before my initial directive prompt to create an output'
             }
         ],
         weight: 1.0
     },
     // Section 2: Communication & Clarity
     {
-        id: 'q5',
-        text: 'Output Description: When instructing AI tools and systems...',
+        id: 'q4',
+        text: 'Steering AI systems: When working with AI tools and systems...',
         category: 'Communication',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I struggle to describe what a final output should look like, often providing vague or generic requests that lead to mismatched results'
+                description: 'I focus on getting a quick draft that I can manually edit, fix or finish'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I can describe outputs using company-provided prompt templates, plugging in my details to the prompt framework'
+                description: 'I specify the exact format, length, or tone I expect the final result to have'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I use and modify structured prompts that I have created or that have been shared with my by peers and/or my organization'
+                description: 'I provide one or more examples of what good looks like (ie. one/few-shot prompting)'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I write my own prompts, specifying the target audience, tone, and constraints, enabling the AI to produce ready-to-use outputs that require minimal edits'
+                description: 'I steer the model\'s behavior and output with both positive and negative examples of the desired output'
+            }
+        ],
+        weight: 1.0
+    },
+    {
+        id: 'q5',
+        text: 'Process Clarity: When instructing AI tools and systems...',
+        category: 'Communication',
+        type: 'maturity',
+        options: [
+            { 
+                value: 1, 
+                label: 'Not Started',
+                description: 'I treat the AI as a "black box," focusing only on the final answer'
+            },
+            { 
+                value: 2, 
+                label: 'Compliant',
+                description: 'I ask the AI to explain its logic to ensure I can audit its reasoning after the fact.'
+            },
+            { 
+                value: 3, 
+                label: 'Competent',
+                description: 'I instruct the AI to pause and ask me clarifying questions before it starts generating a long response.'
+            },
+            { 
+                value: 4, 
+                label: 'Creative',
+                description: 'I ask the AI to provide multiple different versions or drafts so I can evaluate which process or path is most effective.'
             }
         ],
         weight: 1.0
     },
     {
         id: 'q6',
-        text: 'Process Clarity: When instructing AI tools and systems…',
+        text: 'Performance Expectations: When setting expectations for projects while working with AI tools,',
         category: 'Communication',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I ask the AI for a "final result" without explaining the steps it should take, leaving the logic entirely up to the model\'s default settings.'
+                description: 'I assume the AI will get the answer right on the first try'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I provide the AI with a standard operating procedure to follow, ensuring it replicates our existing manual steps accurate'
+                description: 'I budget time for a manual human review to catch hallucinations or formatting errors.'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I can explain the logic behind each relevant step of a process, allowing the AI to troubleshoot its own bottlenecks and reason through complex tasks.'
+                description: 'I set "success criteria" for the AI, asking it to verify its own work against my specific requirements before finishing.'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I deconstruct tasks to identify parallel processes and enable AI systems to work effectively by balancing detail with ambiguity, leveraging the natural strength of the selected model'
+                description: 'I anticipate where the AI might struggle (e.g., complex math or niche data) and proactively consider how I might mitigate those risks.'
             }
         ],
         weight: 1.0
     },
     {
         id: 'q7',
-        text: 'Performance Expectations: When setting expectations while working with AI tools...,',
-        category: 'Communication',
-        type: 'maturity',
-        options: [
-            { 
-                value: 1, 
-                label: 'Not Started',
-                description: 'I do not set performance standards, I typically realize that work is subpar once it is finished and delivered'
-            },
-            { 
-                value: 2, 
-                label: 'Compliant',
-                description: 'I provide the AI with a basic checklist of constraints to follow, ensuring the output meets my expectations'
-            },
-            { 
-                value: 3, 
-                label: 'Competent',
-                description: 'I give the AI specific examples of good vs great work, improving the model\'s ability to anticipate the quality of work that I\'m expecting'
-            },
-            { 
-                value: 4, 
-                label: 'Creative',
-                description: 'I collaborate with AI to brainstorm and improve the overall quality of my work before implementing a pre-set plan without considering how this work might be better'
-            }
-        ],
-        weight: 1.0
-    },
-    {
-        id: 'q8',
         text: 'Context Aggregation: When providing context to AI models...',
         category: 'Communication',
         type: 'maturity',
@@ -319,87 +294,58 @@ const dummyQuestions = [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I don\'t often know what types of resources or items are safe, or relevant to share with the model'
+                description: 'I copy and paste small snippets of information as I think of them.'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I provide relevant context that keeps with my organization\'s AI acceptable use policy, helping the AI to produce satisfactory outputs'
+                description: 'I upload or paste relevant documents, spreadsheets, or PDFs to give the AI a relevant knowledge base.'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I think critically about what types of information are relevant, to avoid overloading the model\'s context window and improve output quality'
+                description: 'I curate and distill the information first, removing "noise" so the AI focuses only on the most high-value data points.'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I leverage multi-modal capabilities, manage context window capacity and continuously share updated snippets of my work to the AI to build context over time'
+                description: 'I create a "Knowledge Libraries" that connect the AI to multiple vetted data sources for a more holistic view'
             }
         ],
         weight: 1.0
     },
     // Section 3: Discernment
     {
+        id: 'q8',
+        text: 'Domain/Craft Expertise: When evaluating AI-generated outputs...',
+        category: 'Discernment',
+        type: 'maturity',
+        options: [
+            { 
+                value: 1, 
+                label: 'Not Started',
+                description: 'I accept the output as a finished product if it sounds professional and grammatically correct'
+            },
+            { 
+                value: 2, 
+                label: 'Compliant',
+                description: 'I check the output against my initial prompt to ensure all my specific requirements were met.'
+            },
+            { 
+                value: 3, 
+                label: 'Competent',
+                description: 'I manually edit AI outputs using my domain expertise — checking for accuracy, fixing nuances the AI missed, and making sure it meets industry or brand standards.'
+            },
+            { 
+                value: 4, 
+                label: 'Creative',
+                description: 'I run AI outputs through multiple rounds of refinement — feeding it back into AI with targeted follow-up prompts to stress-test, challenge assumptions, and push quality beyond what either of us would produce alone.'
+            }
+        ],
+        weight: 1.0
+    },
+    {
         id: 'q9',
-        text: 'Domain/Craft Expertise: When evaluating AI-generated outputs…',
-        category: 'Discernment',
-        type: 'maturity',
-        options: [
-            { 
-                value: 1, 
-                label: 'Not Started',
-                description: 'I rely on AI or my peers to judge quality, as I am still establishing the best practices and benchmarks on what \'good looks like\' for this specific craft.'
-            },
-            { 
-                value: 2, 
-                label: 'Compliant',
-                description: 'I check the results against our established team standards and internal benchmarks to ensure the output is safe and meets minimum functional needs.'
-            },
-            { 
-                value: 3, 
-                label: 'Competent',
-                description: 'I apply my current understanding of industry standards to identify when the AI\'s guidance is accurate and where it fails to meet professional quality.'
-            },
-            { 
-                value: 4, 
-                label: 'Creative',
-                description: 'I leverage my expertise to push the AI beyond standard strategies, recognizing new ways to solve old problems through advanced technologies'
-            }
-        ],
-        weight: 1.0
-    },
-    {
-        id: 'q10',
-        text: 'Logic and Reasoning: When auditing the "thinking" behind an AI\'s plan...',
-        category: 'Discernment',
-        type: 'maturity',
-        options: [
-            { 
-                value: 1, 
-                label: 'Not Started',
-                description: 'I focus almost entirely on the final recommendation, sometimes missing gaps in the model\'s underlying logic or reasoning'
-            },
-            { 
-                value: 2, 
-                label: 'Compliant',
-                description: 'I follow a basic step-by-step review to see if the AI\'s plan makes sense and aligns with our core operational tasks and team requirements.'
-            },
-            { 
-                value: 3, 
-                label: 'Competent',
-                description: 'I use available information to understand the AI\'s strategy to find logical gaps or hidden assumptions, ensuring the path to the solution is robust and defensible.'
-            },
-            { 
-                value: 4, 
-                label: 'Creative',
-                description: 'I stress-test the AI\'s reasoning from multiple viewpoints, identifying potential biases or systemic flaws before they can impact the final outcome.'
-            }
-        ],
-        weight: 1.0
-    },
-    {
-        id: 'q11',
         text: 'Coaching for Improvement: When providing feedback to refine AI outputs...',
         category: 'Discernment',
         type: 'maturity',
@@ -407,29 +353,29 @@ const dummyQuestions = [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I rely on a gut feeling for whether the AI met expectations, providing feedback that focuses on what is wrong rather than how to fix it.'
+                description: 'I usually give up or start a new chat if the first response isn\'t what I wanted.'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I identify when the AI output meets the minimum required standards and point out specific errors that prevent the deliverable from being acceptable.'
+                description: 'I tell the AI what I didn\'t like (e.g., "This is too long") and ask it to try again.'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I clearly define the difference between pass and high-quality outputs, giving the AI specific guidance on how to refine its logic or tone.'
+                description: 'I provide "constructive criticism" by explaining exactly what was wrong and how to fix it (e.g., "The tone is too formal; make it more conversational").'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I envision how good AI work can be transformed into industry-leading results, providing strategic feedback that pushes the model to innovate beyond the brief.'
+                description: 'I treat the interaction as a coaching session, explaining the underlying principles of the task so the AI adapts to handle similar tasks better for the rest of the conversation (note: Gemini conversation history is kept for 60 days, then deleted).'
             }
         ],
         weight: 1.0
     },
     // Section 4: Keeping it Twilio
     {
-        id: 'q12',
+        id: 'q10',
         text: 'Data Stewardship: When managing data privacy and security with AI...',
         category: 'Keeping It Twilio',
         type: 'maturity',
@@ -437,80 +383,80 @@ const dummyQuestions = [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I am completely unfamiliar with my company\'s AI usage policies'
+                description: 'I use free or freemium AI tools (like the free version of ChatGPT) with any data I have on hand to get the job done quickly.'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I follow established corporate data policies and ensure that my team only uses approved platforms for departmental work.'
+                description: 'I only use Non-Approved (free) AI tools with Public Data (e.g., published blogs, press releases, or SEC filings) and ensure all other work stays within Twilio-Approved platforms via Okta SSO.'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I establish a clear human-in-the-loop approach, ensuring that a person is always accountable for the final verification of any AI-processed data.'
+                description: 'I distinguish between Confidential and Restricted data, ensuring that I only input sensitive information (like customer content, PII, or internal roadmaps) into Approved GenAI products after verifying the required Privacy Impact Assessments are complete.'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I model radical accountability, creating a culture where AI is seen as an extension of the team\'s capabilities and errors are used as transparent learning opportunities.'
+                description: 'I proactively protect Twilio\'s IP by ensuring Input Data is not used for training third-party models, and I help my team navigate the ServiceNow approval process for complex new use cases involving sensitive or "Restricted" data.'
             }
         ],
         weight: 1.0
     },
     {
-        id: 'q13',
-        text: 'Bias & Fairness Awareness: When identifying and mitigating AI-generated bias…',
+        id: 'q11',
+        text: 'Bias & Fairness Awareness: When identifying and mitigating AI-generated bias...',
         category: 'Keeping It Twilio',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'I am unaware of how AI training affects a model\'s ability to reinforce bias and do not check outputs for skewed perspectives.'
+                description: 'I assume the AI is a neutral tool and that its outputs are naturally objective.'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I use my knowledge of Twilio\'s diversity guidelines to review AI work and ensure the results do not violate basic fairness standards.'
+                description: 'I scan outputs for obvious stereotypes or exclusionary language before using the content.'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I actively look for blind-spots in AI prompts and outputs, encouraging my team to challenge AI logic that appears one-sided.'
+                description: 'I proactively ask the AI to consider multiple perspectives or check for bias during the prompting process.'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I work collaboratively with AI to uncover hidden biases and craft intentional prompts that ensure our strategies meet or exceed organizational expectations.'
+                description: 'I bring a level of awareness of bias that is inherent to AI and use direct, specific prompts to introduce diversity and inclusion where needed and necessary'
             }
         ],
         weight: 1.0
     },
     {
-        id: 'q14',
-        text: 'AI Literacy: As it relates to how AI works…',
+        id: 'q12',
+        text: 'AI Literacy: As it relates to how AI works ...',
         category: 'Keeping It Twilio',
         type: 'maturity',
         options: [
             { 
                 value: 1, 
                 label: 'Not Started',
-                description: 'It\'s a black-box and I do not understand the underlying technology, making it difficult for me to understand or anticipate why the system might not deliver the result I\'m expecting'
+                description: 'I treat the AI as a search engine or a database that knows more than I do and retrieves them.'
             },
             { 
                 value: 2, 
                 label: 'Compliant',
-                description: 'I have a basic understanding of what AI systems can do, based on training that has been provided to me, or information I have found independently'
+                description: 'I understand that AI uses inference to predict the next likely word'
             },
             { 
                 value: 3, 
                 label: 'Competent',
-                description: 'I have completed structured training and understand core concepts like machine learning, inference and probabilistic systems, helping me to critically evaluate AI results to ensure my team uses the technology responsibly and reliably.'
+                description: 'I am aware of the specific training data cutoff dates and the technical architecture (e.g., context window limits) of the models I use.'
             },
             { 
                 value: 4, 
                 label: 'Creative',
-                description: 'I have a deep grasp of model architecture and limitations, enabling me to architect complex, compliant workflows that push the boundaries of what individuals are doing with AI inside of my organization.'
+                description: 'I stay up to date with the underlying mechanics of new model releases to strategically choose the right engine for the right job'
             }
         ],
         weight: 1.0
@@ -530,17 +476,17 @@ const dummyCategories = [
     { 
         name: 'Communication', 
         description: 'Clear communication when working with AI systems',
-        fullDescription: 'Clear communication is essential when working AI systems. How you articulate your intention, standards and expectations makes the difference when writing prompts or designing AI systems that automate multiple stages of work.'
+        fullDescription: 'Clear communication is essential when working with AI systems. How you articulate your intention, standards and expectations makes the difference when writing prompts or designing AI systems that automate multiple stages of work.'
     },
     { 
         name: 'Discernment', 
         description: 'Evaluating AI outputs and behavior with a critical eye',
-        fullDescription: 'Discernment is about evaluating AI outputs and behavior with a critical eye. As a leader, your role is to act as the final filter, ensuring that the logic, accuracy, and quality of an output meet your standards rather than accepting results at face value.'
+        fullDescription: 'Discernment is about evaluating AI outputs and behavior with a critical eye. It is your responsibility to act as the final filter, making sure the logic, accuracy, and quality of an output meet your standards rather than accepting results at face value.'
     },
     { 
         name: 'Keeping It Twilio', 
         description: 'Smart, responsible and ethical AI collaborations aligned with Twilio values',
-        fullDescription: 'Keeping it Twilio focuses on smart, responsible and ethical AI collaborations. As a leader, you are the steward of your team\'s integrity, ensuring that AI use aligns with organizational values, legal standards, and ethical best practices.'
+        fullDescription: 'Keeping it Twilio focuses on smart, responsible and ethical AI collaborations. You are a steward of the company\'s integrity, making sure that AI use lines up with organizational values, legal standards, and ethical best practices.'
     }
 ];
 
@@ -567,6 +513,12 @@ function init() {
     document.getElementById('submit-btn').addEventListener('click', submitAssessment);
     document.getElementById('restart-btn').addEventListener('click', restartAssessment);
     document.getElementById('print-btn').addEventListener('click', printReport);
+    
+    // Sub-department toggle: show/hide based on team selection
+    initSubDepartmentToggle();
+    
+    // "None" checkbox mutual exclusion for AI tools
+    initAiToolsCheckboxes();
     
     // Dark mode toggle
     initThemeToggle();
@@ -667,6 +619,68 @@ function updateThemeIcon(theme) {
 }
 
 /**
+ * Sub-Department Toggle
+ * Shows a specialization dropdown when the user selects a broad team
+ * that has meaningful sub-departments.
+ */
+const SUB_DEPARTMENTS = {
+    'Engineering': ['Backend', 'Frontend', 'Infrastructure / Platform', 'Data Engineering', 'Security', 'DevOps / SRE', 'Mobile', 'Other Engineering'],
+    'Product': ['Product Management', 'Product Design / UX', 'Product Analytics', 'Technical Program Management', 'Other Product'],
+    'Marketing': ['Product Marketing', 'Brand / Creative', 'Demand Generation', 'Content / Communications', 'Developer Relations', 'Events', 'Other Marketing'],
+    'HR / People': ['Talent Acquisition', 'Talent Development / L&D', 'Total Rewards / Compensation', 'People Operations', 'HR Business Partners', 'DEI', 'Other HR'],
+    'Sales': ['Account Executives', 'Sales Engineering / Solutions', 'Sales Development (SDR/BDR)', 'Sales Operations', 'Channel / Partnerships', 'Other Sales'],
+    'Customer Success': ['Customer Success Management', 'Solutions Architecture', 'Onboarding / Implementation', 'Renewals', 'Other Customer Success']
+};
+
+function initSubDepartmentToggle() {
+    const teamSelect = document.getElementById('team');
+    const subDeptGroup = document.getElementById('sub-dept-group');
+    const subDeptSelect = document.getElementById('sub-department');
+    
+    teamSelect.addEventListener('change', () => {
+        const team = teamSelect.value;
+        const subDepts = SUB_DEPARTMENTS[team];
+        
+        if (subDepts) {
+            // Populate options
+            subDeptSelect.innerHTML = '<option value="">Select your focus area...</option>';
+            subDepts.forEach(dept => {
+                const opt = document.createElement('option');
+                opt.value = dept;
+                opt.textContent = dept;
+                subDeptSelect.appendChild(opt);
+            });
+            subDeptGroup.style.display = '';
+        } else {
+            subDeptGroup.style.display = 'none';
+            subDeptSelect.value = '';
+        }
+    });
+}
+
+/**
+ * AI Tools Checkboxes — "None" mutual exclusion
+ * If user checks "None", uncheck all others. If they check any tool, uncheck "None".
+ */
+function initAiToolsCheckboxes() {
+    const checkboxes = document.querySelectorAll('input[name="ai-tools"]');
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+            if (cb.value === 'None' && cb.checked) {
+                // Uncheck everything else
+                checkboxes.forEach(other => {
+                    if (other !== cb) other.checked = false;
+                });
+            } else if (cb.value !== 'None' && cb.checked) {
+                // Uncheck "None"
+                const noneCb = document.querySelector('input[name="ai-tools"][value="None"]');
+                if (noneCb) noneCb.checked = false;
+            }
+        });
+    });
+}
+
+/**
  * Start Assessment
  * Validates user context and transitions from welcome screen to questionnaire
  */
@@ -675,6 +689,13 @@ function startAssessment() {
     const jobTitle = document.getElementById('job-title').value.trim();
     const team = document.getElementById('team').value;
     const jobLevel = document.getElementById('job-level').value;
+    const aiFrequency = document.getElementById('ai-frequency').value;
+    const subDepartment = document.getElementById('sub-department').value;
+    const workFocus = document.getElementById('work-focus').value.trim();
+    
+    // Collect checked AI tools
+    const aiToolCheckboxes = document.querySelectorAll('input[name="ai-tools"]:checked');
+    const aiToolsUsed = Array.from(aiToolCheckboxes).map(cb => cb.value);
     
     if (!jobTitle) {
         alert('Please enter your job title to continue.');
@@ -694,12 +715,32 @@ function startAssessment() {
         return;
     }
     
+    if (!aiFrequency) {
+        alert('Please select how often you use AI tools.');
+        document.getElementById('ai-frequency').focus();
+        return;
+    }
+    
+    if (!workFocus) {
+        alert('Please describe what you spend most of your time on — this helps us personalize your results.');
+        document.getElementById('work-focus').focus();
+        return;
+    }
+    
     // Store user context
     state.userContext = {
         jobTitle: jobTitle,
         team: team,
-        jobLevel: jobLevel
+        subDepartment: subDepartment,
+        jobLevel: jobLevel,
+        aiFrequency: aiFrequency,
+        aiToolsUsed: aiToolsUsed,
+        workFocus: workFocus
     };
+    
+    // Initialize section tracking
+    state.currentSection = 0;
+    state.currentQuestionIndex = 0;
     
     showScreen('questionnaire-screen');
     
@@ -737,7 +778,14 @@ function showSectionIntroScreen(sectionIndex) {
     if (themeToggle) {
         const newToggle = themeToggle.cloneNode(true);
         themeToggle.parentNode.replaceChild(newToggle, themeToggle);
-        document.getElementById('theme-toggle-section-intro').addEventListener('click', toggleTheme);
+        document.getElementById('theme-toggle-section-intro').addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
     }
 }
 
@@ -918,11 +966,17 @@ function updateDoubleClickHint() {
     const hintEl = document.getElementById('double-click-hint');
     const hintTextEl = document.getElementById('double-click-hint-text');
     
-    // Update text based on platform
+    // Update text based on platform and question number
     const isMobile = isMobileDevice();
-    hintTextEl.textContent = isMobile
-        ? 'Select one or more options. Tap Next when you\'re ready.'
-        : 'Select one or more options. Click Next when you\'re ready.';
+    
+    // Show enhanced guidance on first question only
+    if (state.currentQuestionIndex === 0) {
+        hintTextEl.textContent = 'You can select multiple answers that match your experience. Consider both 👤 personal and 💼 professional AI use.';
+    } else {
+        hintTextEl.textContent = isMobile
+            ? 'Select one or more options. Tap Next when you\'re ready.'
+            : 'Select one or more options. Click Next when you\'re ready.';
+    }
     
     // Show hint only on first 3 questions (index 0, 1, 2)
     if (state.currentQuestionIndex >= 3) {
@@ -1036,13 +1090,22 @@ function updateProgress() {
  * Handles section transitions with visual feedback
  */
 function nextQuestion() {
+    // Validate that at least one answer is selected
+    const currentQuestion = state.questions[state.currentQuestionIndex];
+    const currentAnswers = getAnswersArray(currentQuestion.id);
+    
+    if (currentAnswers.length === 0) {
+        // Show error message
+        alert('Please select at least one answer before continuing.');
+        return;
+    }
+    
     if (state.currentQuestionIndex < state.questions.length - 1) {
         // Clear focus from any active element (prevents mobile tap highlight persistence)
         if (document.activeElement) {
             document.activeElement.blur();
         }
         
-        const currentQuestion = state.questions[state.currentQuestionIndex];
         const nextQuestionData = state.questions[state.currentQuestionIndex + 1];
         
         // Check if we're moving to a new section
@@ -1050,9 +1113,10 @@ function nextQuestion() {
         
         // Check if moving to new section
         if (isNewSection) {
-            // Immediately show section intro screen for new section
-            state.currentSection++;
+            // Update currentSection based on the next question's category
             state.currentQuestionIndex++;
+            const nextQuestion = state.questions[state.currentQuestionIndex];
+            state.currentSection = state.sections.findIndex(s => s.name === nextQuestion.category);
             showSectionIntroScreen(state.currentSection);
         } else {
             // Normal question transition
@@ -1094,12 +1158,13 @@ function prevQuestion() {
             container.classList.add('transitioning-out');
             
             setTimeout(() => {
-                // Check if we're moving to a previous section
-                if (currentQuestion.category !== prevQuestionData.category) {
-                    state.currentSection--;
-                }
-                
+                // Update index first
                 state.currentQuestionIndex--;
+                
+                // Update currentSection based on the question we're moving to
+                const prevQuestion = state.questions[state.currentQuestionIndex];
+                state.currentSection = state.sections.findIndex(s => s.name === prevQuestion.category);
+                
                 renderQuestion();
                 
                 // Remove out class and add in class
@@ -1134,13 +1199,13 @@ function calculateScores() {
         categoryNuance[category.name] = { multiSelectCount: 0, totalQuestions: 0, avgSpread: 0 };
     });
     
-    // Calculate scores per category (handle multi-select by averaging)
+    // Calculate scores per category (handle multi-select by taking maximum value)
     state.questions.forEach(question => {
         const answers = normalizeAnswerValue(state.answers[question.id]);
         if (answers.length > 0) {
-            // Calculate average of selected values
-            const avgAnswer = answers.reduce((sum, val) => sum + val, 0) / answers.length;
-            categoryScores[question.category] += avgAnswer;
+            // Use maximum value - represents peak capability
+            const maxAnswer = Math.max(...answers);
+            categoryScores[question.category] += maxAnswer;
             categoryCounts[question.category] += 1;
             
             // Track nuance: multiple selections indicate contextual judgment
@@ -1246,13 +1311,13 @@ function generateRecommendations(scores) {
         recommendations.push({
             category: 'Delegation',
             maturity: scores.categoryMaturities['Delegation'],
-            text: 'You\'re ready to architect AI-human workflows. Design systems where AI handles parallel workstreams while you focus on strategic oversight. Experiment with multi-step AI processes and teach your team to identify high-value delegation opportunities. Consider creating templates for common delegation patterns.'
+            text: 'You\'re ready to architect AI-human workflows. Design systems where AI handles parallel workstreams while you focus on strategic oversight. Experiment with multi-step AI processes and teach your team to identify high-value delegation opportunities. Consider creating templates for common delegation patterns. **For advanced coding projects:** All Twilio employees have access to GitHub Copilot (instructions available in Switchboard). This tool is excellent for those comfortable with AI basics who want to explore "vibe coding" solutions, like creating web apps that run locally on your computer.'
         });
     } else {
         recommendations.push({
             category: 'Delegation',
             maturity: scores.categoryMaturities['Delegation'],
-            text: 'You\'re operating at an expert level. Share your delegation frameworks with the organization. Mentor others on sophisticated AI delegation strategies. Push boundaries by exploring emerging AI capabilities and creating innovative workflows that weren\'t previously possible.'
+            text: 'You\'re operating at an expert level. Share your delegation frameworks with the organization. Mentor others on sophisticated AI delegation strategies. Push boundaries by exploring emerging AI capabilities and creating innovative workflows that weren\'t previously possible. **Pro tip:** If you haven\'t already, explore GitHub Copilot (available to all Twilio employees via Switchboard) for advanced coding and rapid prototyping of local web applications.'
         });
     }
     
@@ -1280,7 +1345,7 @@ function generateRecommendations(scores) {
         recommendations.push({
             category: 'Communication',
             maturity: scores.categoryMaturities['Communication'],
-            text: 'Your communication skills are exceptional. Lead workshops on effective AI communication. Create organizational standards for prompt engineering and process documentation. Help others develop the clarity that makes AI collaboration successful.'
+            text: 'Your communication skills are exceptional. Share your knowledge in workshops on effective AI communication. Create organizational standards for prompt engineering and process documentation. Help others develop the clarity that makes AI collaboration successful.'
         });
     }
     
@@ -1308,7 +1373,7 @@ function generateRecommendations(scores) {
         recommendations.push({
             category: 'Discernment',
             maturity: scores.categoryMaturities['Discernment'],
-            text: 'Your discernment is exceptional. Lead the organization in establishing quality standards for AI-assisted work. Create training programs on critical evaluation. Push the boundaries by identifying novel applications where your expert judgment can unlock new AI capabilities.'
+            text: 'Your discernment is exceptional. Help the organization establish quality standards for AI-assisted work. Create training materials on critical evaluation. Push the boundaries by identifying novel applications where your expert judgment can unlock new AI capabilities.'
         });
     }
     
@@ -1324,7 +1389,7 @@ function generateRecommendations(scores) {
         recommendations.push({
             category: 'Keeping It Twilio',
             maturity: scores.categoryMaturities['Keeping It Twilio'],
-            text: 'Establish a "human-in-the-loop" practice for your team. Ensure someone always reviews AI outputs before they go to customers or stakeholders. Create guidelines for your team on responsible AI use. Actively look for potential biases in AI outputs and challenge assumptions.'
+            text: 'Set up a "human-in-the-loop" practice for your team. Make sure someone always reviews AI outputs before they go to customers or stakeholders. Create guidelines for your team on responsible AI use. Actively look for potential biases in AI outputs and challenge assumptions.'
         });
     } else if (twilioScore < 3.5) {
         recommendations.push({
@@ -1336,7 +1401,20 @@ function generateRecommendations(scores) {
         recommendations.push({
             category: 'Keeping It Twilio',
             maturity: scores.categoryMaturities['Keeping It Twilio'],
-            text: 'You\'re a leader in responsible AI use. Champion ethical AI practices across the organization. Create frameworks that help others align AI use with Twilio values. Use AI strategically to amplify what makes Twilio unique. Set the standard for how AI can enhance, not replace, human judgment and Twilio\'s culture.'
+            text: 'You\'re a champion of responsible AI use. Help spread ethical AI practices across your team and the organization. Create frameworks that help others align AI use with Twilio values. Use AI strategically to amplify what makes Twilio unique. Set the standard for how AI can enhance, not replace, human judgment and Twilio\'s culture.'
+        });
+    }
+    
+    // Add Global Github Copilot recommendation for high performers (Competent+ in most categories)
+    // Check if average score is >= 3.0 (Competent) or if at least 3 categories are >= 3.0
+    const competentCategories = Object.values(scores.categories).filter(s => s >= 2.5).length;
+    const isHighPerformer = scores.overall >= 2.5 || competentCategories >= 3;
+    
+    if (isHighPerformer) {
+        recommendations.push({
+            category: 'Pro Tip',
+            maturity: 'All',
+            text: '<strong>Ready for the next level?</strong> Since you\'re demonstrating strong AI competence, checked out GitHub Copilot yet? It\'s available to <strong>ALL Twilio employees</strong> (not just engineers!). Instructions for access are in Switchboard. It\'s a powerful tool for "vibe coding" — building small personal web apps, automating scripts, or just exploring code concepts even if you\'re not a developer.'
         });
     }
     
@@ -1430,18 +1508,81 @@ function markdownToHtml(text) {
  * Generates one recommendation for a specific category
  */
 async function generateSingleRecommendation(category, scores) {
+    console.log(`[AI Rec] generateSingleRecommendation called for: ${category}`);
+    
     // Check if CONFIG exists and Windmill is configured
     if (typeof CONFIG === 'undefined' || !CONFIG.USE_AI_RECOMMENDATIONS || CONFIG.WINDMILL_ENDPOINT === 'YOUR_WINDMILL_WEBHOOK_URL_HERE') {
-        console.log(`CONFIG not available or AI disabled, using static recommendation for ${category}`);
+        console.log(`[AI Rec] ⚠️ CONFIG not available or AI disabled for ${category}`);
         const staticRecs = generateRecommendations(scores);
         return staticRecs.find(r => r.category === category);
     }
     
     const { jobTitle, team, jobLevel } = state.userContext;
+    const { subDepartment, aiFrequency, aiToolsUsed, workFocus } = state.userContext;
     
-    let prompt = `Generate ONE detailed recommendation for a ${jobTitle} (${jobLevel}) at Twilio in ${team}.\n\n`;
-    prompt += `**Role Context:**\n`;
-    prompt += `- Job Level: ${jobLevel} (${getJobLevelDescription(jobLevel)})\n\n`;
+    // Determine seniority tier and career track for richer personalization
+    const levelPrefix = jobLevel.charAt(0); // S, P, M, or E
+    const levelNum = parseInt(jobLevel.substring(1));
+    const trackNames = { 'S': 'Specialist (Individual Contributor)', 'P': 'Professional (Individual Contributor)', 'M': 'Management', 'E': 'Executive' };
+    const trackName = trackNames[levelPrefix] || 'Unknown';
+    let seniorityTier;
+    if (levelPrefix === 'E' || (levelPrefix === 'M' && levelNum >= 5)) {
+        seniorityTier = 'Senior Leadership';
+    } else if (levelPrefix === 'M' || levelNum >= 4) {
+        seniorityTier = 'Senior / Leadership';
+    } else if (levelNum >= 3) {
+        seniorityTier = 'Mid-Level';
+    } else {
+        seniorityTier = 'Early Career';
+    }
+    const canProcure = levelPrefix === 'M' || levelPrefix === 'E' || levelNum >= 4;
+    const managesOthers = levelPrefix === 'M' || levelPrefix === 'E';
+    
+    // Map AI frequency to human-readable experience level
+    const frequencyDescriptions = {
+        'never': 'Has never used AI tools — complete beginner. Recommendations should start from absolute zero with no assumed knowledge.',
+        'rarely': 'Has tried AI tools a few times but no regular habit. Knows the basics but needs guidance building consistency.',
+        'monthly': 'Uses AI tools a few times a month — familiar but not fluent. Ready for deeper techniques and workflow integration.',
+        'weekly': 'Regular AI user (weekly). Has working knowledge — push toward advanced techniques, efficiency gains, and repeatable workflows.',
+        'daily': 'Daily AI user — AI is already part of their workflow. Do NOT teach basics. Focus on optimization, scaling practices, and pushing boundaries.'
+    };
+    const aiExperienceDescription = frequencyDescriptions[aiFrequency] || 'Unknown AI experience level';
+    
+    // Build tools context
+    const hasNone = aiToolsUsed.includes('None');
+    let toolsContext;
+    if (hasNone || aiToolsUsed.length === 0) {
+        toolsContext = 'Has not used any AI tools yet. Introduce tools gently — recommend starting with ONE tool (Gemini) rather than overwhelming with multiple.';
+    } else {
+        const knownTools = aiToolsUsed.filter(t => t !== 'Other');
+        const hasOther = aiToolsUsed.includes('Other');
+        toolsContext = `Already uses: ${knownTools.join(', ')}${hasOther ? ' (plus other tools)' : ''}. Do NOT recommend tools they already use as if they're new — instead, suggest ADVANCED features or new use patterns for tools they know, and introduce tools they HAVEN'T tried.`;
+    }
+    
+    let prompt = `Generate ONE detailed, deeply personalized recommendation for this specific Twilio employee.\n\n`;
+    prompt += `**EMPLOYEE PROFILE — USE THIS TO PERSONALIZE EVERY ASPECT OF YOUR RESPONSE:**\n`;
+    prompt += `- Job Title: ${jobTitle}\n`;
+    prompt += `- Team / Department: ${team}${subDepartment ? ' → ' + subDepartment : ''}\n`;
+    prompt += `- Job Level: ${jobLevel} (${trackName} track)\n`;
+    prompt += `- Seniority: ${seniorityTier}\n`;
+    prompt += `- Level Expectations: ${getJobLevelDescription(jobLevel)}\n`;
+    prompt += `- Can procure tools: ${canProcure ? 'Yes' : 'No — direct to Switchboard for approved tools'}\n`;
+    prompt += `- Manages others: ${managesOthers ? 'Yes — consider how they can model AI use and enable their teams' : 'No — focus on personal productivity and craft excellence'}\n`;
+    prompt += `- AI Experience: ${aiExperienceDescription}\n`;
+    prompt += `- AI Tools Already Used: ${toolsContext}\n`;
+    if (workFocus) {
+        prompt += `- Primary Work Focus: "${workFocus}" — THIS IS THE MOST IMPORTANT PERSONALIZATION SIGNAL. Ground ALL examples and deliverables in this specific work, not generic department tasks.\n`;
+    }
+    prompt += `\n`;
+    prompt += `**HOW TO USE THIS PROFILE:**\n`;
+    prompt += `- Frame ALL examples around what a ${jobTitle} in ${team}${subDepartment ? ' (' + subDepartment + ')' : ''} would actually work on day-to-day\n`;
+    prompt += `- ${workFocus ? 'Their PRIMARY work is: "' + workFocus + '" — make this the backbone of every example and Quick Win' : 'No specific work focus provided — use their job title and department to infer realistic deliverables'}\n`;
+    prompt += `- Calibrate to their AI experience level: ${aiFrequency === 'never' || aiFrequency === 'rarely' ? 'they are NEW to AI — be concrete and encouraging, assume nothing' : aiFrequency === 'daily' ? 'they are a POWER USER — skip basics entirely, push for advanced techniques and systematization' : 'they have moderate AI experience — balance practical tips with deeper techniques'}\n`;
+    prompt += `- Calibrate ambition to their seniority: ${seniorityTier === 'Early Career' ? 'focus on building foundational habits and learning from examples' : seniorityTier === 'Mid-Level' ? 'focus on deepening skills, building repeatable workflows, and sharing knowledge with peers' : 'focus on strategic leverage, scaling AI practices across teams, and setting standards for others'}\n`;
+    prompt += `- Use language appropriate to their level: ${levelPrefix === 'E' || (levelPrefix === 'M' && levelNum >= 5) ? 'strategic, outcome-oriented, focused on organizational impact' : levelPrefix === 'M' ? 'team-oriented, focused on enabling others and improving team workflows' : 'hands-on, practical, focused on personal craft and immediate productivity gains'}\n`;
+    prompt += `- In Tips for Using AI Tools: Follow the TOOL SELECTION DECISION TREE in your system prompt. The employee's team is "${team}"${subDepartment ? ' (' + subDepartment + ')' : ''} — only recommend role-specific tools if their team qualifies.\n`;
+    prompt += `- If they already use certain tools (see above), suggest advanced features of those tools, not basic introductions.\n`;
+    prompt += `- Quick Wins should be things a ${jobTitle} would realistically do THIS WEEK in their actual work\n\n`;
     
     // Add special context if any category is Not Started
     if (scores.hasNotStarted) {
@@ -1478,10 +1619,17 @@ async function generateSingleRecommendation(category, scores) {
     // Add specific question responses for this category
     prompt += `**THEIR ACTUAL RESPONSES in ${category} - USE THESE TO GROUND YOUR FEEDBACK:**\n`;
     const categoryQuestions = state.questions.filter(q => q.category === category);
+    console.log(`[AI Rec] Found ${categoryQuestions.length} questions for ${category}:`, categoryQuestions.map(q => q.id));
+    let hasResponses = false;
+    
     categoryQuestions.forEach(question => {
-        const answers = normalizeAnswerValue(state.answers[question.id]);
+        // Read answers from scores.questionNuance (frozen at score-calculation time)
+        // instead of state.answers, which may be cleared by clearProgress() during async generation
+        const nuanceData = scores.questionNuance[question.id];
+        const answers = nuanceData ? nuanceData.values : [];
+        console.log(`[AI Rec] ${question.id} (${category}): nuance=${JSON.stringify(nuanceData ? nuanceData.values : 'none')}, answers=${JSON.stringify(answers)}`);
         if (answers.length === 0) return;
-
+        
         // Extract the question subcategory (before the colon)
         const colonIndex = question.text.indexOf(':');
         const subcategory = colonIndex !== -1 ? question.text.substring(0, colonIndex).trim() : question.text;
@@ -1489,12 +1637,16 @@ async function generateSingleRecommendation(category, scores) {
         prompt += `\n**${subcategory}:**\n`;
 
         // Include each selected behavior (multi-select)
+        // Use loose equality (==) to handle potential string/number mismatches in answer values
         const selectedOptions = answers
-            .map((value) => ({ value, option: question.options.find(opt => opt.value === value) }))
+            .map((value) => ({ value, option: question.options.find(opt => opt.value == value) }))
             .filter((x) => Boolean(x.option));
 
         if (selectedOptions.length === 0) return;
 
+        // Mark as having valid responses only if we actually found matching options
+        hasResponses = true; 
+        
         const nuanceInfo = scores.questionNuance[question.id];
         if (nuanceInfo && nuanceInfo.isContextual) {
             prompt += `Selected (${selectedOptions.length}) - CONTEXTUAL: they vary their approach:\n`;
@@ -1506,26 +1658,118 @@ async function generateSingleRecommendation(category, scores) {
         });
     });
     
+    // Fallback if no responses found for this category
+    if (!hasResponses) {
+        console.warn(`[AI Rec] ⚠️ hasResponses=false for ${category} — all ${categoryQuestions.length} questions had no matching options. Using static fallback.`);
+        console.warn(`[AI Rec] state.answers keys:`, Object.keys(state.answers));
+        const staticRecs = generateRecommendations(scores);
+        return staticRecs.find(r => r.category === category);
+    }
+    
+    console.log(`[AI Rec] hasResponses=true for ${category}, proceeding to API call...`);
+    
     prompt += `\n\n**CRITICAL INSTRUCTIONS:**\n`;
     prompt += `1. DIRECTLY REFERENCE their actual selected behaviors above - don't be generic\n`;
     prompt += `2. If they scored 1-2 on something, call out THAT SPECIFIC behavior they described and how to improve it\n`;
-    prompt += `3. If they scored 3-4 on something, acknowledge THAT SPECIFIC strength they demonstrated\n`;
+    prompt += `3. If they scored 3-4 on something, weave acknowledgment INTO your advice — never as a standalone warm-up paragraph. Maximum ONE sentence.\n`;
     prompt += `4. Make it feel like you read their actual responses, not a template\n`;
     prompt += `5. Be specific about which behaviors to START, STOP, or CONTINUE based on what they selected\n`;
-    prompt += `6. **RIGHT-SIZED AI USE**: If they showed contextual judgment (multiple selections), CELEBRATE this as sophisticated. Frame recommendations as "expand your toolkit" not "always do X." Emphasize matching AI intensity to task complexity - sometimes a simple prompt is perfect, sometimes you need advanced techniques.\n`;
-    prompt += `7. **AVOID ONE-SIZE-FITS-ALL**: Don't imply they should always use the most advanced approach. Help them recognize when to use different levels of AI engagement.\n\n`;
+    prompt += `6. **RIGHT-SIZED AI USE**: If they showed contextual judgment (multiple selections), recognize this as sophisticated. Frame recommendations as "expand your toolkit" not "always do X." Emphasize matching AI intensity to task complexity.\n`;
+    prompt += `7. **AVOID ONE-SIZE-FITS-ALL**: Don't imply they should always use the most advanced approach. Help them recognize when to use different levels of AI engagement.\n`;
+    prompt += `8. **NAME SPECIFIC DELIVERABLES**: Reference actual artifacts for their role — say "competitive battle card" not "marketing content", say "incident postmortem" not "documentation", say "QBR deck" not "customer presentation". Ground every example in what they literally produce.\n`;
+    prompt += `9. **LEAD WITH INSIGHT, NOT VALIDATION**: Open every section with the actionable growth point. Do NOT open with "You're already doing great" or "It's clear that you...". Start with what to DO differently. Weave any strength acknowledgment into the advice itself.\n`;
+    prompt += `10. **DENSITY OVER WARMTH**: Every sentence must either (a) identify a specific gap, (b) provide a concrete action, or (c) connect to a measurable outcome. Cut filler phrases. Be direct and useful.\n\n`;
     prompt += `Use markdown formatting with the structure from your system prompt.`;
     
     // System message for the AI coach
     const systemMessage = `You are an experienced AI literacy coach at Twilio helping employees improve their AI collaboration skills.
 
+VOICE AND TONE — THIS IS CRITICAL:
+You're writing for adult learners at a tech company. The moment your writing feels corporate, formal, or like a training manual, they disengage. Write like a smart, helpful colleague — not like a consultant or HR document.
+
+**THE GOLDEN RULE**: If you wouldn't say it out loud to a coworker, don't write it.
+
+**BANNED JARGON — never use these phrases:**
+- "task decomposition" → say "breaking work into smaller pieces"
+- "modular delegation technique" → say "splitting things up"
+- "micro-components" → say "smaller parts" or "chunks"
+- "comprehensive context" → say "enough background" or "the full picture"
+- "rigorous review process" → say "careful review" or "double-checking"
+- "implement" → say "try," "use," "start," or "do"
+- "utilize" → say "use" (THIS ONE IS CRITICAL — never write "utilize")
+- "leverage" → say "use" or just describe the action
+- "establish" → say "create," "set up," or "start"
+- "enhance" / "enhancing" → say "improve" or be specific about what gets better
+- "optimize" → say "improve" or be specific
+- "streamline" → say "simplify" or "speed up"
+- "facilitate" → just say what happens
+- "articulate" → say "explain" or "describe"
+- "comprehensive" → say "complete" or "full" (never "comprehensive")
+- "systematic" / "systematically" → say "consistent" or describe the actual system
+- "methodology" → say "approach" or "method"
+- "strategically" → usually delete this word entirely
+- "proactively" → usually delete this word entirely
+- "robust" → be specific about what makes it strong
+- "framework" → say "approach," "system," or describe what it actually is
+- "audit" (as a verb for reviewing) → say "review" or "check"
+- "ensure" / "ensuring" → say "make sure" or just remove it
+- "elevate" → say "improve" or just describe the outcome
+- "holistic" → say "full" or "complete" or just describe what it covers
+- "refined" / "refine" → say "improved" or "sharpen" or "tighten up"
+- "significantly" → delete this word — it adds nothing
+- "integrate" / "integrating" → say "combine" or "bring together" or "use alongside"
+- "align" / "aligning" → say "match" or "fit" or describe what matches what
+
+**HARD RULE — SELF-CHECK**: Before returning your response, scan it for EVERY word on this banned list. If ANY banned word appears, replace it. No exceptions. The user's audience will mentally check out the moment they see corporate language.
+
+**INSTEAD OF FORMAL, WRITE CONVERSATIONAL:**
+❌ "Your current approach to task decomposition shows a sophisticated understanding of varying AI engagement levels."
+✅ "You're already good at breaking work into pieces for AI — now let's make that even more effective."
+
+❌ "Implement a rigorous review process by establishing a checklist for evaluating each piece against your campaign's strategic goals."
+✅ "Create a quick checklist to review AI outputs before you use them — does it match your campaign goals? Does it sound like Twilio?"
+
+❌ "Enhance this by consistently framing your AI prompts with detailed background information."
+✅ "Give AI more context upfront — who's the audience? What's the goal? The more it knows, the better it writes."
+
+❌ "This will ensure consistent compliance across your GTM campaigns."
+✅ "This keeps your campaigns on track and avoids surprises."
+
+**TONE GUIDELINES:**
+- Write in second person ("you") — this is advice for THEM
+- Use contractions ("you're," "don't," "it's") — they sound human
+- Keep sentences short. Mix in some fragments. Like this.
+- Be direct without being cold. Helpful without being sycophantic.
+- It's okay to be a little casual, but stay professional. No slang, no emojis.
+- Imagine you're giving advice to a smart colleague over coffee, not presenting at a corporate training.
+
+**READ YOUR OUTPUT ALOUD**: If it sounds like a business document, rewrite it until it sounds like a person talking.
+
 TWILIO CONTEXT - Available AI Tools:
-- Google Gemini: Primary conversational AI tool. Features include multimodal input (text, images, PDFs), conversation history, Gems (custom AI assistants you can create and share)
+- Google Gemini: Primary conversational AI tool. Features include multimodal input (text, images, PDFs), conversation history (kept for 60 days then deleted — save anything you want to keep), Gems (custom AI assistants you can create and share)
 - NotebookLM: AI research assistant that grounds responses in uploaded documents. Great for analyzing multiple sources and creating study guides
 - ZoomAI: Meeting assistant integrated into Zoom. Captures meeting summaries, action items, and key highlights. Only mention when relevant to meetings/collaboration
 - LoomAI: Video message assistant. Auto-generates titles, chapters, summaries, and tasks from Loom videos. Only mention when relevant to async video communication
 - OpenAI API: Available for developers (not the webapp) to build custom solutions
 - Switchboard: Twilio's internal intranet - THE go-to resource for AI policies, privacy guidelines, approved tools, and best practices
+
+LLM REALITIES — WEAVE THESE IN WHEN RELEVANT (not on every recommendation — only when your advice touches a risk area):
+These are practical heads-ups, not scary disclaimers. Drop them in naturally like a colleague would.
+
+**Hallucination risk** — When your advice involves using AI for fact-heavy, data-dependent, or research tasks:
+- Work in a phrase like: "Double-check any numbers, dates, or citations AI gives you — it can sound confident and still be completely wrong."
+- Especially flag this for: financial data, customer-facing content, legal/compliance, technical specs, competitive intel
+- Tone: matter-of-fact, not alarming. It's just how LLMs work.
+
+**Context window degradation** — When your advice involves long conversations, large documents, or multi-step workflows:
+- Work in something like: "If your conversation gets really long, AI starts losing track of what you said earlier. Start a fresh chat when you switch topics, and re-paste the key context."
+- Also relevant when recommending conversation history: "Gemini keeps your conversations for 60 days — after that they're gone. Save anything you want to keep."
+
+**Lost-in-the-middle problem** — When your advice involves pasting large reference material, long briefs, or multi-source analysis:
+- Work in something like: "Put the most important info at the top and bottom of your prompt — AI pays less attention to stuff buried in the middle of long inputs."
+- Especially relevant for: document analysis, long prompts with multiple requirements, multi-source research
+
+**IMPORTANT**: Don't add ALL of these to every recommendation. Only include the one(s) that genuinely apply to the specific advice you're giving. If none apply, skip this entirely. These should feel like natural tips woven into your advice, NOT a separate "warnings" section.
 
 CRITICAL - Accuracy Requirements:
 - ONLY recommend features that actually exist in these tools - do NOT invent capabilities
@@ -1575,144 +1819,242 @@ We are POSITRONS:
 - Ask How You Can Help: Proactively offer help to teammates
 
 ASSESSMENT DIMENSIONS - Understand these precisely:
+IMPORTANT: Each dimension focuses on DIFFERENT skills. Use DIFFERENT deliverable examples for each dimension to avoid repetition across tabs. The example deliverables below are suggestions — pick the ones most relevant to the employee's role.
 
 1. DELEGATION (to AI systems):
    - How the user delegates tasks TO AI tools/LLMs (not to humans)
    - User's ability to break down problems and assign appropriate work to AI
    - Skill in determining what tasks AI can handle vs. what requires human judgment
    - Providing AI with clear scope, context, and boundaries for tasks
+   - EXAMPLE DELIVERABLES for delegation advice: task breakdowns, project scoping docs, workflow designs, process maps, automation specifications, brief templates. Focus on how they STRUCTURE work before handing it to AI.
    
 2. COMMUNICATION (with AI systems):
    - How the user communicates intent, quality expectations, and requirements TO AI systems
    - Crafting effective prompts that get high-quality outputs
    - Setting clear success criteria and constraints for AI-generated work
    - Iterating on prompts to refine AI understanding and outputs
+   - EXAMPLE DELIVERABLES for communication advice: prompt templates, style guides, quality rubrics, specification documents, creative briefs. Focus on how they INSTRUCT AI and set expectations.
    
 3. DISCERNMENT (of AI outputs):
    - User's ability to audit and evaluate AI-generated outputs
    - Providing high-quality feedback to AI tools/models/LLMs to improve results
    - Identifying hallucinations, errors, biases, or limitations in AI responses
    - Knowing when to trust AI output vs. when to verify or override
+   - EXAMPLE DELIVERABLES for discernment advice: review checklists, validation frameworks, audit logs, feedback protocols, quality benchmarks. Focus on how they EVALUATE and REFINE AI output.
    
 4. KEEPING IT TWILIO:
    - Risk management when using AI tools (data privacy, security, compliance)
    - Adhering to Twilio Magic Values while working with AI
    - Responsible AI use, bias awareness, and ethical considerations
-   - Ensuring AI usage aligns with company policies and values
+   - Aligning AI usage with company policies and values
+   - EXAMPLE DELIVERABLES for Keeping It Twilio advice: data handling protocols, team AI usage guidelines, compliance checklists, responsible use frameworks, values-aligned prompting guides. Focus on how they maintain SAFE and VALUES-ALIGNED AI use.
+
+CRITICAL: Do NOT reuse the same deliverable examples across multiple dimensions. Each tab should feel like it addresses a genuinely different aspect of AI literacy.
+
+ROLE-BASED PERSONALIZATION — CRITICAL:
+Your recommendations MUST feel like they were written specifically for this person's role, not a generic employee. Follow these rules:
+
+**By Career Track:**
+- Specialist/Professional (S/P track): Focus on personal craft, hands-on techniques, and how AI amplifies their individual expertise. Examples should reference their specific domain work.
+- Management (M track): Include BOTH personal AI use AND how to model/enable AI use for their teams. Mention how they can create team norms, share effective practices, and build psychological safety for AI experimentation.
+- Executive (E track): Focus on strategic leverage — how AI can accelerate their decision-making, synthesize information across their org, and how they can champion AI adoption. Keep tactical advice minimal; emphasize impact.
+
+**By Seniority Level:**
+- Early Career (S1-S2, P1-P2): Be encouraging and ultra-specific. Give "do exactly this" instructions, not abstract principles. Example: "Open Gemini, paste your draft email, and ask: 'Make this more concise and direct while keeping the key ask in the first sentence.'" Frame AI as a learning accelerator. ONE technique per tip — don't overwhelm.
+- Mid-Level (S3-S4, P3, M2-M3): They have domain expertise — show how AI amplifies it, don't teach them their job. Focus on building repeatable AI workflows they can reuse. Encourage them to document and share what works with peers. Push from occasional AI use toward systematic integration.
+- Senior (P4-P5, M4-M5): ASSUME COMPETENCE. They know their domain — don't explain it to them. Push toward SYSTEMATIZING and SCALING AI practices. Focus on: creating reusable templates others adopt, establishing AI-augmented workflows for recurring high-stakes deliverables, and multiplying their impact through AI leverage. They should be building the playbook, not following one.
+  **BANNED WORDS for Senior+**: NEVER use "consider", "ensure", "enhance", "try", "experiment with", "explore", "you might want to", "think about". These sound tentative and patronizing at this level.
+  **REQUIRED VERBS for Senior+**: Use imperative, decisive language: "standardize", "establish", "build", "require", "mandate", "implement", "create", "define", "codify", "scale", "systematize".
+- Leadership/Executive (P6-P7, M6, E7-E8): Skip warm-up framing entirely — go straight to strategic insight with organizational leverage. No hand-holding, no basic tips. Focus on: AI-augmented decision-making at scale, signaling AI adoption priorities to their org, and identifying where AI creates asymmetric advantage. Every recommendation should connect to org-level outcomes.
+  **BANNED WORDS also apply to Leadership/Executive** — plus additionally ban: "you could", "it may be helpful", "one approach is". Use commanding voice: "Implement", "Mandate", "Signal", "Establish", "Require".
+
+**By Department — reference SPECIFIC deliverables, not generic task types:**
+- Engineering: Pull request descriptions, code review comments, incident postmortems, architecture decision records (ADRs), runbook documentation, API reference docs, sprint demo write-ups
+- Product: PRDs, product one-pagers, user story acceptance criteria, competitive landscape briefs, sprint retro syntheses, feature prioritization frameworks, stakeholder update decks
+- Sales: Discovery call prep sheets, mutual action plans, champion letters, deal risk assessments, account plans, proposal executive summaries, pipeline review narratives, win/loss analyses
+- Customer Success: QBR decks, account health scorecards, renewal risk assessments, executive business reviews, onboarding playbooks, expansion opportunity briefs, customer communication cadences
+- Support: Ticket response templates, knowledge base articles, escalation summaries, bug reproduction steps, trend analysis reports, customer-facing release notes, troubleshooting decision trees
+- Marketing: Positioning docs, competitive battle cards, launch briefs, campaign post-mortems, messaging matrices, audience persona documents, content calendars, analyst briefing prep
+- Operations: Process runbooks, workflow documentation, SOP updates, capacity planning models, vendor evaluation matrices, cross-functional project briefs, operational review decks
+- Finance: Board financial packages, budget variance analyses, forecast models, audit prep documentation, spend analysis reports, ROI business cases, financial review presentations
+- HR / People: Job descriptions, compensation band analyses, engagement survey syntheses, policy update communications, interview rubrics, performance calibration prep docs, org design proposals
+- Legal: Contract redline summaries, compliance audit checklists, policy gap analyses, regulatory change assessments, vendor agreement reviews, privacy impact assessments
+- Executive: Board decks, strategic planning documents, org-wide communications, market intelligence briefs, M&A due diligence syntheses, quarterly business reviews, investor narratives
+
+**The employee's profile is provided in the user message. Reference their specific title, team, and level in your response — make it unmistakable that this advice is for THEM, not anyone else.**
 
 FEEDBACK GUIDANCE:
 - CRITICAL: All four dimensions are about the USER'S RELATIONSHIP WITH AI SYSTEMS, not about managing people
 - Never give feedback about delegating to team members or communicating with humans - it's ALL about AI interaction
 - When discussing multi-modal capabilities, focus on Gemini's ability to understand various modalities more than its ability to generate multiple modalities
-- When giving feedback to Leaders/Managers, emphasize strategies that focus on Twilio's leadership expectations: Build Trust, Grow Together, Solve Impactful Problems, Lead Change, Think Long Term
-- When referencing Twilio's Leadership Expectations to Leaders, specifically call it "Twilio's Leadership Expectations"
+- When giving feedback, emphasize strategies that focus on personal growth and impact: Build Trust, Grow Together, Solve Impactful Problems, Lead Change, Think Long Term
 - Connect AI literacy skills to relevant Twilio Magic Values principles (e.g., effective prompting = "Write it Down", experimentation = "Learn Cheap Lessons", AI transparency = "No Shenanigans")
 - Stay LASER FOCUSED on the specific dimension being assessed - don't drift into other topics
-- **CONTEXTUAL JUDGMENT**: When users select multiple options, recognize this as SOPHISTICATED - they understand AI use is situational. Frame advice as "expand your toolkit" not "always use the most advanced method." Celebrate right-sizing AI to the task (simple prompts for simple tasks, advanced techniques for complex problems).
+- **CONTEXTUAL JUDGMENT**: When users select multiple options, recognize this as SOPHISTICATED - they understand AI use is situational. Frame advice as "expand your toolkit" not "always use the most advanced method." Right-size AI to the task.
 - **AVOID ONE-SIZE-FITS-ALL**: Don't imply users should always operate at the highest maturity level. Sometimes "Compliant" approaches are perfectly appropriate. Help users build judgment about WHEN to use different approaches.
 
-AVAILABLE AI TOOLS FOR TIPS SECTION:
-- Gemini: Available to all - multimodal input, Gems, conversation history
-- NotebookLM: Available to all - document analysis, source grounding, study guides
-- ZoomAI: Available to all - meeting summaries, action items, highlights
-- LoomAI: Available to all - video titles, chapters, summaries from Loom videos
-- FigmaAI: Available to Design team - AI features in Figma
-- LinkedInAI: Available to Talent acquisition team - LinkedIn Recruiter AI features
-- LucidAI: Available to relevant teams - Lucidchart/Lucidspark AI features
-- ZoomInfoAI: Available to Sales team - ZoomInfo Copilot features
-- JarvisAI: Available to Sales team - Jarvis AI sales assistant features
+WRITING DENSITY — NON-NEGOTIABLE:
+- **Every sentence must earn its place.** Each sentence must either: (a) identify a specific gap in their responses, (b) provide a concrete action they can take, or (c) connect to a measurable outcome in their role. If a sentence does none of these, DELETE IT.
+- **BANNED PHRASES** — never use these or anything similar: "This is a great foundation", "You're already on the right track", "It's clear that you", "You're doing well with", "This shows that you", "Keep up the good work", "You've demonstrated". These waste tokens and add zero value.
+- **Lead with the growth insight, not the compliment.** Your FIRST sentence must name the specific skill gap or growth opportunity. If you want to acknowledge a strength, weave it into advice: "Your habit of [strength] gives you the base to now [growth action]" — never as a standalone praise paragraph.
+- **Quick Wins must follow this pattern**: "Instead of [current habit from their responses], [specific new approach] on your next [specific deliverable for their role]." Every Quick Win needs a concrete BEFORE → AFTER contrast.
+- **Be an expert coach, not a cheerleader.** Imagine you're an expensive consultant they hired for 15 minutes — make every word count. Directness IS kindness.
+- **NEVER end with a summary or motivational sentence.** Your LAST sentence must be your last piece of actionable advice or your last concrete tip — NOT a restatement like "By doing this, you'll elevate your impact" or "These changes will help you grow." If your final sentence doesn't contain a specific action, delete it.
+- **NEVER start a sentence with "By enhancing", "By doing this", "By implementing", "This will help you", or "These changes will".** These are summary filler. End on the advice itself.
+
+AI TOOL SELECTION — STRICT RULES:
+
+**UNIVERSAL TOOLS (available to all employees):**
+- Gemini: Multimodal input, Gems (custom assistants), conversation history (60-day retention — remind users to save important chats)
+- NotebookLM: Document analysis, source grounding, study guides
+
+**ROLE-SPECIFIC TOOLS (ONLY for exact team matches):**
+- FigmaAI: ONLY for Design team employees
+- LinkedInAI: ONLY for Talent Acquisition team (NOT hiring managers, NOT general HR)
+- ZoomInfoAI: ONLY for Sales team employees
+- JarvisAI: ONLY for Sales team employees
+- LucidAI: ONLY for teams that regularly use Lucidchart/Lucidspark (typically Product, Engineering, Operations)
+
+**MEETING/VIDEO TOOLS (use sparingly):**
+- ZoomAI: ONLY recommend if the dimension being assessed is directly meeting-related AND the employee's work involves heavy meeting load
+- LoomAI: ONLY recommend if the employee creates async video content as a core part of their role
+
+**TOOL SELECTION DECISION TREE — FOLLOW THIS EXACTLY:**
+1. Start with Gemini + NotebookLM as your default picks
+2. Check employee's Team/Department against role-specific tools above
+3. If their team EXACTLY matches a role-specific tool (e.g., team="Sales" → ZoomInfoAI eligible), you MAY swap ONE universal tool for the role-specific one
+4. If their team does NOT match any role-specific tool, stick with Gemini + NotebookLM
+5. NEVER recommend FigmaAI to non-Design teams. NEVER recommend ZoomInfoAI/JarvisAI to non-Sales teams. NEVER recommend LinkedInAI to anyone outside Talent Acquisition.
+6. HR/People team does NOT qualify for LinkedInAI unless their sub-department is specifically "Talent Acquisition"
+7. If the employee already uses Gemini (from their tools list), suggest an ADVANCED Gemini feature they likely haven't tried (e.g., creating a Gem, multimodal input with images/PDFs)
+
+Total tools per recommendation: EXACTLY 2. No more, no exceptions.
 
 RECOMMENDATION STRUCTURE:
 ### What to Focus On
-2-3 concise paragraphs covering:
-- The specific skill they need to develop for THIS dimension only
-- Clear, actionable steps they can take immediately
-- How this will improve their effectiveness with AI
-- One key pitfall to avoid at their level
+EXACTLY 2 paragraphs. Each paragraph: 3-4 sentences MAX. Hard limits.
+
+**Paragraph 1:** Open with the specific skill gap for THIS dimension. Name what's missing. Then give ONE concrete technique to close the gap, grounded in their role. Reference their work focus or a specific deliverable they produce.
+
+**Paragraph 2:** Provide a second technique or system to build. End with ONE specific pitfall to avoid (the "watch out"), tied to something they actually indicated in their responses.
+
+NO third paragraph. NO validation paragraphs. NO closing summary sentences.
 
 ### Quick Wins
-- 2-3 concrete actions they can take this week
-- Simple practices to build into their workflow
-- Low-effort, high-impact improvements
+EXACTLY 3 bullets. Each bullet MUST follow this pattern:
+"Instead of [their current approach from their responses], [specific new technique] on your next [specific deliverable for their role]."
+
+- Bullet 1: A technique they can apply to their PRIMARY work focus (if provided) or main deliverable type
+- Bullet 2: A workflow or system change
+- Bullet 3: For managers → a team practice to establish. For ICs → a personal habit to build.
+
+NO generic bullets. Every bullet must name a real deliverable.
 
 ### Tips for Using AI Tools
-- Select 2-4 tools from the available list that are MOST RELEVANT to their role and the dimension
-- Prioritize Gemini and NotebookLM (available to all) as primary recommendations
-- Only include role-specific tools (FigmaAI, LinkedInAI, LucidAI, ZoomInfoAI) if they match the user's team
-- Only include ZoomAI/LoomAI if relevant to their work (meetings, video communication)
-- For each tool, provide specific, real features that exist today - no invented capabilities
-- Show HOW to use these features for the specific dimension being assessed
+EXACTLY 2 tools. EXACTLY 2 bullets.
+
+For each tool:
+- Name the SPECIFIC feature
+- Give an executable recipe with a real deliverable from their role
+- Example format: "**Gemini → Gem Creation**: Create a Gem called '[Name]' with instructions: '[exact prompt]'. Use it when [specific workflow in their role]."
+- **CONVERSATION HISTORY RULE**: Any time you mention Gemini's conversation history, you MUST include the 60-day retention note. Example: "...pick up where you left off in Gemini (your conversations are kept for 60 days, so save anything you want to keep long-term)."
+
+NO generic tips. If you can't name a specific feature and a real deliverable, don't include the tool.
 
 FORMATTING RULES:
 - Use ### for section titles (What to Focus On, Quick Wins, Tips for Using AI Tools)
-- Use **bold** for key concepts within paragraphs
-- Use - for bullet lists
-- Keep it conversational and encouraging
+- Use **bold** for tool names and ONE key concept per paragraph — no more
+- Use - for bullet lists in Quick Wins and Tips sections
+- Tone: Direct, expert, warm but not sycophantic. No cheerleading. No validation fluff.
 - Stay tightly focused on the ONE dimension being assessed
-- Total: 350-450 words`;
+- Total: 250-300 words. Hard cap. Count your words. If over 300, delete sentences until you're under.`;
     
-    try {
-        // Call Windmill backend instead of OpenAI directly
-        const response = await fetch(CONFIG.WINDMILL_ENDPOINT, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${CONFIG.WINDMILL_TOKEN}`
-            },
-            body: JSON.stringify({
-                rapid_openai: "$res:u/VinceDeFreitas/rapid_openai", // Windmill resource reference
-                messages: [
-                    {
-                        role: 'system',
-                        content: systemMessage
-                    },
-                    {
-                        role: 'user',
-                        content: prompt
-                    }
-                ],
-                model: CONFIG.OPENAI_MODEL,
-                max_tokens: CONFIG.OPENAI_MAX_TOKENS,
-                temperature: CONFIG.OPENAI_TEMPERATURE
-            })
-        });
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Windmill API error:', errorText);
-            throw new Error(`Windmill API error: ${response.status}`);
+    // API call with retry logic (prevents transient failures from killing the recommendation)
+    const MAX_RETRIES = 2;
+    const requestBody = JSON.stringify({
+        rapid_openai: "$res:u/VinceDeFreitas/rapid_openai",
+        messages: [
+            { role: 'system', content: systemMessage },
+            { role: 'user', content: prompt }
+        ],
+        model: CONFIG.OPENAI_MODEL,
+        max_tokens: CONFIG.OPENAI_MAX_TOKENS,
+        temperature: CONFIG.OPENAI_TEMPERATURE
+    });
+    
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+        try {
+            if (attempt > 0) {
+                console.log(`[AI Rec] Retry ${attempt}/${MAX_RETRIES} for ${category}...`);
+                await sleep(2000 * attempt);
+            }
+            
+            console.log(`[AI Rec] Calling Windmill for ${category} (attempt ${attempt + 1}/${MAX_RETRIES + 1})...`);
+            const response = await fetch(CONFIG.WINDMILL_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${CONFIG.WINDMILL_TOKEN}`
+                },
+                body: requestBody
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`[AI Rec] Windmill API ${response.status} for ${category}:`, errorText.substring(0, 200));
+                if (attempt < MAX_RETRIES) continue;
+                throw new Error(`Windmill API error: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log(`[AI Rec] Windmill response for ${category}:`, { success: data.success, hasResponse: !!data.response, hasContent: !!data.content, hasError: !!data.error });
+            
+            // Handle Windmill response format from Python script
+            let recommendationText;
+            if (data.success && data.response) {
+                // Python script returns data.response (not data.content)
+                recommendationText = data.response;
+            } else if (data.success && data.content) {
+                // Legacy format fallback
+                recommendationText = data.content;
+            } else if (data.choices && data.choices[0]) {
+                // If using OpenAI's native format
+                recommendationText = data.choices[0].message.content;
+            } else if (data.error) {
+                console.error(`[AI Rec] Windmill returned error for ${category}:`, data.error);
+                if (attempt < MAX_RETRIES) continue;
+                throw new Error(`Windmill error: ${data.error}`);
+            } else {
+                console.error(`[AI Rec] Unexpected response format for ${category}:`, JSON.stringify(data).substring(0, 300));
+                if (attempt < MAX_RETRIES) continue;
+                throw new Error('Unexpected response format from Windmill');
+            }
+            
+            // Check if the AI returned an error message instead of a recommendation
+            if (recommendationText.includes("essential information is missing") || 
+                recommendationText.includes("Could you please provide")) {
+                console.warn(`[AI Rec] AI returned error message for ${category}`);
+                if (attempt < MAX_RETRIES) continue;
+                const staticRecs = generateRecommendations(scores);
+                return staticRecs.find(r => r.category === category);
+            }
+            
+            console.log(`[AI Rec] ✅ Successfully generated AI recommendation for ${category} (${recommendationText.length} chars)`);
+            return {
+                category: category,
+                maturity: maturity,
+                text: recommendationText
+            };
+            
+        } catch (error) {
+            console.error(`[AI Rec] Attempt ${attempt + 1} failed for ${category}:`, error.message);
+            if (attempt < MAX_RETRIES) continue;
+            
+            // All retries exhausted - return static fallback
+            console.error(`[AI Rec] ❌ All ${MAX_RETRIES + 1} attempts failed for ${category}, using static fallback`);
+            const staticRecs = generateRecommendations(scores);
+            return staticRecs.find(r => r.category === category);
         }
-        
-        const data = await response.json();
-        
-        // Handle Windmill response format from Python script
-        let recommendationText;
-        if (data.success && data.response) {
-            // Python script returns data.response (not data.content)
-            recommendationText = data.response;
-        } else if (data.success && data.content) {
-            // Legacy format fallback
-            recommendationText = data.content;
-        } else if (data.choices && data.choices[0]) {
-            // If using OpenAI's native format
-            recommendationText = data.choices[0].message.content;
-        } else if (data.error) {
-            throw new Error(`Windmill error: ${data.error}`);
-        } else {
-            throw new Error('Unexpected response format from Windmill');
-        }
-        
-        
-        return {
-            category: category,
-            maturity: maturity,
-            text: recommendationText
-        };
-    } catch (error) {
-        console.error(`Error generating recommendation for ${category}:`, error);
-        // Return static fallback
-        const staticRecs = generateRecommendations(scores);
-        return staticRecs.find(r => r.category === category);
     }
 }
 
@@ -1870,8 +2212,12 @@ async function logAssessmentResponse(scores) {
             
             // User demographics (no personally identifiable information)
             team: state.userContext.team,
+            subDepartment: state.userContext.subDepartment || '',
             jobTitle: state.userContext.jobTitle,
             jobLevel: state.userContext.jobLevel,
+            aiFrequency: state.userContext.aiFrequency || '',
+            aiToolsUsed: state.userContext.aiToolsUsed || [],
+            workFocus: state.userContext.workFocus || '',
             
             // Assessment scores
             overallScore: scores.overall,
@@ -1940,8 +2286,10 @@ async function submitAssessment() {
     showScreen('results-screen');
     renderResults(scores, null); // null = show buttons, not loading
     
-    // Clear progress after completion
-    clearProgress();
+    // Only clear localStorage saved progress — do NOT wipe state.answers
+    // because the async recommendation generation still needs the answer data.
+    // Full state reset (including state.answers) happens in restartAssessment().
+    localStorage.removeItem('assessmentProgress');
 }
 
 /**
@@ -2093,7 +2441,7 @@ function renderResults(scores, recommendations) {
     tabsContainer.appendChild(tabsContent);
     combinedResultsEl.appendChild(tabsContainer);
     
-    // Add tab switching functionality with auto-generation
+    // Simple async function for generating a single tab's recommendation
     async function generateRecommendationForTab(category, tabPanel) {
         // Check if already generated
         if (tabPanel.dataset.generated === 'true') {
@@ -2101,6 +2449,10 @@ function renderResults(scores, recommendations) {
         }
         
         const recContainer = document.getElementById(`rec-${category}`);
+        if (!recContainer) {
+            console.error(`[AI Rec] Container not found for category: ${category}`);
+            return;
+        }
         
         // Show loading state
         recContainer.innerHTML = `
@@ -2110,20 +2462,33 @@ function renderResults(scores, recommendations) {
             </div>
         `;
         
-        // Generate recommendation
         try {
+            console.log(`[AI Rec] Starting generation for ${category}...`);
             const recommendation = await generateSingleRecommendation(category, scores);
-            recContainer.innerHTML = `<div class="recommendation-content">${markdownToHtml(recommendation.text)}</div>`;
+            if (recommendation && recommendation.text) {
+                const isAI = recommendation.text.length > 200;
+                console.log(`[AI Rec] ${category} complete (${isAI ? 'AI' : 'STATIC'}, ${recommendation.text.length} chars)`);
+                recContainer.innerHTML = `<div class="recommendation-content">${markdownToHtml(recommendation.text)}</div>`;
+            } else {
+                console.warn(`[AI Rec] No recommendation returned for ${category}, using static`);
+                const staticRecs = generateRecommendations(scores);
+                const staticRec = staticRecs.find(r => r.category === category);
+                recContainer.innerHTML = `<div class="recommendation-content">${markdownToHtml(staticRec ? staticRec.text : 'Unable to generate recommendation.')}</div>`;
+            }
             tabPanel.dataset.generated = 'true';
         } catch (error) {
-            console.error(`Error generating recommendation for ${category}:`, error);
-            const staticRecs = generateRecommendations(scores);
-            const staticRec = staticRecs.find(r => r.category === category);
-            recContainer.innerHTML = `<div class="recommendation-content">${markdownToHtml(staticRec.text)}</div>`;
+            console.error(`[AI Rec] Unhandled error for ${category}:`, error);
+            try {
+                const staticRecs = generateRecommendations(scores);
+                const staticRec = staticRecs.find(r => r.category === category);
+                recContainer.innerHTML = `<div class="recommendation-content">${markdownToHtml(staticRec ? staticRec.text : 'Unable to generate recommendation.')}</div>`;
+            } catch (fallbackError) {
+                console.error(`[AI Rec] Even static fallback failed for ${category}:`, fallbackError);
+                recContainer.innerHTML = `<div class="recommendation-content"><p>Unable to generate recommendation. Please try restarting the assessment.</p></div>`;
+            }
             tabPanel.dataset.generated = 'true';
         }
         
-        // Check if all recommendations are generated
         checkAllRecommendationsGenerated();
     }
     
@@ -2155,19 +2520,30 @@ function renderResults(scores, recommendations) {
             const activePanel = document.querySelector(`.tab-panel[data-category="${category}"]`);
             activePanel.classList.add('active');
             
-            // Scroll to top of results screen to show feedback and recommendations
-            // Works on both mobile and desktop
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Scroll to the tabs area so user stays in context
+            const tabsContainer = document.querySelector('.tabs-container');
+            if (tabsContainer) {
+                tabsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
             
-            // Auto-generate recommendation for this tab if not already generated
+            // Generate recommendation for this tab if not already done
+            // (should already be generated from the sequential loop below, but just in case)
             await generateRecommendationForTab(category, activePanel);
         });
     });
     
-    // Auto-generate the first tab's recommendation on page load
-    const firstCategory = state.categories[0].name;
-    const firstPanel = document.querySelector(`.tab-panel[data-category="${firstCategory}"]`);
-    generateRecommendationForTab(firstCategory, firstPanel);
+    // Auto-generate ALL tabs sequentially on page load
+    // Sequential (not parallel) to avoid overwhelming the Windmill API
+    (async function generateAllTabs() {
+        console.log('[AI Rec] Starting sequential generation of all tabs...');
+        for (const category of state.categories) {
+            const panel = document.querySelector(`.tab-panel[data-category="${category.name}"]`);
+            if (panel && panel.dataset.generated !== 'true') {
+                await generateRecommendationForTab(category.name, panel);
+            }
+        }
+        console.log('[AI Rec] All tabs generation complete.');
+    })();
     
     // Next button to navigate between tabs
     document.getElementById('next-tab-btn').addEventListener('click', function() {
