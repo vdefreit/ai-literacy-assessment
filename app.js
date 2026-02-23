@@ -491,6 +491,12 @@ function init() {
     // "None" checkbox mutual exclusion for AI tools
     initAiToolsCheckboxes();
     
+    // About accordion toggle
+    initAboutAccordion();
+    
+    // Methodology modal
+    initMethodologyModal();
+    
     // Dark mode toggle
     initThemeToggle();
     
@@ -553,6 +559,64 @@ function clearProgress() {
     state.currentQuestionIndex = 0;
     state.currentSection = 0;
     state.answers = {};
+}
+
+/**
+ * About This Assessment Accordion
+ * Toggles the expandable section on the welcome page
+ */
+function initAboutAccordion() {
+    const toggle = document.getElementById('about-toggle');
+    const content = document.getElementById('about-content');
+    if (!toggle || !content) return;
+    
+    toggle.addEventListener('click', function() {
+        const isExpanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', !isExpanded);
+        if (isExpanded) {
+            content.hidden = true;
+        } else {
+            content.hidden = false;
+        }
+    });
+}
+
+/**
+ * Methodology Modal
+ * Opens/closes the full methodology modal on the results page
+ */
+function initMethodologyModal() {
+    const modal = document.getElementById('methodology-modal');
+    const openBtn = document.getElementById('open-methodology-btn');
+    const closeBtn = document.getElementById('close-methodology-btn');
+    const backdrop = document.getElementById('methodology-backdrop');
+    
+    if (!modal) return;
+    
+    function openModal() {
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+        // Focus the close button for accessibility
+        setTimeout(() => closeBtn && closeBtn.focus(), 100);
+    }
+    
+    function closeModal() {
+        modal.hidden = true;
+        document.body.style.overflow = '';
+        // Return focus to the trigger
+        if (openBtn) openBtn.focus();
+    }
+    
+    if (openBtn) openBtn.addEventListener('click', openModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (backdrop) backdrop.addEventListener('click', closeModal);
+    
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !modal.hidden) {
+            closeModal();
+        }
+    });
 }
 
 /**
