@@ -168,35 +168,6 @@ const dummyQuestions = [
         ],
         weight: 1.0
     },
-    {
-        id: 'q3',
-        text: 'Understanding the problem: When working with AI tools and systems...',
-        category: 'Delegation',
-        type: 'maturity',
-        options: [
-            { 
-                value: 1, 
-                label: 'Not Started',
-                description: 'I don\'t usually share much context and go straight to prompting'
-            },
-            { 
-                value: 2, 
-                label: 'Compliant',
-                description: 'I provide context relevant to the output I\'m trying to generate in my starting prompt'
-            },
-            { 
-                value: 3, 
-                label: 'Competent',
-                description: 'I include context about what I\'m working on and why in my starting prompt'
-            },
-            { 
-                value: 4, 
-                label: 'Creative',
-                description: 'I share substantial context about my project and its audience before my initial directive prompt to create an output'
-            }
-        ],
-        weight: 1.0
-    },
     // Section 2: Communication & Clarity
     {
         id: 'q4',
